@@ -16,6 +16,9 @@ trait Embed[O[_]] {
 }
 
 object Embed {
+
+  def apply[O[_]](implicit ev: Embed[O]): Embed[O] = ev
+
   type Aux[O[_], I] = Embed[O] {
     type Inn = I
   }
@@ -32,6 +35,9 @@ trait Project[O[_]] {
 }
 
 object Project {
+
+  def apply[O[_]](implicit ev: Project[O]): Project[O] = ev
+
   type Aux[O[_], I] = Project[O] {
     type Inn = I
   }
@@ -44,7 +50,10 @@ trait Pattern[O[_]] extends Embed[O] with Project[O] {
   override type Out[A] = O[A]
 }
 
-object Pattern {
+object Pattern extends PatternInstances0 {
+
+  def apply[O[_]](implicit ev: Pattern[O]): Pattern[O] = ev
+
   type Aux[O[_], I] = Pattern[O] {
     type Inn = I
   }
@@ -58,11 +67,16 @@ object Pattern {
     val project = project0
   }
 
-  implicit def patternForF[F[_]]: Aux[F, Fix[F]] =
-    instance(Fix.fix, Fix.unfix)
+}
 
+private[typeclass] sealed trait PatternInstances0 extends PatternInstances1 { self: Pattern.type =>
   implicit def patternForEnvT[F[_], A]: Aux[EnvT[F, A, ?], Cofree[F, A]] =
     instance(
       fa => Cofree(fa.ask, Eval.now(fa.lower)),
       a  => EnvT(a.head, a.tail.value))
+
+}
+private[typeclass] sealed trait PatternInstances1 { self: Pattern.type =>
+  implicit def patternForF[F[_]]: Aux[F, Fix[F]] =
+    instance(Fix.fix, Fix.unfix)
 }
