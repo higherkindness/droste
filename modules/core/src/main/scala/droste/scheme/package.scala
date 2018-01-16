@@ -31,7 +31,7 @@ object `package` {
       unfold: CoalgebraM[M, F, A]
     )
       : A => M[B] =
-    hylo[λ[α => M[F[α]]], A, M[B]](
+    hylo[(M ∘ F)#λ, A, M[B]](
       _.flatMap(_.sequence.flatMap(fold)),
       unfold)(Functor[M] compose Functor[F])
 
@@ -54,6 +54,14 @@ object `package` {
       : A => B.Inn =
     hylo(B.embed, unfold)
 
+  def ana[A, Base[_]](a: A)
+    (
+      unfold: Coalgebra[Base, A]
+    )
+    (implicit ev: Functor[Base], B: Embed[Base])
+      : B.Inn =
+    ana[A, Base](unfold).apply(a)
+
 
   def cata[A, Base[_]]
     (
@@ -62,5 +70,13 @@ object `package` {
     (implicit ev: Functor[Base], B: Project[Base])
       : B.Inn => A =
     hylo(fold, B.project)
+
+  def cata[A, Base[_], B](b: B)
+    (
+      fold  : Algebra[Base, A]
+    )
+    (implicit ev: Functor[Base], B: Project.Aux[Base, B])
+      : A =
+    cata[A, Base](fold).apply(b)
 
 }

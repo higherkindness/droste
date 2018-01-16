@@ -5,8 +5,8 @@ lazy val root = (project in file("."))
 
 lazy val core = module("core")
   .settings(libraryDependencies ++= Seq(
-    "org.typelevel" %%% "cats-core" % "1.0.0-RC1",
-    "org.typelevel" %%% "cats-free" % "1.0.0-RC1"))
+    "org.typelevel" %%% "cats-core"   % "1.0.1",
+    "org.typelevel" %%% "cats-free"   % "1.0.1"))
 
 lazy val coreJVM = core.jvm
 lazy val coreJS  = core.js

@@ -9,7 +9,7 @@ import cats.Functor
 import org.scalacheck.Properties
 import org.scalacheck.Prop._
 
-class SchemeTests extends Properties("scheme") {
+class SchemaChecks extends Properties("scheme") {
 
   sealed trait ListF[+A, +B]
   case class ConsF[A, B](head: A, tail: B) extends ListF[A, B]

@@ -1,6 +1,10 @@
 package droste
 package data
 
+import cats.~>
+import cats.Id
+import alias._
+
 sealed trait FixDecl {
   type Fix[F[_]]
   @inline final def apply[F[_]](f: F[Fix.Fix[F]]): Fix[F] = fix(f)
@@ -15,4 +19,12 @@ object `package` {
     def fix[F[_]](f: F[Fix.Fix[F]]): Fix[F] = f
     def unfix[F[_]](f: Fix[F]): F[Fix.Fix[F]] = f
   }
+
+  // Nu/Mu WIP
+
+  // data Mu f = Mu (forall x . (f x -> x) -> x)
+  type Mu[F[_]] = Algebra[F, ?] ~> Id
+
+  // data Nu g = forall s . Nu (s -> g s) s
+  type Nu[F[_]] = (Coalgebra[F, A], A) forSome { type A }
 }
