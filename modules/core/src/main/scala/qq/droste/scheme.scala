@@ -9,10 +9,13 @@ import cats.syntax.functor._
 import cats.syntax.flatMap._
 import cats.syntax.traverse._
 
+import cats.instances.either._
+import cats.instances.tuple._
+
 import data._
 import syntax._
 
-object `package` {
+object `package` extends PackagePrivate {
 
   // note:
   // All core morphisms are defined in an algebra centric manner.
@@ -42,6 +45,16 @@ object `package` {
       def apply(a: A): B = algebra(coalgebra(a).map(this))
     }
 
+  /** Builds a hylomorphism the functor `(F ∘ G)`.
+    *
+    * This is strictly for convenience and just delegates
+    * to `hylo` with the types set properly.
+    */
+  @inline def hyloC[F[_]: Functor, G[_]: Functor, A, B](
+    algebra: Algebra[(F ∘ G)#λ, B],
+    coalgebra: Coalgebra[(F ∘ G)#λ, A]
+  ): A => B = hylo[(F ∘ G)#λ, A, B](algebra, coalgebra)
+
   /** Build a monadic hylomorphism
     *
     * <pre>
@@ -66,30 +79,54 @@ object `package` {
     algebraM: AlgebraM[M, F, B],
     coalgebraM: CoalgebraM[M, F, A]
   ): A => M[B] =
-    hylo[(M ∘ F)#λ, A, M[B]](
+    hyloC[M, F, A, M[B]](
       _.flatMap(_.sequence.flatMap(algebraM)),
-      coalgebraM
-    )(Functor[M] compose Functor[F])
+      coalgebraM)
 
   def ana[F[_]: Functor, A, R](
     coalgebra: Coalgebra[F, A],
   )(implicit iso: AlgebraIso[F, R]): A => R =
-    hylo(iso.algebra, coalgebra)
-
-  def anaM[M[_]: Monad, F[_]: Traverse, A, R](
-    coalgebraM: CoalgebraM[M, F, A],
-  )(implicit iso: AlgebraIso[F, R]): A => M[R] =
-    hyloM(iso.algebra.lift[M], coalgebraM)
+    hylo(
+      iso.algebra,
+      coalgebra)
 
   def cata[F[_]: Functor, B, R](
     algebra: Algebra[F, B],
   )(implicit iso: AlgebraIso[F, R]): R => B =
-    hylo(algebra, iso.coalgebra)
+    hylo(
+      algebra,
+      iso.coalgebra)
+
+
+  def anaM[M[_]: Monad, F[_]: Traverse, A, R](
+    coalgebraM: CoalgebraM[M, F, A],
+  )(implicit iso: AlgebraIso[F, R]): A => M[R] =
+    hyloM(
+      iso.algebra.lift[M],
+      coalgebraM)
 
   def cataM[M[_]: Monad, F[_]: Traverse, R, B](
     algebraM: AlgebraM[M, F, B]
   )(implicit iso: AlgebraIso[F, R]): R => M[B] =
-    hyloM(algebraM, iso.coalgebra.lift[M])
+    hyloM(
+      algebraM,
+      iso.coalgebra.lift[M])
+
+
+  def apo[F[_]: Functor, A, R](
+    rcoalgebra: RCoalgebra[R, F, A],
+  )(implicit iso: AlgebraIso[F, R]): A => R =
+    hyloC(
+      iso.algebra.compose((frr: F[(R | R)]) => frr.map(_.merge)),
+      rcoalgebra)
+
+  def para[F[_]: Functor, R, B](
+    ralgebra: RAlgebra[R, F, B],
+  )(implicit iso: AlgebraIso[F, R]): R => B =
+    hyloC(
+      ralgebra,
+      iso.coalgebra.andThen(_.map(r => (r, r))))
+
 }
 
 final case class AlgebraIso[F[_], R](
@@ -106,4 +143,11 @@ private[droste] sealed trait AlgebraIsoInstances0 extends AlgebraIsoInstances1 {
 private[droste] sealed trait AlgebraIsoInstances1 {
   implicit def fix[F[_]]: AlgebraIso[F, Fix[F]] =
     AlgebraIso[F, Fix[F]](Fix.algebra, Fix.coalgebra)
+}
+
+
+private[scheme] sealed trait PackagePrivate {
+  private[scheme] implicit def composedFunctor[F[_], G[_]](
+    implicit F: Functor[F], G: Functor[G]
+  ): Functor[(F ∘ G)#λ] = F compose G
 }
