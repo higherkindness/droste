@@ -8,5 +8,4 @@ object `package` {
   type AlgebraM  [M[_], F[_], A   ] = F[A]    =>   M[A]
   type CoalgebraM[M[_], F[_], A   ] = A       => M[F[A]]
 
-  type ∘[F[_], G[_]] = { type λ[α] = F[G[α]] }
 }

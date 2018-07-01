@@ -9,6 +9,9 @@ import cats.syntax.functor._
 import cats.syntax.flatMap._
 import cats.syntax.traverse._
 
+import data._
+import syntax._
+
 object `package` {
 
   // note:
@@ -33,4 +36,39 @@ object `package` {
       coalgebraM
     )(Functor[M] compose Functor[F])
 
+  def ana[F[_]: Functor, A, R](
+    coalgebra: Coalgebra[F, A],
+  )(implicit iso: AlgebraIso[F, R]): A => R =
+    hylo(iso.algebra, coalgebra)
+
+  def anaM[M[_]: Monad, F[_]: Traverse, A, R](
+    coalgebraM: CoalgebraM[M, F, A],
+  )(implicit iso: AlgebraIso[F, R]): A => M[R] =
+    hyloM(iso.algebra.lift[M], coalgebraM)
+
+  def cata[F[_]: Functor, B, R](
+    algebra: Algebra[F, B],
+  )(implicit iso: AlgebraIso[F, R]): R => B =
+    hylo(algebra, iso.coalgebra)
+
+  def cataM[M[_]: Monad, F[_]: Traverse, R, B](
+    algebraM: AlgebraM[M, F, B]
+  )(implicit iso: AlgebraIso[F, R]): R => M[B] =
+    hyloM(algebraM, iso.coalgebra.lift[M])
+}
+
+final case class AlgebraIso[F[_], R](
+  algebra: Algebra[F, R],
+  coalgebra: Coalgebra[F, R])
+
+object AlgebraIso extends AlgebraIsoInstances0
+
+sealed trait AlgebraIsoInstances0 extends AlgebraIsoInstances1 {
+  implicit def cofree[F[_], E]: AlgebraIso[EnvT[E, F, ?], Cofree[F, E]] =
+    AlgebraIso[EnvT[E, F, ?], Cofree[F, E]](Cofree.algebra, Cofree.coalgebra)
+}
+
+sealed trait AlgebraIsoInstances1 {
+  implicit def fix[F[_]]: AlgebraIso[F, Fix[F]] =
+    AlgebraIso[F, Fix[F]](Fix.algebra, Fix.coalgebra)
 }
