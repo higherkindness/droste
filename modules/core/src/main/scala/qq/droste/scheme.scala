@@ -19,6 +19,21 @@ object `package` {
   // All parameters are algebras and a function-- the morphism-- is
   // returned.
 
+  /** Build a hylomorphism (a function `A => B`) by recursively
+    * unfolding with `coalgebra` and refolding with `algebra`.
+    *
+    * <pre>
+    *                  hylo
+    *          A ---------------> B
+    *          |                  ^
+    *  co-     |                  |
+    * algebra  |                  | algebra
+    *          |                  |
+    *          v                  |
+    *         F[A] ------------> F[B]
+    *                map hylo
+    * </pre>
+    */
   def hylo[F[_]: Functor, A, B](
     algebra: Algebra[F, B],
     coalgebra: Coalgebra[F, A]
@@ -27,6 +42,26 @@ object `package` {
       def apply(a: A): B = algebra(coalgebra(a).map(this))
     }
 
+  /** Build a monadic hylomorphism
+    *
+    * <pre>
+    *                 hyloM
+    *          A ---------------> M[B]
+    *          |                  ^
+    *  co-     |                  |
+    * algebraM |                  | flatMap f
+    *          |                  |
+    *          v                  |
+    *       M[F[A]] ---------> M[F[M[B]]]
+    *               map hyloM
+    *
+    * with f:
+    *
+    * F[M[B]] -----> M[F[B]] ----------> M[B]
+    *       sequence          flatMap
+    *                         algebraM
+    * </pre>
+    */
   def hyloM[M[_]: Monad, F[_]: Traverse, A, B](
     algebraM: AlgebraM[M, F, B],
     coalgebraM: CoalgebraM[M, F, A]
@@ -63,12 +98,12 @@ final case class AlgebraIso[F[_], R](
 
 object AlgebraIso extends AlgebraIsoInstances0
 
-sealed trait AlgebraIsoInstances0 extends AlgebraIsoInstances1 {
+private[droste] sealed trait AlgebraIsoInstances0 extends AlgebraIsoInstances1 {
   implicit def cofree[F[_], E]: AlgebraIso[EnvT[E, F, ?], Cofree[F, E]] =
     AlgebraIso[EnvT[E, F, ?], Cofree[F, E]](Cofree.algebra, Cofree.coalgebra)
 }
 
-sealed trait AlgebraIsoInstances1 {
+private[droste] sealed trait AlgebraIsoInstances1 {
   implicit def fix[F[_]]: AlgebraIso[F, Fix[F]] =
     AlgebraIso[F, Fix[F]](Fix.algebra, Fix.coalgebra)
 }
