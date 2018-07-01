@@ -42,7 +42,7 @@ final class MathExprExample extends Properties("MathExprExample") {
   }
 
   property("fix expressions") = {
-    val f = scheme.hylo(groupAlgebra[Int], Fix.coalgebra[Expr[Int, ?]])
+    val f = scheme.cata(groupAlgebra[Int])
 
     val p1 = f(Fix(Const(1))) ?= 1
     val p2 = f(Fix(Add(Fix(Const(1)), Fix(Const(2))))) ?= 3
@@ -52,8 +52,7 @@ final class MathExprExample extends Properties("MathExprExample") {
   }
 
   property("cofree expressions") = {
-    val f = scheme.hylo(groupAnnotatedAlgebra[Int],
-      Cofree.coalgebra[Option[Int], Expr[Int, ?]])
+    val f = scheme.cata(groupAnnotatedAlgebra[Int])
 
     val p1 = f(Cofree(None, Const(1))) ?= 1
     val p2 = f(Cofree(Some(100), Const(1))) ?= 100

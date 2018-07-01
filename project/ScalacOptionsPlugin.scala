@@ -13,10 +13,12 @@ object ScalacOptionsPlugin extends AutoPlugin {
 
     addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.4" cross CrossVersion.binary),
 
+    /*
     addCompilerPlugin("io.tryp" % "splain" % "0.2.7" cross CrossVersion.patch),
     scalacOptions ++= List(
       "-P:splain:tree"
     ),
+    */
 
     scalac211Options := defaultScalac211Options,
     scalac212Options := defaultScalac212Options,
