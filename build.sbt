@@ -33,7 +33,8 @@ lazy val tests = module("tests")
   .dependsOn(core)
   .settings(noPublishSettings)
   .settings(libraryDependencies ++= Seq(
-    "org.scalacheck" %%% "scalacheck" % "1.13.4"))
+    "org.scalacheck" %%% "scalacheck" % "1.13.4",
+    "org.typelevel" %%% "algebra" % "1.0.0"))
 
 lazy val testsJVM = tests.jvm
 lazy val testsJS  = tests.js
