@@ -1,5 +1,6 @@
 package qq.droste
 
+import cats.Functor
 import syntax._
 
 object `package` {
