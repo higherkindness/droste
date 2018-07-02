@@ -2,10 +2,13 @@ package qq.droste
 package data
 
 import cats.~>
+import cats.Applicative
 import cats.Id
 import cats.Eval
 import cats.Functor
+import cats.Traverse
 import cats.syntax.functor._
+import cats.syntax.traverse._
 
 import meta._
 
@@ -67,6 +70,15 @@ object `package` {
   implicit def drosteEnvTFunctor[E, W[_]: Functor]: Functor[EnvT[E, W, ?]] =
     new Functor[EnvT[E, W, ?]] {
       def map[A, B](fa: EnvT[E, W, A])(f: A => B): EnvT[E, W, B] =
+        EnvT(fa.ask, fa.lower.map(f))
+    }
+
+  implicit def drosteEnvTTraverse[E, W[_]: Traverse]: Traverse[EnvT[E, W, ?]] =
+    new DefaultTraverse[EnvT[E, W, ?]] {
+      def traverse[G[_]: Applicative, A, B](fa: EnvT[E, W, A])(f: A => G[B]): G[EnvT[E, W, B]] =
+        fa.lower.traverse(f).map(EnvT(fa.ask, _))
+
+      override def map[A, B](fa: EnvT[E, W, A])(f: A => B): EnvT[E, W, B] =
         EnvT(fa.ask, fa.lower.map(f))
     }
 

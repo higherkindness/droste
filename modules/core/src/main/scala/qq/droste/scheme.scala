@@ -14,8 +14,9 @@ import cats.instances.tuple._
 
 import data._
 import syntax._
+import implicits.composedFunctor._
 
-object `package` extends PackagePrivate {
+object `package` {
 
   // note:
   // All core morphisms are defined in an algebra centric manner.
@@ -143,11 +144,4 @@ private[droste] sealed trait AlgebraIsoInstances0 extends AlgebraIsoInstances1 {
 private[droste] sealed trait AlgebraIsoInstances1 {
   implicit def fix[F[_]]: AlgebraIso[F, Fix[F]] =
     AlgebraIso[F, Fix[F]](Fix.algebra, Fix.coalgebra)
-}
-
-
-private[scheme] sealed trait PackagePrivate {
-  private[scheme] implicit def composedFunctor[F[_], G[_]](
-    implicit F: Functor[F], G: Functor[G]
-  ): Functor[(F ∘ G)#λ] = F compose G
 }

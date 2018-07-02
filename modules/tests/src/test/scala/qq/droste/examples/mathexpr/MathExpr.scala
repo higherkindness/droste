@@ -3,61 +3,38 @@ package qq.droste.examples.mathexpr
 import org.scalacheck.Properties
 import org.scalacheck.Prop._
 
-import cats.Functor
-import cats.Group
-import cats.syntax.functor._
-import cats.syntax.group._
-import cats.instances.int._
+import algebra.ring.Field
+import algebra.instances.all._
+import cats.implicits._
 
 import qq.droste._
 import qq.droste.data._
+import qq.droste.syntax._
 
-sealed trait Expr[V, A]
-final case class Const[V, A](value: V) extends Expr[V, A]
-final case class Neg[V, A](x: A) extends Expr[V, A]
-final case class Add[V, A](x: A, y: A) extends Expr[V, A]
-
-object Expr {
-  implicit def functorExpr[V]: Functor[Expr[V, ?]] = new Functor[Expr[V, ?]] {
-    def map[A, B](fa: Expr[V, A])(f: A => B): Expr[V, B] = fa match {
-      case c: Const[_, B @unchecked] => c
-      case e: Neg[V, A] => e.copy(x = f(e.x))
-      case e: Add[V, A] => Add(f(e.x), f(e.y))
-    }
-  }
-}
+// note:
+// athema is a dummy math engine packaged with droste
+// we're using it for these tests
+import qq.athema._
 
 final class MathExprExample extends Properties("MathExprExample") {
 
-  def groupAlgebra[V: Group]: Algebra[Expr[V, ?], V] = {
-    case Const(v) => v
-    case Neg(x) => x.inverse
-    case Add(x, y) => x combine y
-  }
-
-  def groupAnnotatedAlgebra[V: Group]: Algebra[EnvT[Option[V], Expr[V, ?], ?], V] = fa => fa.lower match {
-    case Const(v) => fa.ask getOrElse v
-    case Neg(x) => fa.ask getOrElse x.inverse
-    case Add(x, y) => fa.ask getOrElse (x combine y)
-  }
-
-  property("fix expressions") = {
-    val f = scheme.cata(groupAlgebra[Int])
-
-    val p1 = f(Fix(Const(1))) ?= 1
-    val p2 = f(Fix(Add(Fix(Const(1)), Fix(Const(2))))) ?= 3
-    val p3 = f(Fix(Neg(Fix(Add(Fix(Const(1)), Fix(Const(2))))))) ?= -3
-
-    p1 && p2 && p3
+  def evalAlgebraMWithOverride[V: Field](
+    variables: Map[String, V]
+  ): AlgebraM[String | ?, EnvT[Option[V], Expr[V, ?], ?], V] = {
+    val algebra = Evaluate.algebraM(variables)
+    fa => fa.ask match {
+      case Some(value) => value.asRight
+      case None        => algebra(fa.lower)
+    }
   }
 
   property("cofree expressions") = {
-    val f = scheme.cata(groupAnnotatedAlgebra[Int])
+    val f = scheme.cataM(evalAlgebraMWithOverride[Double](Map.empty))
 
-    val p1 = f(Cofree(None, Const(1))) ?= 1
-    val p2 = f(Cofree(Some(100), Const(1))) ?= 100
-    val p3 = f(Cofree(None, Add(Cofree(None, Const(1)), Cofree(None, Const(2))))) ?= 3
-    val p4 = f(Cofree(None, Add(Cofree(None, Const(1)), Cofree(Some(10), Const(2))))) ?= 11
+    val p1 = f(Cofree(None, Const(1.0))) ?= 1.0.asRight
+    val p2 = f(Cofree(Some(100.0), Const(1.0))) ?= 100.0.asRight
+    val p3 = f(Cofree(None, Add(Cofree(None, Const(1.0)), Cofree(None, Const(2.0))))) ?= 3.0.asRight
+    val p4 = f(Cofree(None, Add(Cofree(None, Const(1.0)), Cofree(Some(10.0), Const(2.0))))) ?= 11.0.asRight
 
     p1 && p2 && p3 && p4
   }
@@ -65,18 +42,18 @@ final class MathExprExample extends Properties("MathExprExample") {
   property("mu expressions") = {
 
     val toMu = scheme.hylo(
-      Mu.algebra[Expr[Int, ?]],
-      Fix.coalgebra[Expr[Int, ?]])
+      Mu.algebra[Expr[Double, ?]],
+      Fix.coalgebra[Expr[Double, ?]])
 
-    val algebra = groupAlgebra[Int]
+    val f1: Mu[Expr[Double, ?]] = toMu(Fix(Const(1.0)))
+    val f2: Mu[Expr[Double, ?]] = toMu(Fix(Add(Fix(Const(1.0)), Fix(Const(2.0)))))
+    val f3: Mu[Expr[Double, ?]] = toMu(Fix(Neg(Fix(Add(Fix(Const(1.0)), Fix(Const(2.0)))))))
 
-    val f1: Mu[Expr[Int, ?]] = toMu(Fix(Const(1)))
-    val f2: Mu[Expr[Int, ?]] = toMu(Fix(Add(Fix(Const(1)), Fix(Const(2)))))
-    val f3: Mu[Expr[Int, ?]] = toMu(Fix(Neg(Fix(Add(Fix(Const(1)), Fix(Const(2)))))))
+    val algebra = Evaluate.algebraM[Double](Map.empty).andThen(_.fold(sys.error, identity))
 
-    val p1 = f1(algebra) ?= 1
-    val p2 = f2(algebra) ?= 3
-    val p3 = f3(algebra) ?= -3
+    val p1 = f1(algebra) ?= 1.0
+    val p2 = f2(algebra) ?= 3.0
+    val p3 = f3(algebra) ?= -3.0
 
     p1 && p2 && p3
   }
@@ -84,13 +61,11 @@ final class MathExprExample extends Properties("MathExprExample") {
   property("nu expressions") = {
 
     val toNu = scheme.hylo(
-      Nu.algebra[Expr[Int, ?]],
-      Fix.coalgebra[Expr[Int, ?]])
+      Nu.algebra[Expr[Double, ?]],
+      Fix.coalgebra[Expr[Double, ?]])
 
-    val algebra = groupAlgebra[Int]
-
-    val fixed: Fix[Expr[Int, ?]] = Fix(Add(Fix(Const(10)), Fix(Neg(Fix(Add(Fix(Const(1)), Fix(Const(2))))))))
-    val z: Nu[Expr[Int, ?]] = toNu(fixed)
+    val fixed: Fix[Expr[Double, ?]] = Fix(Add(Fix(Const(10.0)), Fix(Neg(Fix(Add(Fix(Const(1.0)), Fix(Const(2.0))))))))
+    val z: Nu[Expr[Double, ?]] = toNu(fixed)
 
     val a = z.a
     //println(a)

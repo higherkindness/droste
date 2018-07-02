@@ -13,11 +13,12 @@ object ProjectPlugin extends AutoPlugin {
   object autoImport {
 
     def module(
-      modName: String
+      modName: String,
+      prefix: String = "modules/"
     ): CrossProject =
       CrossProject(
         modName,
-        file(s"modules/$modName"),
+        file(s"$prefix$modName"),
         CrossType.Pure
       )
         .settings(moduleName := s"${name.value}-$modName")
