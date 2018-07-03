@@ -12,7 +12,7 @@ import cats.syntax.traverse._
 
 import meta._
 
-object `package` {
+object `package` extends DataInstances0 {
 
   type Fix[F[_]] // = F[Fix[F]]
 
@@ -67,21 +67,6 @@ object `package` {
     def lower: W[A] = tuple._2
   }
 
-  implicit def drosteEnvTFunctor[E, W[_]: Functor]: Functor[EnvT[E, W, ?]] =
-    new Functor[EnvT[E, W, ?]] {
-      def map[A, B](fa: EnvT[E, W, A])(f: A => B): EnvT[E, W, B] =
-        EnvT(fa.ask, fa.lower.map(f))
-    }
-
-  implicit def drosteEnvTTraverse[E, W[_]: Traverse]: Traverse[EnvT[E, W, ?]] =
-    new DefaultTraverse[EnvT[E, W, ?]] {
-      def traverse[G[_]: Applicative, A, B](fa: EnvT[E, W, A])(f: A => G[B]): G[EnvT[E, W, B]] =
-        fa.lower.traverse(f).map(EnvT(fa.ask, _))
-
-      override def map[A, B](fa: EnvT[E, W, A])(f: A => B): EnvT[E, W, B] =
-        EnvT(fa.ask, fa.lower.map(f))
-    }
-
   /** Mu is the least fixed point of a functor `F`. It is a
     * computation that can consume a inductive noninfinite
     * structure in one go.
@@ -89,7 +74,9 @@ object `package` {
     * In Haskell this can more aptly be expressed as:
     * `data Mu f = Mu (forall x . (f x -> x) -> x)`
     */
-  abstract class Mu[F[_]] extends (Algebra[F, ?] ~> Id)
+  sealed abstract class Mu[F[_]] extends (Algebra[F, ?] ~> Id) with Serializable {
+    override final def toString: String = s"Mu@$hashCode"
+  }
 
   object Mu {
     def algebra[F[_]: Functor]: Algebra[F, Mu[F]] =
@@ -100,6 +87,9 @@ object `package` {
 
     def coalgebra[F[_]: Functor]: Coalgebra[F, Mu[F]] =
       mf => mf[F[Mu[F]]](_ map algebra)
+
+    def embed  [F[_]: Functor](fmf: F[Mu[F]]):   Mu[F]  = algebra  [F].apply(fmf)
+    def project[F[_]: Functor](mf :   Mu[F] ): F[Mu[F]] = coalgebra[F].apply(mf)
   }
 
   /** Nu is the greatest fixed point of a functor `F`. It is a
@@ -109,7 +99,7 @@ object `package` {
     * In Haskell this can more aptly be expressed as:
     * `data Nu g = forall s . Nu (s -> g s) s`
     */
-  sealed abstract class Nu[F[_]] {
+  sealed abstract class Nu[F[_]] extends Serializable {
     type A = F[Nu[F]]
     def  unfold: Coalgebra[F, A]
     def  a     : A
@@ -119,14 +109,42 @@ object `package` {
     def apply[F[_]](unfold0: Coalgebra[F, F[Nu[F]]], a0: F[Nu[F]]): Nu[F] = new Nu[F] {
       val  unfold = unfold0
       val  a      = a0
+
+      override def toString: String = s"Nu($unfold, $a)"
     }
 
-    // [F, F[Nu[F]]]
     def algebra[F[_]: Functor]: Algebra[F, Nu[F]] =
       t => Nu((_: F[Nu[F]]) map coalgebra, t)
 
     def coalgebra[F[_]: Functor]: Coalgebra[F, Nu[F]] =
       nf => nf.unfold(nf.a) map (Nu(nf.unfold, _))
+
+    def embed  [F[_]: Functor](fnf: F[Nu[F]]):   Nu[F]  = algebra  [F].apply(fnf)
+    def project[F[_]: Functor](nf :   Nu[F] ): F[Nu[F]] = coalgebra[F].apply(nf)
   }
 
+}
+
+
+class EnvTFunctor[E, W[_]: Functor] extends Functor[EnvT[E, W, ?]] {
+  def map[A, B](fa: EnvT[E, W, A])(f: A => B): EnvT[E, W, B] =
+    EnvT(fa.ask, fa.lower.map(f))
+}
+
+class EnvTTraverse[E, W[_]: Traverse]
+    extends EnvTFunctor[E, W]
+    with DefaultTraverse[EnvT[E, W, ?]]
+{
+  def traverse[G[_]: Applicative, A, B](fa: EnvT[E, W, A])(f: A => G[B]): G[EnvT[E, W, B]] =
+    fa.lower.traverse(f).map(EnvT(fa.ask, _))
+}
+
+private[data] sealed trait DataInstances0 extends DataInstances1 {
+  implicit def drosteEnvTTraverse[E, W[_]: Traverse]: Traverse[EnvT[E, W, ?]] =
+    new EnvTTraverse[E, W]
+}
+
+private[data] sealed trait DataInstances1 {
+  implicit def drosteEnvTFunctor[E, W[_]: Functor]: Functor[EnvT[E, W, ?]] =
+    new EnvTFunctor[E, W]
 }

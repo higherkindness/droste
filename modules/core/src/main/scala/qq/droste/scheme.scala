@@ -91,7 +91,7 @@ object `package` {
       iso.algebra,
       coalgebra)
 
-  def cata[F[_]: Functor, B, R](
+  def cata[F[_]: Functor, R, B](
     algebra: Algebra[F, B],
   )(implicit iso: AlgebraIso[F, R]): R => B =
     hylo(
@@ -114,6 +114,12 @@ object `package` {
       iso.coalgebra.lift[M])
 
 
+  /** A variation of an anamorphism that lets you terminate any point of
+    * the recursion using a value of the original input type.
+    *
+    * One use case is to return cached/precomputed results during an
+    * unfold.
+    */
   def apo[F[_]: Functor, A, R](
     rcoalgebra: RCoalgebra[R, F, A],
   )(implicit iso: AlgebraIso[F, R]): A => R =
@@ -121,6 +127,14 @@ object `package` {
       iso.algebra.compose((frr: F[(R | R)]) => frr.map(_.merge)),
       rcoalgebra)
 
+  /** A variation of a catamorphism that gives you access to the input value at
+    * every point in the computation.
+    *
+    * A paramorphism "eats its argument and keeps it too.
+    *
+    * This means each step has access to both the computed result
+    * value as well as the original value.
+    */
   def para[F[_]: Functor, R, B](
     ralgebra: RAlgebra[R, F, B],
   )(implicit iso: AlgebraIso[F, R]): R => B =
@@ -142,6 +156,13 @@ private[droste] sealed trait AlgebraIsoInstances0 extends AlgebraIsoInstances1 {
 }
 
 private[droste] sealed trait AlgebraIsoInstances1 {
+
   implicit def fix[F[_]]: AlgebraIso[F, Fix[F]] =
     AlgebraIso[F, Fix[F]](Fix.algebra, Fix.coalgebra)
+
+  implicit def mu[F[_]: Functor]: AlgebraIso[F, Mu[F]] =
+    AlgebraIso[F, Mu[F]](Mu.algebra, Mu.coalgebra)
+
+  implicit def nu[F[_]: Functor]: AlgebraIso[F, Nu[F]] =
+    AlgebraIso[F, Nu[F]](Nu.algebra, Nu.coalgebra)
 }
