@@ -32,7 +32,7 @@ object Differentiate {
   def algebra[V](implicit V: Ring[V]): RAlgebra[Expr.Fixed[V], Expr[V, ?], Expr.Fixed[V]] = {
     case _: Var  [_, _]          => Const.fix(V.one)
     case _: Const[_, _]          => Const.fix(V.zero)
-    case Neg  ((_, xx))          => xx
+    case Neg  ((_, xx))          => Neg(xx)
     case Add  ((_, xx), (_, yy)) => Add(xx, yy)
     case Sub  ((_, xx), (_, yy)) => Sub(xx, yy)
     case Prod ((x, xx), (y, yy)) => Add(Prod(x, yy), Prod(xx, y))
