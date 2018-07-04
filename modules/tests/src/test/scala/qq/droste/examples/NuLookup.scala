@@ -36,7 +36,7 @@ final class NuLookup extends Properties("NuLookup") {
     "work is" -> Ref("never"),
     "never" -> Value("over"),
     "loop a" -> Ref("loop b"),
-    "loop b" -> Ref("loop a"),
+    "loop b" -> Ref("loop a")
   )
 
   def catchAll[A](f: => A): Either[Throwable, A] =

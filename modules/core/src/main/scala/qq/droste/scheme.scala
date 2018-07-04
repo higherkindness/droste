@@ -85,14 +85,14 @@ object `package` {
       coalgebraM)
 
   def ana[F[_]: Functor, A, R](
-    coalgebra: Coalgebra[F, A],
+    coalgebra: Coalgebra[F, A]
   )(implicit iso: AlgebraIso[F, R]): A => R =
     hylo(
       iso.algebra,
       coalgebra)
 
   def cata[F[_]: Functor, R, B](
-    algebra: Algebra[F, B],
+    algebra: Algebra[F, B]
   )(implicit iso: AlgebraIso[F, R]): R => B =
     hylo(
       algebra,
@@ -100,7 +100,7 @@ object `package` {
 
 
   def anaM[M[_]: Monad, F[_]: Traverse, A, R](
-    coalgebraM: CoalgebraM[M, F, A],
+    coalgebraM: CoalgebraM[M, F, A]
   )(implicit iso: AlgebraIso[F, R]): A => M[R] =
     hyloM(
       iso.algebra.lift[M],
@@ -121,7 +121,7 @@ object `package` {
     * unfold.
     */
   def apo[F[_]: Functor, A, R](
-    rcoalgebra: RCoalgebra[R, F, A],
+    rcoalgebra: RCoalgebra[R, F, A]
   )(implicit iso: AlgebraIso[F, R]): A => R =
     hyloC(
       iso.algebra.compose((frr: F[(R | R)]) => frr.map(_.merge)),
@@ -136,7 +136,7 @@ object `package` {
     * value as well as the original value.
     */
   def para[F[_]: Functor, R, B](
-    ralgebra: RAlgebra[R, F, B],
+    ralgebra: RAlgebra[R, F, B]
   )(implicit iso: AlgebraIso[F, R]): R => B =
     hyloC(
       ralgebra,

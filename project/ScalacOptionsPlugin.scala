@@ -85,6 +85,7 @@ object ScalacOptionsPlugin extends AutoPlugin {
     "-encoding", "UTF-8",
     "-feature",
     "-language:existentials",
+    "-language:experimental.macros",
     "-language:higherKinds",
     "-language:implicitConversions",
     "-Ypartial-unification")
