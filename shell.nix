@@ -4,5 +4,5 @@ with pkgs;
 
 stdenv.mkDerivation {
   name = "droste";
-  buildInputs = [ sbt nodejs bash curl ];
+  buildInputs = [ sbt nodejs ];
 }
