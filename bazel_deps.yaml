@@ -1,0 +1,18 @@
+options:
+  buildHeader: [ "load(\"@io_bazel_rules_scala//scala:scala_import.bzl\", \"scala_import\")" ]
+  languages: [ "java", "scala:2.11.11" ]
+  namePrefix: "io_higherkindness_droste_"
+  resolverType: "coursier"
+  versionConflictPolicy: highest
+
+dependencies:
+  org.spire-math:
+    kind-projector:
+      lang: scala
+      version: "0.9.7"
+
+  org.typelevel:
+    cats:
+      lang: scala
+      modules: [ "core", "free", "kernel" ]
+      version: "1.1.0"

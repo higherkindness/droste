@@ -1,0 +1,34 @@
+#!/bin/bash
+
+set -eo pipefail
+
+if [ ! -z "$BAZEL_IN_NIX" ]; then
+  exec $BAZEL_REAL "$@"
+fi
+
+function mtime_darwin() {
+  stat -f "%m" $1
+}
+function mtime_gnu() {
+  stat -c "%Y" $1
+}
+
+if mtime_darwin "$BAZEL_REAL" >/dev/null 2>&1; then
+  mtime=mtime_darwin
+else
+  mtime=mtime_gnu
+fi
+
+t0=$($mtime ./result) || t0=0
+
+for file in *.nix; do
+  t=$($mtime $file)
+  if [[ $t -gt $t0 ]]; then
+    echo 'The Nix environment is out of date! Rebuilding now...'
+    nix-build workspace.nix
+    echo 'Done!'
+    break
+  fi
+done
+
+BAZEL_IN_NIX=true exec ./result/bazel "$@"
