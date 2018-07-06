@@ -155,11 +155,12 @@ private[droste] sealed trait AlgebraIsoInstances0 extends AlgebraIsoInstances1 {
     AlgebraIso[EnvT[E, F, ?], Cofree[F, E]](Cofree.algebra, Cofree.coalgebra)
 }
 
-private[droste] sealed trait AlgebraIsoInstances1 {
-
+private[droste] sealed trait AlgebraIsoInstances1 extends AlgebraIsoInstances2 {
   implicit def fix[F[_]]: AlgebraIso[F, Fix[F]] =
     AlgebraIso[F, Fix[F]](Fix.algebra, Fix.coalgebra)
+}
 
+private[droste] sealed trait AlgebraIsoInstances2 {
   implicit def mu[F[_]: Functor]: AlgebraIso[F, Mu[F]] =
     AlgebraIso[F, Mu[F]](Mu.algebra, Mu.coalgebra)
 
