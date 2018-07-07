@@ -20,7 +20,9 @@ class Meta(val c: blackbox.Context) {
     if (fff != f) unroll(fff) else f
   }
 
-  def fastCast(f: Tree): Tree = {
-    q"${unroll(f)}.asInstanceOf[${c.macroApplication.tpe}]"
-  }
+  def fastCast(f: Tree): Tree =
+    if (f.tpe <:< c.macroApplication.tpe)
+      q"${unroll(f)}"
+    else
+      q"${unroll(f)}.asInstanceOf[${c.macroApplication.tpe}]"
 }
