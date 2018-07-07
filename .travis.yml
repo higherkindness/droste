@@ -12,6 +12,9 @@ jobs:
         - nix-shell --pure --command 'sbt test'
 
     - script:
+        - ./tools/bazel build ...
+
+    - script:
         - nix-shell --pure --command 'sbt coverage +test coverageReport'
       after_success:
         - bash <(curl -s https://codecov.io/bash)

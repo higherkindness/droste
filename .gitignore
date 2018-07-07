@@ -1,3 +1,4 @@
+
 project/boot
 target
 .ensime
@@ -26,3 +27,8 @@ testData/
 
 # PGP keys
 secring.asc
+
+# bazel
+result
+bazel-*
+!*.nix
