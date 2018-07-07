@@ -19,7 +19,10 @@ scala_library(
         "//external:io_higherkindness_droste_typelevel_cats_core",
         "//external:io_higherkindness_droste_typelevel_cats_free",
         "//modules/meta",
-    ],    
+    ],
+    exports = [
+        "//modules/meta",
+    ],
     visibility = [
         "//visibility:public"
     ],

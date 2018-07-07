@@ -25,7 +25,7 @@ for file in *.nix; do
   t=$($mtime $file)
   if [[ $t -gt $t0 ]]; then
     echo 'The Nix environment is out of date! Rebuilding now...'
-    nix-build workspace.nix
+    nix-build
     echo 'Done!'
     break
   fi
