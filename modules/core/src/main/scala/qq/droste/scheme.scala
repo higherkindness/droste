@@ -12,7 +12,6 @@ import cats.syntax.traverse._
 import cats.instances.either._
 import cats.instances.tuple._
 
-import data._
 import syntax._
 import implicits.composedFunctor._
 
@@ -86,32 +85,32 @@ object `package` {
 
   def ana[F[_]: Functor, A, R](
     coalgebra: Coalgebra[F, A]
-  )(implicit iso: AlgebraIso[F, R]): A => R =
+  )(implicit embed: Embed[F, R]): A => R =
     hylo(
-      iso.algebra,
+      embed.algebra,
       coalgebra)
 
   def cata[F[_]: Functor, R, B](
     algebra: Algebra[F, B]
-  )(implicit iso: AlgebraIso[F, R]): R => B =
+  )(implicit project: Project[F, R]): R => B =
     hylo(
       algebra,
-      iso.coalgebra)
+      project.coalgebra)
 
 
   def anaM[M[_]: Monad, F[_]: Traverse, A, R](
     coalgebraM: CoalgebraM[M, F, A]
-  )(implicit iso: AlgebraIso[F, R]): A => M[R] =
+  )(implicit embed: Embed[F, R]): A => M[R] =
     hyloM(
-      iso.algebra.lift[M],
+      embed.algebra.lift[M],
       coalgebraM)
 
   def cataM[M[_]: Monad, F[_]: Traverse, R, B](
     algebraM: AlgebraM[M, F, B]
-  )(implicit iso: AlgebraIso[F, R]): R => M[B] =
+  )(implicit project: Project[F, R]): R => M[B] =
     hyloM(
       algebraM,
-      iso.coalgebra.lift[M])
+      project.coalgebra.lift[M])
 
 
   /** A variation of an anamorphism that lets you terminate any point of
@@ -122,9 +121,9 @@ object `package` {
     */
   def apo[F[_]: Functor, A, R](
     rcoalgebra: RCoalgebra[R, F, A]
-  )(implicit iso: AlgebraIso[F, R]): A => R =
+  )(implicit embed: Embed[F, R]): A => R =
     hyloC(
-      iso.algebra.compose((frr: F[(R | R)]) => frr.map(_.merge)),
+      embed.algebra.compose((frr: F[(R | R)]) => frr.map(_.merge)),
       rcoalgebra)
 
   /** A variation of a catamorphism that gives you access to the input value at
@@ -137,33 +136,9 @@ object `package` {
     */
   def para[F[_]: Functor, R, B](
     ralgebra: RAlgebra[R, F, B]
-  )(implicit iso: AlgebraIso[F, R]): R => B =
+  )(implicit project: Project[F, R]): R => B =
     hyloC(
       ralgebra,
-      iso.coalgebra.andThen(_.map(r => (r, r))))
+      project.coalgebra.andThen(_.map(r => (r, r))))
 
-}
-
-final case class AlgebraIso[F[_], R](
-  algebra: Algebra[F, R],
-  coalgebra: Coalgebra[F, R])
-
-object AlgebraIso extends AlgebraIsoInstances0
-
-private[droste] sealed trait AlgebraIsoInstances0 extends AlgebraIsoInstances1 {
-  implicit def cofree[F[_], E]: AlgebraIso[EnvT[E, F, ?], Cofree[F, E]] =
-    AlgebraIso[EnvT[E, F, ?], Cofree[F, E]](Cofree.algebra, Cofree.coalgebra)
-}
-
-private[droste] sealed trait AlgebraIsoInstances1 extends AlgebraIsoInstances2 {
-  implicit def fix[F[_]]: AlgebraIso[F, Fix[F]] =
-    AlgebraIso[F, Fix[F]](Fix.algebra, Fix.coalgebra)
-}
-
-private[droste] sealed trait AlgebraIsoInstances2 {
-  implicit def mu[F[_]: Functor]: AlgebraIso[F, Mu[F]] =
-    AlgebraIso[F, Mu[F]](Mu.algebra, Mu.coalgebra)
-
-  implicit def nu[F[_]: Functor]: AlgebraIso[F, Nu[F]] =
-    AlgebraIso[F, Nu[F]](Nu.algebra, Nu.coalgebra)
 }
