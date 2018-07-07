@@ -1,7 +1,6 @@
 lazy val root = (project in file("."))
   .settings(noPublishSettings)
   .aggregate(coreJVM, coreJS)
-  .aggregate(catsJVM, catsJS)
   .aggregate(testsJVM, testsJS)
   .aggregate(athemaJVM, athemaJS)
 
@@ -21,14 +20,6 @@ lazy val core = module("core")
 
 lazy val coreJVM = core.jvm
 lazy val coreJS  = core.js
-
-lazy val cats = module("cats")
-  .settings(libraryDependencies ++= Seq(
-    "org.typelevel" %%% "cats-core"   % "1.0.1",
-    "org.typelevel" %%% "cats-free"   % "1.0.1"))
-
-lazy val catsJVM = cats.jvm
-lazy val catsJS  = cats.js
 
 lazy val tests = module("tests")
   .dependsOn(core)
