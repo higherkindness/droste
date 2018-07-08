@@ -1,6 +1,6 @@
 package qq.droste
+package util
 
-import cats.Applicative
 import cats.Eval
 import cats.Monoid
 import cats.Traverse
