@@ -10,6 +10,7 @@ trait Embed[F[_], R] {
 }
 
 object Embed {
+  def apply[F[_], R](implicit ev: Embed[F, R]): Embed[F, R] = ev
   implicit def embedFromBasis[F[_], R](implicit f: Basis[F, R]): Embed[F, R] = macro Meta.fastCast
 }
 
@@ -18,6 +19,7 @@ trait Project[F[_], R] {
 }
 
 object Project {
+  def apply[F[_], R](implicit ev: Project[F, R]): Project[F, R] = ev
   implicit def projectFromBasis[F[_], R](implicit f: Basis[F, R]): Project[F, R] = macro Meta.fastCast
 }
 
@@ -26,6 +28,7 @@ sealed trait Basis[F[_], R]
     with Project[F, R]
 
 object Basis extends BasisInstances0 {
+  def apply[F[_], R](implicit ev: Basis[F, R]): Basis[F, R] = ev
   final case class Default[F[_], R](
     algebra: Algebra[F, R],
     coalgebra: Coalgebra[F, R]) extends Basis[F, R]

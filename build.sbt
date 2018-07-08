@@ -1,6 +1,7 @@
 lazy val root = (project in file("."))
   .settings(noPublishSettings)
   .aggregate(coreJVM, coreJS)
+  .aggregate(lawsJVM, lawsJS)
   .aggregate(testsJVM, testsJS)
   .aggregate(athemaJVM, athemaJS)
 
@@ -15,18 +16,27 @@ lazy val metaJS  = meta.js
 lazy val core = module("core")
   .dependsOn(meta)
   .settings(libraryDependencies ++= Seq(
-    "org.typelevel" %%% "cats-core"   % "1.0.1",
-    "org.typelevel" %%% "cats-free"   % "1.0.1"))
+    "org.typelevel" %%% "cats-core"   % "1.1.0",
+    "org.typelevel" %%% "cats-free"   % "1.1.0"))
 
 lazy val coreJVM = core.jvm
 lazy val coreJS  = core.js
 
+lazy val laws = module("laws")
+  .dependsOn(core)
+  .settings(libraryDependencies ++= Seq(
+    "org.scalacheck" %%% "scalacheck" % "1.14.0"))
+
+lazy val lawsJVM = laws.jvm
+lazy val lawsJS  = laws.js
+
 lazy val tests = module("tests")
   .dependsOn(core)
+  .dependsOn(laws)
   .dependsOn(athema)
   .settings(noPublishSettings)
   .settings(libraryDependencies ++= Seq(
-    "org.scalacheck" %%% "scalacheck" % "1.13.4",
+    "org.scalacheck" %%% "scalacheck" % "1.14.0",
     "org.typelevel" %%% "algebra" % "1.0.0"))
 
 lazy val testsJVM = tests.jvm
@@ -41,7 +51,7 @@ lazy val athema = module("athema", prefix = "")
       "org.tpolecat" %%% "atto-core" % "0.6.2"
     ) ++
     Seq(
-      "org.scalacheck" %%% "scalacheck" % "1.13.4"
+      "org.scalacheck" %%% "scalacheck" % "1.14.0"
     ).map(_ % "test"))
 
 
