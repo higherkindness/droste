@@ -1,7 +1,9 @@
 package qq.droste
 package tests
 
-import data._
+import data.Cofree
+import data.EnvT
+import data.prelude._
 import laws.BasisLaws
 
 import org.scalacheck.Arbitrary
