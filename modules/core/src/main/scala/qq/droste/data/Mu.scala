@@ -34,4 +34,6 @@ object Mu {
 
   implicit def drosteBasisForMu[F[_]: Functor]: Basis[F, Mu[F]] =
     Basis.Default[F, Mu[F]](Mu.algebra, Mu.coalgebra)
+
+  implicit val drosteBasisSolveForMu: Basis.Solve.Aux[Mu, λ[(F[_], α) => F[α]]] = null
 }

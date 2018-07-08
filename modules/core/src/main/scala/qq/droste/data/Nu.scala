@@ -46,4 +46,6 @@ object Nu {
 
   implicit def drosteBasisForNu[F[_]: Functor]: Basis[F, Nu[F]] =
     Basis.Default[F, Nu[F]](Nu.algebra, Nu.coalgebra)
+
+  implicit val drosteBasisSolveForNu: Basis.Solve.Aux[Nu, λ[(F[_], α) => F[α]]] = null
 }
