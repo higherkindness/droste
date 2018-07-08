@@ -148,24 +148,24 @@ object scheme {
     * parameters for the various recursion scheme methods don't have
     * to be provided.
     */
-  def apply[H[_[_]]](): SchemePartialBasis[H] = new SchemePartialBasis[H]
+  def apply[PatR[_[_]]](implicit ev: Basis.Solve[PatR]): SchemePartialBasis[PatR, ev.PatF] = new SchemePartialBasis[PatR, ev.PatF]
 
-  final class SchemePartialBasis[H[_[_]]] private[droste]() {
+  final class SchemePartialBasis[PatR[_[_]], PatF[_[_], _]] private[droste]() {
 
-    def ana[F[_]: Functor, A](
-      coalgebra: Coalgebra[F, A]
-    )(implicit ev: Embed[F, H[F]]): A => H[F] =
-      scheme.ana[F, A, H[F]](coalgebra)
+    def ana[F[_], A](
+      coalgebra: Coalgebra[PatF[F, ?], A]
+    )(implicit embed: Embed[PatF[F, ?], PatR[F]], ev: Functor[PatF[F, ?]]): A => PatR[F] =
+      scheme.ana[PatF[F, ?], A, PatR[F]](coalgebra)
 
-    def anaM[M[_]: Monad, F[_]: Traverse, A](
-      coalgebraM: CoalgebraM[M, F, A]
-    )(implicit embed: Embed[F, H[F]]): A => M[H[F]] =
-      scheme.anaM[M, F, A, H[F]](coalgebraM)
+    def anaM[M[_]: Monad, F[_], A](
+      coalgebraM: CoalgebraM[M, PatF[F, ?], A]
+    )(implicit embed: Embed[PatF[F, ?], PatR[F]], ev: Traverse[PatF[F, ?]]): A => M[PatR[F]] =
+      scheme.anaM[M, PatF[F, ?], A, PatR[F]](coalgebraM)
 
-    def apo[F[_]: Functor, A](
-      rcoalgebra: RCoalgebra[H[F], F, A]
-    )(implicit embed: Embed[F, H[F]]): A => H[F] =
-      scheme.apo[F, A, H[F]](rcoalgebra)
+    def apo[F[_], A](
+      rcoalgebra: RCoalgebra[PatR[F], PatF[F, ?], A]
+    )(implicit embed: Embed[PatF[F, ?], PatR[F]], ev: Functor[PatF[F, ?]]): A => PatR[F] =
+      scheme.apo[PatF[F, ?], A, PatR[F]](rcoalgebra)
 
   }
 

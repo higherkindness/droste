@@ -29,6 +29,18 @@ object Basis extends FloatingBasisInstances[Basis] {
   final case class Default[F[_], R](
     algebra: Algebra[F, R],
     coalgebra: Coalgebra[F, R]) extends Basis[F, R]
+
+  sealed trait Solve[PR[_[_]]] {
+    type PatF[F[_], A]
+    type PatR[F[_]] = PR[F]
+  }
+
+  object Solve extends FloatingBasisSolveInstances {
+    type Aux[PR[_[_]], PF[_[_], _]] = Solve[PR] {
+      type PatF[F[_], A] = PF[F, A]
+    }
+  }
+
 }
 
 private[droste] sealed trait FloatingBasisInstances[H[F[_], A] >: Basis[F, A]] extends FloatingBasisInstances0[H] {
@@ -39,4 +51,9 @@ private[droste] sealed trait FloatingBasisInstances[H[F[_], A] >: Basis[F, A]] e
 private[droste] sealed trait FloatingBasisInstances0[H[F[_], A] >: Basis[F, A]] {
   implicit def drosteBasisForFix[F[_]]: H[F, Fix[F]] =
     Basis.Default[F, Fix[F]](Fix.algebra, Fix.coalgebra)
+}
+
+private[droste] sealed trait FloatingBasisSolveInstances {
+  implicit val drosteSolveFix      : Basis.Solve.Aux[Fix, λ[(F[_], α) => F[α]]] = null
+  implicit def drosteSolveCofree[E]: Basis.Solve.Aux[Cofree[?[_], E], EnvT[E, ?[_], ?]] = null
 }
