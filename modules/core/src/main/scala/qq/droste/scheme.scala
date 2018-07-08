@@ -1,5 +1,4 @@
 package qq.droste
-package scheme
 
 import cats.Functor
 import cats.Monad
@@ -15,7 +14,7 @@ import cats.instances.tuple._
 import syntax._
 import implicits.composedFunctor._
 
-object `package` {
+object scheme {
 
   // note:
   // All core morphisms are defined in an algebra centric manner.
@@ -140,5 +139,34 @@ object `package` {
     hyloC(
       ralgebra,
       project.coalgebra.andThen(_.map(r => (r, r))))
+
+
+  /** Convenience to specify the base constructor (such as `Fix` or
+    * `Cofree[?[_], Int]`) for recursion.
+    *
+    * This helps to guide Scala's type inference so all of the type
+    * parameters for the various recursion scheme methods don't have
+    * to be provided.
+    */
+  def apply[H[_[_]]](): SchemePartialBasis[H] = new SchemePartialBasis[H]
+
+  final class SchemePartialBasis[H[_[_]]] private[droste]() {
+
+    def ana[F[_]: Functor, A](
+      coalgebra: Coalgebra[F, A]
+    )(implicit ev: Embed[F, H[F]]): A => H[F] =
+      scheme.ana[F, A, H[F]](coalgebra)
+
+    def anaM[M[_]: Monad, F[_]: Traverse, A](
+      coalgebraM: CoalgebraM[M, F, A]
+    )(implicit embed: Embed[F, H[F]]): A => M[H[F]] =
+      scheme.anaM[M, F, A, H[F]](coalgebraM)
+
+    def apo[F[_]: Functor, A](
+      rcoalgebra: RCoalgebra[H[F], F, A]
+    )(implicit embed: Embed[F, H[F]]): A => H[F] =
+      scheme.apo[F, A, H[F]](rcoalgebra)
+
+  }
 
 }

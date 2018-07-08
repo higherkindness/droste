@@ -14,7 +14,7 @@ final class MuTests extends Properties("Mu") {
 
   implicit val arbMuOption: Arbitrary[Mu[Option]] =
     Arbitrary(Gen.sized(maxSize =>
-      scheme.anaM[Gen, Option, Int, Mu[Option]]((size: Int) =>
+      scheme[Mu].anaM((size: Int) =>
         Gen.choose(0, size).flatMap(n =>
           if (n > 0) Some(n) else None)).apply(maxSize)))
 
