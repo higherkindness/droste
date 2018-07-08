@@ -9,6 +9,7 @@ import cats.implicits._
 
 import qq.droste._
 import qq.droste.data._
+import qq.droste.data.prelude._
 import qq.droste.syntax._
 
 // note:

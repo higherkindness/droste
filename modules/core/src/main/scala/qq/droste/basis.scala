@@ -1,9 +1,8 @@
 package qq.droste
 
-import cats.Functor
-
-import data._
-import meta.Meta
+import data.Cofree
+import data.EnvT
+import data.Fix
 
 trait Embed[F[_], R] {
   def algebra: Algebra[F, R]

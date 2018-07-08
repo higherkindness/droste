@@ -1,16 +1,13 @@
 package qq.droste
 package data
 
-import cats.Applicative
 import cats.Eval
 import cats.Functor
-import cats.Traverse
+
 import cats.syntax.functor._
-import cats.syntax.traverse._
+import meta.Meta
 
-import meta._
-
-object `package` extends DataInstances0 {
+object `package` {
 
   type Fix[F[_]] // = F[Fix[F]]
 
@@ -64,27 +61,4 @@ object `package` extends DataInstances0 {
     def ask: E = tuple._1
     def lower: W[A] = tuple._2
   }
-}
-
-class EnvTFunctor[E, W[_]: Functor] extends Functor[EnvT[E, W, ?]] {
-  def map[A, B](fa: EnvT[E, W, A])(f: A => B): EnvT[E, W, B] =
-    EnvT(fa.ask, fa.lower.map(f))
-}
-
-class EnvTTraverse[E, W[_]: Traverse]
-    extends EnvTFunctor[E, W]
-    with DefaultTraverse[EnvT[E, W, ?]]
-{
-  def traverse[G[_]: Applicative, A, B](fa: EnvT[E, W, A])(f: A => G[B]): G[EnvT[E, W, B]] =
-    fa.lower.traverse(f).map(EnvT(fa.ask, _))
-}
-
-private[data] sealed trait DataInstances0 extends DataInstances1 {
-  implicit def drosteEnvTTraverse[E, W[_]: Traverse]: Traverse[EnvT[E, W, ?]] =
-    new EnvTTraverse[E, W]
-}
-
-private[data] sealed trait DataInstances1 {
-  implicit def drosteEnvTFunctor[E, W[_]: Functor]: Functor[EnvT[E, W, ?]] =
-    new EnvTFunctor[E, W]
 }
