@@ -1,8 +1,11 @@
 package qq.droste
 
+import data.prelude._
 import data.Cofree
 import data.EnvT
 import data.Fix
+
+import cats.Eval
 
 trait Embed[F[_], R] {
   def algebra: Algebra[F, R]
@@ -40,7 +43,6 @@ object Basis extends FloatingBasisInstances[Basis] {
       type PatF[F[_], A] = PF[F, A]
     }
   }
-
 }
 
 private[droste] sealed trait FloatingBasisInstances[H[F[_], A] >: Basis[F, A]] extends FloatingBasisInstances0[H] {
@@ -51,9 +53,17 @@ private[droste] sealed trait FloatingBasisInstances[H[F[_], A] >: Basis[F, A]] e
 private[droste] sealed trait FloatingBasisInstances0[H[F[_], A] >: Basis[F, A]] {
   implicit def drosteBasisForFix[F[_]]: H[F, Fix[F]] =
     Basis.Default[F, Fix[F]](Fix.algebra, Fix.coalgebra)
+
+  implicit def drosteBasisForCatsCofree[F[_], E]: H[EnvT[E, F, ?], cats.free.Cofree[F, E]] =
+    Basis.Default[EnvT[E, F, ?], cats.free.Cofree[F, E]](
+      fa => cats.free.Cofree(fa.ask, Eval.now(fa.lower)),
+      a => EnvT(a.head, a.tailForced))
 }
 
 private[droste] sealed trait FloatingBasisSolveInstances {
-  implicit val drosteSolveFix      : Basis.Solve.Aux[Fix, λ[(F[_], α) => F[α]]] = null
-  implicit def drosteSolveCofree[E]: Basis.Solve.Aux[Cofree[?[_], E], EnvT[E, ?[_], ?]] = null
+  import Basis.Solve
+
+  implicit val drosteSolveFix: Solve.Aux[Fix, λ[(F[_], α) => F[α]]] = null
+  implicit def drosteSolveCofree[E]: Solve.Aux[Cofree[?[_], E], EnvT[E, ?[_], ?]] = null
+  implicit def drosteSolveCatsCofree[E]: Solve.Aux[cats.free.Cofree[?[_], E], EnvT[E, ?[_], ?]] = null
 }

@@ -9,6 +9,7 @@ import cats.implicits._
 
 import qq.droste._
 import qq.droste.data._
+import qq.droste.util.DefaultTraverse
 
 import scala.annotation.tailrec
 

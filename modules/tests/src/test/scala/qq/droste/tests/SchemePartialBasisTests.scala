@@ -10,16 +10,17 @@ import eu.timepit.refined.auto._
 import eu.timepit.refined.numeric._
 import eu.timepit.refined.scalacheck.numeric._
 
-import data.Fix
+import cats.Eval
 import cats.instances.option._
 
 import data.prelude._
 import data.Cofree
 import data.EnvT
+import data.Fix
 import data.Mu
 import data.Nu
 
-class SchemePartialBasisTests extends Properties("scheme.apply[???]") {
+class SchemePartialBasisTests extends Properties("SchemePartialBasis") {
 
   property("scheme[Fix].ana") = {
 
@@ -39,6 +40,17 @@ class SchemePartialBasisTests extends Properties("scheme.apply[???]") {
     def expected(n: Int): Cofree[Option, Int] =
       if (n > 0) Cofree(n, Some(expected(n - 1)))
       else Cofree(n, None: Option[Cofree[Option, Int]])
+
+    forAll((n: Int Refined Less[W.`100`.T]) => f(n) ?= expected(n))
+  }
+
+  property("scheme[cats.free.Cofree[?[_], Int]].ana") = {
+
+    val f = scheme[cats.free.Cofree[?[_], Int]].ana((n: Int) => EnvT(n, if (n > 0) Some(n - 1) else None))
+
+    def expected(n: Int): cats.free.Cofree[Option, Int] =
+      if (n > 0) cats.free.Cofree(n, Eval.now(Some(expected(n - 1))))
+      else cats.free.Cofree(n, Eval.now(None: Option[cats.free.Cofree[Option, Int]]))
 
     forAll((n: Int Refined Less[W.`100`.T]) => f(n) ?= expected(n))
   }

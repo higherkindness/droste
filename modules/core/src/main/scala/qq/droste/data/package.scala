@@ -7,6 +7,8 @@ import cats.Functor
 import cats.syntax.functor._
 import meta.Meta
 
+import data.prelude._
+
 object `package` {
 
   type Fix[F[_]] // = F[Fix[F]]
@@ -36,15 +38,15 @@ object `package` {
 
     def fromCats[F[_]: Functor, A](cofree: cats.free.Cofree[F, A]): Cofree[F, A] =
       Cofree(cofree.head, cofree.tail.value.map(fromCats(_)))
-  }
 
-  implicit final class CofreeOps[F[_], A](val cofree: Cofree[F, A]) extends AnyVal {
-    def tuple: (A, F[Cofree[F, A]]) = Cofree.uncofree(cofree)
-    def head: A = tuple._1
-    def tail: F[Cofree[F, A]] = tuple._2
+    final class Ops[F[_], A](val cofree: Cofree[F, A]) extends AnyVal {
+      def tuple: (A, F[Cofree[F, A]]) = Cofree.uncofree(cofree)
+      def head: A = tuple._1
+      def tail: F[Cofree[F, A]] = tuple._2
 
-    def toCats(implicit ev: Functor[F]): cats.free.Cofree[F, A] =
-      cats.free.Cofree(head, Eval.later(tail.map(_.toCats)))
+      def toCats(implicit ev: Functor[F]): cats.free.Cofree[F, A] =
+        cats.free.Cofree(head, Eval.later(tail.map(_.toCats)))
+    }
   }
 
   type EnvT[E, W[_], A] // = (E, W[A])
@@ -54,11 +56,11 @@ object `package` {
     def apply [E, W[_], A](f: (E, W[A])): EnvT[E, W, A] = macro Meta.fastCast
     def envT  [E, W[_], A](f: (E, W[A])): EnvT[E, W, A] = macro Meta.fastCast
     def unenvT[E, W[_], A](f: EnvT[E, W, A]): (E, W[A]) = macro Meta.fastCast
-  }
 
-  implicit class EnvTOps[E, W[_], A](val envT: EnvT[E, W, A]) extends AnyVal {
-    def tuple: (E, W[A]) = EnvT.unenvT(envT)
-    def ask: E = tuple._1
-    def lower: W[A] = tuple._2
+    final class Ops[E, W[_], A](val envT: EnvT[E, W, A]) extends AnyVal {
+      def tuple: (E, W[A]) = EnvT.unenvT(envT)
+      def ask: E = tuple._1
+      def lower: W[A] = tuple._2
+    }
   }
 }

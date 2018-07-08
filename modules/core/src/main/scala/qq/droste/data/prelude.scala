@@ -8,9 +8,22 @@ import cats.Traverse
 import cats.syntax.functor._
 import cats.syntax.traverse._
 
-package object prelude extends DataPrelude
+import util.DefaultTraverse
 
-private[droste] trait DataPrelude extends DataInstances
+package object prelude extends DataPrelude
+import prelude._
+
+private[droste] trait DataPrelude 
+    extends DataInstances
+    with DataOps
+
+private[data] sealed trait DataOps {
+  implicit def toCofreeOps[F[_], A](cofree: Cofree[F, A]): Cofree.Ops[F, A] =
+    new Cofree.Ops[F, A](cofree)
+
+  implicit def toEnvTOps[E, W[_], A](envT: EnvT[E, W, A]): EnvT.Ops[E, W, A] =
+    new EnvT.Ops[E, W, A](envT)
+}
 
 private[data] sealed trait DataInstances extends DataInstances0 {
   implicit def drosteEnvTTraverse[E, W[_]: Traverse]: Traverse[EnvT[E, W, ?]] =

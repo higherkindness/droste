@@ -3,8 +3,9 @@ package qq.athema
 import cats.Applicative
 import cats.Traverse
 import cats.syntax.all._
-import qq.droste._
+
 import qq.droste.data._
+import qq.droste.util.DefaultTraverse
 
 sealed trait Expr[V, A]
 final case class Var  [V, A](name: String) extends Expr[V, A] {
