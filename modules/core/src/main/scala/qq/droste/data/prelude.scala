@@ -13,7 +13,7 @@ import util.DefaultTraverse
 package object prelude extends DataPrelude
 import prelude._
 
-private[droste] trait DataPrelude 
+private[droste] trait DataPrelude
     extends DataInstances
     with DataOps
 
@@ -23,6 +23,9 @@ private[data] sealed trait DataOps {
 
   implicit def toEnvTOps[E, W[_], A](envT: EnvT[E, W, A]): EnvT.Ops[E, W, A] =
     new EnvT.Ops[E, W, A](envT)
+
+  implicit def toFreeOps[F[_], A](free: Free[F, A]): Free.Ops[F, A] =
+    new Free.Ops[F, A](free)
 }
 
 private[data] sealed trait DataInstances extends DataInstances0 {
@@ -33,6 +36,9 @@ private[data] sealed trait DataInstances extends DataInstances0 {
 private[data] sealed trait DataInstances0 {
   implicit def drosteEnvTFunctor[E, W[_]: Functor]: Functor[EnvT[E, W, ?]] =
     new EnvTFunctor[E, W]
+
+  implicit def drosteCofreeFunctor[F[_]: Functor]: Functor[Cofree[F, ?]] =
+    new CofreeFunctor[F]
 }
 
 private[data] class EnvTFunctor[E, W[_]: Functor] extends Functor[EnvT[E, W, ?]] {
@@ -46,4 +52,8 @@ private[data] final class EnvTTraverse[E, W[_]: Traverse]
 {
   def traverse[G[_]: Applicative, A, B](fa: EnvT[E, W, A])(f: A => G[B]): G[EnvT[E, W, B]] =
     fa.lower.traverse(f).map(EnvT(fa.ask, _))
+}
+
+private[data] final class CofreeFunctor[F[_]: Functor] extends Functor[Cofree[F, ?]] {
+  def map[A, B](fa: Cofree[F, A])(f: A => B): Cofree[F, B] = Cofree(f(fa.head), fa.tail.map(_.map(f)))
 }

@@ -7,6 +7,8 @@ import cats.Traverse
 import cats.syntax.applicative._
 import cats.syntax.functor._
 
+import util.DefaultTraverse
+
 sealed trait ListF[+A, +B]
 final case class ConsF[A, B](head: A, tail: B) extends ListF[A, B]
 case object NilF extends ListF[Nothing, Nothing]
