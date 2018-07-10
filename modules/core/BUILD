@@ -21,6 +21,8 @@ scala_library(
         "//modules/meta",
     ],
     exports = [
+        "//external:io_higherkindness_droste_typelevel_cats_core",
+        "//external:io_higherkindness_droste_typelevel_cats_free",
         "//modules/meta",
     ],
     visibility = [
