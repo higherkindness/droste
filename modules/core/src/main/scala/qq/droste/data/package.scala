@@ -29,6 +29,8 @@ object `package` {
     def apply   [F[_], A](f: (A, F[Cofree[F, A]])): Cofree[F, A] = macro Meta.fastCast
     def cofree  [F[_], A](f: (A, F[Cofree[F, A]])): Cofree[F, A] = macro Meta.fastCast
     def uncofree[F[_], A](f: Cofree[F, A]): (A, F[Cofree[F, A]]) = macro Meta.fastCast
+    def unapply [F[_], A](f: Cofree[F, A]): Option[(A, F[Cofree[F,A]])] = Some(f.tuple)
+
 
     def algebra[E, F[_]]: Algebra[EnvT[E, F, ?], Cofree[F, E]] =
       fa => Cofree(EnvT.unenvT(fa))
@@ -52,10 +54,11 @@ object `package` {
   type EnvT[E, W[_], A] // = (E, W[A])
 
   object EnvT {
-    def apply [E, W[_], A](ask: E, lower: W[A]): EnvT[E, W, A] = apply((ask, lower))
-    def apply [E, W[_], A](f: (E, W[A])): EnvT[E, W, A] = macro Meta.fastCast
-    def envT  [E, W[_], A](f: (E, W[A])): EnvT[E, W, A] = macro Meta.fastCast
-    def unenvT[E, W[_], A](f: EnvT[E, W, A]): (E, W[A]) = macro Meta.fastCast
+    def apply  [E, W[_], A](ask: E, lower: W[A]): EnvT[E, W, A] = apply((ask, lower))
+    def apply  [E, W[_], A](f: (E, W[A])): EnvT[E, W, A] = macro Meta.fastCast
+    def envT   [E, W[_], A](f: (E, W[A])): EnvT[E, W, A] = macro Meta.fastCast
+    def unenvT [E, W[_], A](f: EnvT[E, W, A]): (E, W[A]) = macro Meta.fastCast
+    def unapply[E, W[_], A](f: EnvT[E, W, A]): Option[(E, W[A])] = Some(f.tuple)
 
     final class Ops[E, W[_], A](val envT: EnvT[E, W, A]) extends AnyVal {
       def tuple: (E, W[A]) = EnvT.unenvT(envT)
