@@ -23,9 +23,9 @@ final class MathExprExample extends Properties("MathExprExample") {
     variables: Map[String, V]
   ): AlgebraM[String | ?, EnvT[Option[V], Expr[V, ?], ?], V] = {
     val algebra = Evaluate.algebraM(variables)
-    fa => fa.ask match {
-      case Some(value) => value.asRight
-      case None        => algebra(fa.lower)
+    fa => fa match {
+      case EnvT(Some(value), _) => value.asRight
+      case EnvT(None,lower) => algebra(lower)
     }
   }
 
