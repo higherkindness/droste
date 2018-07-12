@@ -10,7 +10,7 @@ import cats.implicits._
 import qq.droste._
 import qq.droste.data._
 import qq.droste.data.prelude._
-import qq.droste.syntax._
+import qq.droste.syntax.alias._
 
 // note:
 // athema is a dummy math engine packaged with droste

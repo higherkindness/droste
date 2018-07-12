@@ -3,8 +3,18 @@ package syntax
 
 import cats.Applicative
 
-object `package` {
+import data.EnvT
 
+object all
+    extends AliasSyntax
+    with AttrSyntax
+    with LiftSyntax
+
+object alias extends AliasSyntax
+object attr extends AttrSyntax
+object lift extends LiftSyntax
+
+sealed trait AliasSyntax {
   /** Compose two functors `F` and `G.
     *
     * This allows you to inline what would otherwise require
@@ -43,8 +53,26 @@ object `package` {
 
   type &[L, R] = (L, R)
   type |[L, R] = Either[L, R]
+}
 
-  implicit final class LiftArrowOps[A, B](val f: A => B) extends AnyVal {
+sealed trait AttrSyntax {
+  implicit def toAttrySyntaxOps[V[_], A](lower: V[A]): AttrSyntax.Ops[V, A] =
+    new AttrSyntax.Ops(lower)
+}
+
+object AttrSyntax {
+  final class Ops[V[_], A](val lower: V[A]) extends AnyVal {
+    implicit def attr[E, W[a] >: V[a]](ask: E): EnvT[E, W, A] = EnvT(ask, lower)
+  }
+}
+
+sealed trait LiftSyntax {
+  implicit def toLiftSyntaxOps[A, B](f: A => B): LiftSyntax.Ops[A, B] =
+    new LiftSyntax.Ops(f)
+}
+
+object LiftSyntax {
+  final class Ops[A, B](val f: A => B) extends AnyVal {
     def lift[F[_]](implicit F: Applicative[F]): A => F[B] = a => F.pure(f(a))
   }
 }
