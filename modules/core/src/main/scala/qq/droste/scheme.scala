@@ -11,7 +11,7 @@ import cats.syntax.traverse._
 import cats.instances.either._
 import cats.instances.tuple._
 
-import syntax._
+import syntax.all._
 import implicits.composedFunctor._
 
 object scheme {

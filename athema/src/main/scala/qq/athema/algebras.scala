@@ -6,7 +6,7 @@ import cats.implicits._
 
 import qq.droste._
 import qq.droste.data._
-import qq.droste.syntax._
+import qq.droste.syntax.all._
 
 object Evaluate {
   def evaluate[V: Field]: Expr.Fixed[V] => Either[String, V] =

@@ -15,10 +15,10 @@ import cats.instances.option._
 
 import data.prelude._
 import data.Cofree
-import data.EnvT
 import data.Fix
 import data.Mu
 import data.Nu
+import syntax.attr._
 
 class SchemePartialBasisTests extends Properties("SchemePartialBasis") {
 
@@ -35,7 +35,7 @@ class SchemePartialBasisTests extends Properties("SchemePartialBasis") {
 
   property("scheme[Cofree[?[_], Int]].ana") = {
 
-    val f = scheme[Cofree[?[_], Int]].ana((n: Int) => EnvT(n, if (n > 0) Some(n - 1) else None))
+    val f = scheme[Cofree[?[_], Int]].ana((n: Int) => (if (n > 0) Some(n - 1) else None) attr n)
 
     def expected(n: Int): Cofree[Option, Int] =
       if (n > 0) Cofree(n, Some(expected(n - 1)))
@@ -46,7 +46,7 @@ class SchemePartialBasisTests extends Properties("SchemePartialBasis") {
 
   property("scheme[cats.free.Cofree[?[_], Int]].ana") = {
 
-    val f = scheme[cats.free.Cofree[?[_], Int]].ana((n: Int) => EnvT(n, if (n > 0) Some(n - 1) else None))
+    val f = scheme[cats.free.Cofree[?[_], Int]].ana((n: Int) => (if (n > 0) Some(n - 1) else None) attr n)
 
     def expected(n: Int): cats.free.Cofree[Option, Int] =
       if (n > 0) cats.free.Cofree(n, Eval.now(Some(expected(n - 1))))

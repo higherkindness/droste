@@ -1,6 +1,6 @@
 package qq.droste
 
-import syntax._
+import syntax.alias._
 
 object `package` {
 
