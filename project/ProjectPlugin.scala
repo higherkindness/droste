@@ -1,8 +1,8 @@
 import sbt.Keys._
 import sbt._
-import org.scalajs.sbtplugin.cross.CrossProject
-import org.scalajs.sbtplugin.cross.CrossType
-import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
+import sbtcrossproject.CrossProject
+import sbtcrossproject.CrossPlugin.autoImport._
+import scalajscrossproject.ScalaJSCrossPlugin.autoImport._
 
 object ProjectPlugin extends AutoPlugin {
 
@@ -16,11 +16,11 @@ object ProjectPlugin extends AutoPlugin {
       modName: String,
       prefix: String = "modules/"
     ): CrossProject =
-      CrossProject(
-        modName,
-        file(s"$prefix$modName"),
-        CrossType.Pure
-      )
+      CrossProject(modName, file(s"$prefix$modName"))(JSPlatform, JVMPlatform)
+        .crossType(CrossType.Pure)
+        .withoutSuffixFor(JVMPlatform)
+        .build()
+        .jvmSettings(fork in Test := true)
         .settings(moduleName := s"${name.value}-$modName")
 
     lazy val noPublishSettings: Seq[Def.Setting[_]] = Seq(
@@ -41,14 +41,13 @@ object ProjectPlugin extends AutoPlugin {
     name := "droste",
     startYear := Option(2017),
 
-    fork in Test := !isScalaJSProject.value,
     parallelExecution in Test := false,
     outputStrategy := Some(StdoutOutput),
     connectInput in run := true,
     cancelable in Global := true,
 
-    crossScalaVersions :=  List("2.11.11", "2.12.3"),
-    scalaVersion       := "2.12.3"
+    crossScalaVersions :=  List("2.11.11", "2.12.6"),
+    scalaVersion       := "2.12.6"
   )
 
 }
