@@ -7,8 +7,8 @@ import cats.Applicative
 import cats.Traverse
 import cats.implicits._
 
-import qq.droste._
-import qq.droste.data._
+import qq.droste.scheme
+import qq.droste.data.Nu
 import qq.droste.util.DefaultTraverse
 
 import scala.annotation.tailrec

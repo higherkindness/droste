@@ -11,6 +11,14 @@ import data.prelude._
 
 object `package` {
 
+  /** A fix point function for types.
+    *
+    * Implemented as an obscured alias:
+    * {{{type Fix[F[_]] = F[Fix[F]]}}}
+    *
+    * The companion object can be used to translate between
+    * representations.
+    */
   type Fix[F[_]] // = F[Fix[F]]
 
   object Fix {
@@ -22,6 +30,36 @@ object `package` {
     def coalgebra[F[_]]: Coalgebra[F, Fix[F]] = unfix(_)
   }
 
+  /** A very basic free monad.
+    *
+    * Implemented as an obscured alias:
+    * {{{type Free[F[_], A] = Either[A, F[Free[F, A]]]}}}
+    *
+    * The companion object can be used to translate between
+    * representations.
+    */
+  type Free[F[_], A] // = Either[A, F[Free[F, A]]]
+
+  object Free {
+    def free  [F[_], A](f: Either[A, F[Free[F, A]]]): Free[F, A] = macro Meta.fastCast
+    def unfree[F[_], A](f: Free[F, A]): Either[A, F[Free[F, A]]] = macro Meta.fastCast
+
+    def pure[F[_], A](a: A): Free[F, A] = free(Left(a))
+
+    final class Ops[F[_], A](val free: Free[F, A]) extends AnyVal {
+      def fold[B](fa: A => B, ffffa: F[Free[F, A]] => B): B =
+        unfree(free).fold(fa, ffffa)
+    }
+  }
+
+  /** A very basic cofree comonad.
+    *
+    * Implemented as an obscured alias:
+    * {{{type Cofree[F[_], A] = (A, F[Cofree[F, A]])}}}
+    *
+    * The companion object can be used to translate between
+    * representations.
+    */
   type Cofree[F[_], A] // = (A, F[Cofree[F, A]])
 
   object Cofree {
@@ -48,9 +86,20 @@ object `package` {
 
       def toCats(implicit ev: Functor[F]): cats.free.Cofree[F, A] =
         cats.free.Cofree(head, Eval.later(tail.map(_.toCats)))
+
+      def forget(implicit ev: Functor[F]): Fix[F] =
+        Fix(tail.map(_.forget))
     }
   }
 
+  /** A very basic environment monad transformer
+    *
+    * Implemented as an obscured alias:
+    * {{{type EnvT[E, W[_], A] = (E, W[A])}}}
+    *
+    * The companion object can be used to translate between
+    * representations.
+    */
   type EnvT[E, W[_], A] // = (E, W[A])
 
   object EnvT {
