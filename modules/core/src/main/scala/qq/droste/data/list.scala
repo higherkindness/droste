@@ -14,6 +14,22 @@ final case class ConsF[A, B](head: A, tail: B) extends ListF[A, B]
 case object NilF extends ListF[Nothing, Nothing]
 
 object ListF {
+
+  def toScalaList[A, PatR[_[_]]](list: PatR[ListF[A, ?]])(
+    implicit ev1: Project[ListF[A, ?], PatR[ListF[A, ?]]]
+  ): List[A] =
+    scheme.cata(toScalaListAlgebra[A]).apply(list)
+
+  def toScalaListAlgebra[A]: Algebra[ListF[A, ?], List[A]] = {
+    case ConsF(head, tail) => head :: tail
+    case NilF              => Nil
+  }
+
+  def fromScalaListCoalgebra[A]: Coalgebra[ListF[A, ?], List[A]] = {
+    case head :: tail => ConsF(head, tail)
+    case Nil          => NilF
+  }
+
   implicit def drosteTraverseForListF[A]: Traverse[ListF[A, ?]] =
     new DefaultTraverse[ListF[A, ?]] {
       def traverse[F[_]: Applicative, B, C](fb: ListF[A, B])(f: B => F[C]): F[ListF[A, C]] =
