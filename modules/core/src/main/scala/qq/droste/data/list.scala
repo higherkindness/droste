@@ -16,7 +16,7 @@ case object NilF extends ListF[Nothing, Nothing]
 object ListF {
 
   def toScalaList[A, PatR[_[_]]](list: PatR[ListF[A, ?]])(
-    implicit ev1: Project[ListF[A, ?], PatR[ListF[A, ?]]]
+    implicit ev: Project[ListF[A, ?], PatR[ListF[A, ?]]]
   ): List[A] =
     scheme.cata(toScalaListAlgebra[A]).apply(list)
 
@@ -24,6 +24,11 @@ object ListF {
     case ConsF(head, tail) => head :: tail
     case NilF              => Nil
   }
+
+  def fromScalaList[A, PatR[_[_]]](list: List[A])(
+    implicit ev: Embed[ListF[A, ?], PatR[ListF[A, ?]]]
+  ): PatR[ListF[A, ?]] =
+    scheme.ana(fromScalaListCoalgebra[A]).apply(list)
 
   def fromScalaListCoalgebra[A]: Coalgebra[ListF[A, ?], List[A]] = {
     case head :: tail => ConsF(head, tail)

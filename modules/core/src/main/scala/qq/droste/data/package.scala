@@ -45,6 +45,7 @@ object `package` {
     def unfree[F[_], A](f: Free[F, A]): Either[A, F[Free[F, A]]] = macro Meta.fastCast
 
     def pure[F[_], A](a: A): Free[F, A] = free(Left(a))
+    def roll[F[_], A](fa: F[Free[F, A]]): Free[F, A] = free(Right(fa))
 
     final class Ops[F[_], A](val free: Free[F, A]) extends AnyVal {
       def fold[B](fa: A => B, ffffa: F[Free[F, A]] => B): B =
