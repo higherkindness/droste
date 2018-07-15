@@ -22,6 +22,7 @@ object Mu {
   def coalgebra[F[_]: Functor]: Coalgebra[F, Mu[F]] =
     mf => mf[F[Mu[F]]](_ map algebra)
 
+  def apply  [F[_]: Functor](fmf: F[Mu[F]]):   Mu[F]  = embed(fmf)
   def embed  [F[_]: Functor](fmf: F[Mu[F]]):   Mu[F]  = algebra  [F].apply(fmf)
   def project[F[_]: Functor](mf :   Mu[F] ): F[Mu[F]] = coalgebra[F].apply(mf)
 
