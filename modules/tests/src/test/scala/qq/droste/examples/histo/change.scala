@@ -36,6 +36,9 @@ final class MakeChange extends Properties("MakeChange") {
 
   val solve = scheme.histo(makeChangeAlgebra)
 
+  // dyna is the same as an ana followed by a histo
+  val solveFused = scheme.dyna(makeChangeAlgebra, toNatCoalgebra)
+
   property("1 cent solutions") =
     solve(toNat(1)) ?= Set(Penny :: Nil)
 
@@ -91,23 +94,23 @@ final class MakeChange extends Properties("MakeChange") {
       Penny :: Penny :: Penny :: Penny :: Penny :: Penny :: Penny :: Penny :: Penny :: Penny :: Penny :: Nil,
       Penny :: Penny :: Penny :: Penny :: Penny :: Penny :: Nickle :: Nil,
       Penny :: Nickle :: Nickle :: Nil,
-      Penny :: Dime :: Nil,
+      Penny :: Dime :: Nil
     )
 
   property("num 10 cent solutions") =
-    solve(toNat(10)).size ?= 4
+    solveFused(10).size ?= 4
 
   property("num 25 cent solutions") =
-    solve(toNat(25)).size ?= 13
+    solveFused(25).size ?= 13
 
   property("num 50 cent solutions") =
-    solve(toNat(50)).size ?= 50
+    solveFused(50).size ?= 50
 
   property("num 100 cent solutions") =
-    solve(toNat(100)).size ?= 293
+    solveFused(100).size ?= 293
 
   property("num 200 cent solutions") =
-    solve(toNat(200)).size ?= 2728
+    solveFused(200).size ?= 2728
 }
 
 object MakeChange {
@@ -144,7 +147,7 @@ object MakeChange {
     n => if (n > 0) Next(n - 1) else Zero
 
   val toNat: Int => Fix[Nat] =
-    scheme.ana((n: Int) => if (n > 0) Next(n - 1) else Zero)
+    scheme.ana(toNatCoalgebra)
 
   val fromNat: Fix[Nat] => Int =
     scheme[Fix].cata[Nat, Int]({

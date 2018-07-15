@@ -212,6 +212,21 @@ object scheme {
       _.fold(coalgebra, identity)
     ) andThen (_.head) compose (Free.pure(_))
 
+  /** A fusion refold of an anamorphism followed by a histomorphism
+    *
+    * @group refolds
+    *
+    * @usecase def dyna[F[_], A, B](algebra: CVAlgebra[F, B], coalgebra: Coalgebra[F, A]): A => B
+    *   @inheritdoc
+    */
+  def dyna[F[_]: Functor, A, B](
+    algebra: CVAlgebra[F, B],
+    coalgebra: Coalgebra[F, A]
+  ): A => B =
+    hylo[F, A, Cofree[F, B]](
+      fb => Cofree(algebra(fb), fb),
+      coalgebra
+    ) andThen (_.head)
 
   /** Convenience to specify the base constructor "shape" (such as `Fix`
     * or `Cofree[?[_], Int]`) for recursion.
