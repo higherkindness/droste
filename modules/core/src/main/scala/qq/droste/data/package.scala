@@ -70,7 +70,6 @@ object `package` {
     def uncofree[F[_], A](f: Cofree[F, A]): (A, F[Cofree[F, A]]) = macro Meta.fastCast
     def unapply [F[_], A](f: Cofree[F, A]): Option[(A, F[Cofree[F,A]])] = Some(f.tuple)
 
-
     def algebra[E, F[_]]: Algebra[EnvT[E, F, ?], Cofree[F, E]] =
       fa => Cofree(EnvT.unenvT(fa))
 
@@ -78,7 +77,14 @@ object `package` {
       a => EnvT(Cofree.uncofree(a))
 
     def fromCats[F[_]: Functor, A](cofree: cats.free.Cofree[F, A]): Cofree[F, A] =
-      Cofree(cofree.head, cofree.tail.value.map(fromCats(_)))
+      ana(cofree)(_.tail.value, _.head)
+
+    def unfold[F[_]: Functor, A](a: A)(coalgebra: Coalgebra[F, A]): Cofree[F, A] =
+      ana(a)(coalgebra, identity)
+
+    /** An inlined anamorphism to `Cofree` with a fused map */
+    def ana[F[_]: Functor, A, C](a: A)(coalgebra: Coalgebra[F, A], f: A => C): Cofree[F, C] =
+      Cofree(f(a), coalgebra(a).map(ana(_)(coalgebra, f)))
 
     final class Ops[F[_], A](val cofree: Cofree[F, A]) extends AnyVal {
       def tuple: (A, F[Cofree[F, A]]) = Cofree.uncofree(cofree)

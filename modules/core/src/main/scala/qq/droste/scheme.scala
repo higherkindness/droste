@@ -1,9 +1,14 @@
 package qq.droste
 
+import cats.~>
+import cats.Comonad
 import cats.Functor
 import cats.Monad
 import cats.Traverse
 
+import cats.syntax.applicative._
+import cats.syntax.coflatMap._
+import cats.syntax.comonad._
 import cats.syntax.functor._
 import cats.syntax.flatMap._
 import cats.syntax.traverse._
@@ -227,6 +232,36 @@ object scheme {
       fb => Cofree(algebra(fb), fb),
       coalgebra
     ) andThen (_.head)
+
+  /** A generalized catamorphism
+    *
+    * @group folds
+    * @usecase def gcata[W[_], F[_], R, B](distFW: (F ∘ W)#λ ~> (W ∘ F)#λ, algebra: GAlgebra[W, F, B]): R => B
+    *   @inheritdoc
+    */
+  def gcata[W[_]: Comonad, F[_]: Functor, R, B](
+    distFW: (F ∘ W)#λ ~> (W ∘ F)#λ,
+    algebra: GAlgebra[W, F, B]
+  )(implicit project: Project[F, R]): R => B =
+    hylo[F, R, W[B]](
+      fwb => distFW(fwb.map(_.coflatten)).map(algebra),
+      project.coalgebra
+    ) andThen (_.extract)
+
+  /** A generalized anamorphism
+    *
+    * @group unfolds
+    * @usecase def gana[W[_], F[_], A, R](distWF: (W ∘ F)#λ ~> (F ∘ W)#λ, coalgebra: Coalgebra[F, A]): A => R
+    *   @inheritdoc
+    */
+  def gana[W[_]: Monad, F[_]: Functor, A, R](
+    distWF: (W ∘ F)#λ ~> (F ∘ W)#λ,
+    coalgebra: Coalgebra[F, A]
+  )(implicit embed: Embed[F, R]): A => R =
+    hylo[F, W[A], R](
+      embed.algebra,
+      wa => distWF(wa.map(coalgebra))
+    ) compose (_.pure[W])
 
   /** Convenience to specify the base constructor "shape" (such as `Fix`
     * or `Cofree[?[_], Int]`) for recursion.
