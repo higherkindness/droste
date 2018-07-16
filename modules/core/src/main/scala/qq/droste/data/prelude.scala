@@ -2,6 +2,7 @@ package qq.droste
 package data
 
 import cats.Applicative
+import cats.Comonad
 import cats.Functor
 import cats.Traverse
 
@@ -37,8 +38,8 @@ private[data] sealed trait DataInstances0 {
   implicit def drosteEnvTFunctor[E, W[_]: Functor]: Functor[EnvT[E, W, ?]] =
     new EnvTFunctor[E, W]
 
-  implicit def drosteCofreeFunctor[F[_]: Functor]: Functor[Cofree[F, ?]] =
-    new CofreeFunctor[F]
+  implicit def drosteCofreeComonad[F[_]: Functor]: Comonad[Cofree[F, ?]] =
+    new CofreeComonad[F]
 }
 
 private[data] class EnvTFunctor[E, W[_]: Functor] extends Functor[EnvT[E, W, ?]] {
@@ -54,6 +55,11 @@ private[data] final class EnvTTraverse[E, W[_]: Traverse]
     fa.lower.traverse(f).map(EnvT(fa.ask, _))
 }
 
-private[data] final class CofreeFunctor[F[_]: Functor] extends Functor[Cofree[F, ?]] {
+private[data] final class CofreeComonad[F[_]: Functor] extends Comonad[Cofree[F, ?]] {
+  def coflatMap[A, B](fa: Cofree[F, A])(f: Cofree[F, A] => B): Cofree[F, B] =
+    Cofree.ana(fa)(_.tail, f)
+
+  def extract[A](fa: Cofree[F, A]): A = fa.head
+
   def map[A, B](fa: Cofree[F, A])(f: A => B): Cofree[F, B] = Cofree(f(fa.head), fa.tail.map(_.map(f)))
 }

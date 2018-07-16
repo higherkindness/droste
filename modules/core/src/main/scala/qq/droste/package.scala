@@ -18,4 +18,7 @@ object `package` {
   type CVAlgebra  [      F[_], A   ] = F[Cofree[F, A]] => A
   type CVCoalgebra[      F[_], A   ] = A               => F[Free[F, A]]
 
+  type GAlgebra   [W[_], F[_], A   ] = F[W[A]]         => A
+  type GCoalgebra [W[_], F[_], A   ] = A               => F[W[A]]
+
 }
