@@ -22,7 +22,9 @@ final class WorkDone extends Properties("WorkDone") {
     case NilF =>
       sketch.value += 1
       0
-    case ConsF(_, n :< _) => n + 1
+    case ConsF(_, n :< _) =>
+      sketch.value += 1
+      n + 1
   }
 
   property("histo vs gcata") = {
@@ -30,11 +32,24 @@ final class WorkDone extends Properties("WorkDone") {
     forAll { (list: Fix[ListF[Unit, ?]]) =>
       val sf = new Sketch()
       val sg = new Sketch()
+      val sh = new Sketch()
 
       val f = scheme.histo(algebra(sf))
-      val g = scheme.gcata(dist.cofree[ListF[Unit, ?]], algebra(sg))
+      val g = scheme.gcata_cranky(dist.cofree[ListF[Unit, ?]], algebra(sg))
+      val h = scheme.gcata(gather.histo[ListF[Unit, ?], Int], algebra(sh))
 
-      (f(list) ?= g(list)) && (sg.value ?= sf.value)
+      val rf = f(list)
+      val rg = g(list)
+      val rh = h(list)
+
+      val p0 = (rf ?= rg) :| "histo result == gcata (old) result"
+      val p1 = (rf ?= rh) :| "histo result == gcata (new) result"
+
+      val p2 = if (sf.value <= 1) proved else (sf.value != sg.value) :| "histo work != gcata (old) work"
+      val p3 = (sf.value ?= sh.value) :| "histo work == gcata (new) work"
+
+      p0 && p1 && p2 && p3
+
     }
 
   }

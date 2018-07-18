@@ -239,7 +239,7 @@ object scheme {
     * @usecase def gcata[W[_], F[_], R, B](distFW: (F ∘ W)#λ ~> (W ∘ F)#λ, algebra: GAlgebra[W, F, B]): R => B
     *   @inheritdoc
     */
-  def gcata[W[_]: Comonad, F[_]: Functor, R, B](
+  def gcata_cranky[W[_]: Comonad, F[_]: Functor, R, B](
     distFW: (F ∘ W)#λ ~> (W ∘ F)#λ,
     algebra: GAlgebra[W, F, B]
   )(implicit project: Project[F, R]): R => B =
@@ -247,6 +247,15 @@ object scheme {
       fwb => distFW(fwb.map(_.coflatten)).map(algebra),
       project.coalgebra
     ) andThen (_.extract)
+
+  def gcata[S, F[_]: Functor, R, B](
+    gather: Gather[F, B, S],
+    algebra: F[S] => B
+  )(implicit project: Project[F, R]): R => B =
+    r => algebra(project.coalgebra(r).map(
+      hylo[F, R, S](
+        fb => gather(algebra(fb), fb),
+        project.coalgebra)))
 
   /** A generalized anamorphism
     *

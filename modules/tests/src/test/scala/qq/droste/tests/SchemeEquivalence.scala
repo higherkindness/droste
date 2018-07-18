@@ -8,7 +8,6 @@ import org.scalacheck.Gen
 import org.scalacheck.Properties
 import org.scalacheck.Prop._
 
-import data.prelude._
 import examples.histo.MakeChange
 
 final class SchemeEquivalence extends Properties("SchemeEquivalence") {
@@ -62,7 +61,7 @@ final class SchemeEquivalence extends Properties("SchemeEquivalence") {
       import z.implicits._
 
       val f = scheme.histo(z.cvalgebra)
-      val g = scheme.gcata(dist.cofree[z.F], z.cvalgebra)
+      val g = scheme.gcata(gather.histo[z.F, z.B], z.cvalgebra)
 
       forAll((r: z.R) => f(r) ?= g(r))
     }
