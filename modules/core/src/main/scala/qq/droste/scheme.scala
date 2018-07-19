@@ -1,24 +1,13 @@
 package qq.droste
 
-import cats.~>
-import cats.Comonad
 import cats.Functor
 import cats.Monad
 import cats.Traverse
 
-import cats.syntax.applicative._
-import cats.syntax.coflatMap._
-import cats.syntax.comonad._
 import cats.syntax.functor._
 import cats.syntax.flatMap._
 import cats.syntax.traverse._
 
-import cats.instances.either._
-import cats.instances.tuple._
-
-import data.prelude._
-import data.Cofree
-import data.Free
 import syntax.all._
 import implicits.composedFunctor._
 
@@ -26,6 +15,7 @@ import implicits.composedFunctor._
   * @groupname refolds Refolds
   * @groupname folds   Folds
   * @groupname unfolds Unfolds
+  * @groupname exotic  Exotic
   */
 object scheme {
 
@@ -139,138 +129,45 @@ object scheme {
       algebraM,
       project.coalgebra.lift[M])
 
-
-  /** A variation of an anamorphism that lets you terminate any point of
-    * the recursion using a value of the original input type.
-    *
-    * One use case is to return cached/precomputed results during an
-    * unfold.
-    *
-    * @usecase def apo[F[_], A, R](coalgebra: RCoalgebra[R, F, A]): A => R
-    *   @inheritdoc
-    */
-  def apo[F[_]: Functor, A, R](
-    coalgebra: RCoalgebra[R, F, A]
-  )(implicit embed: Embed[F, R]): A => R =
-    hyloC(
-      embed.algebra.compose((frr: F[(R | R)]) => frr.map(_.merge)),
-      coalgebra)
-
-  /** A variation of a catamorphism that gives you access to the input value at
-    * every point in the computation.
-    *
-    * A paramorphism "eats its argument and keeps it too.
-    *
-    * This means each step has access to both the computed result
-    * value as well as the original value.
-    *
-    * @usecase def para[F[_], R, B](algebra: RAlgebra[R, F, B]): R => B
-    *   @inheritdoc
-    */
-  def para[F[_]: Functor, R, B](
-    algebra: RAlgebra[R, F, B]
-  )(implicit project: Project[F, R]): R => B =
-    hyloC(
-      algebra,
-      project.coalgebra.andThen(_.map(r => (r, r))))
-
-
-  /** Histomorphism
-    *
-    * @usecase def histo[F[_], R, B](algebra: CVAlgebra[F, B]): R => B
-    *   @inheritdoc
-    */
-  def histo[F[_]: Functor, R, B](
-    algebra: CVAlgebra[F, B]
-  )(implicit project: Project[F, R]): R => B =
-    hylo[F, R, Cofree[F, B]](
-      fb => Cofree(algebra(fb), fb),
-      project.coalgebra
-    ) andThen (_.head)
-
-  /** Futumorphism
-    *
-    * @usecase def futu[F[_], A, R](coalgebra: CVCoalgebra[F, A]): A => R
-    *   @inheritdoc
-    */
-  def futu[F[_]: Functor, A, R](
-    coalgebra: CVCoalgebra[F, A]
-  )(implicit embed: Embed[F, R]): A => R =
-    hylo[F, Free[F, A], R](
-      embed.algebra,
-      _.fold(coalgebra, identity)
-    ) compose (Free.pure(_))
-
-  /** A fusion refold of a futumorphism followed by a histomorphism
-    *
-    * @group refolds
-    *
-    * @usecase def chrono[F[_], A, B](algebra: CVAlgebra[F, B], coalgebra: CVCoalgebra[F, A]): A => B
-    *   @inheritdoc
-    */
-  def chrono[F[_]: Functor, A, B](
-    algebra: CVAlgebra[F, B],
-    coalgebra: CVCoalgebra[F, A]
+  def ghylo[SA, SB, F[_]: Functor, A, B](
+    algebra: F[SB] => B,
+    coalgebra: A => F[SA])(
+    gather: Gather[F, B, SB],
+    scatter: Scatter[F, A, SA]
   ): A => B =
-    hylo[F, Free[F, A], Cofree[F, B]](
-      fb => Cofree(algebra(fb), fb),
-      _.fold(coalgebra, identity)
-    ) andThen (_.head) compose (Free.pure(_))
-
-  /** A fusion refold of an anamorphism followed by a histomorphism
-    *
-    * @group refolds
-    *
-    * @usecase def dyna[F[_], A, B](algebra: CVAlgebra[F, B], coalgebra: Coalgebra[F, A]): A => B
-    *   @inheritdoc
-    */
-  def dyna[F[_]: Functor, A, B](
-    algebra: CVAlgebra[F, B],
-    coalgebra: Coalgebra[F, A]
-  ): A => B =
-    hylo[F, A, Cofree[F, B]](
-      fb => Cofree(algebra(fb), fb),
-      coalgebra
-    ) andThen (_.head)
-
-  /** A generalized catamorphism
-    *
-    * @group folds
-    * @usecase def gcata[W[_], F[_], R, B](distFW: (F ∘ W)#λ ~> (W ∘ F)#λ, algebra: GAlgebra[W, F, B]): R => B
-    *   @inheritdoc
-    */
-  def gcata_cranky[W[_]: Comonad, F[_]: Functor, R, B](
-    distFW: (F ∘ W)#λ ~> (W ∘ F)#λ,
-    algebra: GAlgebra[W, F, B]
-  )(implicit project: Project[F, R]): R => B =
-    hylo[F, R, W[B]](
-      fwb => distFW(fwb.map(_.coflatten)).map(algebra),
-      project.coalgebra
-    ) andThen (_.extract)
+    a => algebra(coalgebra(a).map(
+      hylo[F, SA, SB](
+        fb => gather(algebra(fb), fb),
+        sa => scatter(sa).fold(coalgebra, identity))))
 
   def gcata[S, F[_]: Functor, R, B](
-    gather: Gather[F, B, S],
-    algebra: F[S] => B
+    algebra: F[S] => B)(
+    gather: Gather[F, B, S]
   )(implicit project: Project[F, R]): R => B =
     r => algebra(project.coalgebra(r).map(
       hylo[F, R, S](
         fb => gather(algebra(fb), fb),
         project.coalgebra)))
 
-  /** A generalized anamorphism
-    *
-    * @group unfolds
-    * @usecase def gana[W[_], F[_], A, R](distWF: (W ∘ F)#λ ~> (F ∘ W)#λ, coalgebra: Coalgebra[F, A]): A => R
-    *   @inheritdoc
-    */
-  def gana[W[_]: Monad, F[_]: Functor, A, R](
-    distWF: (W ∘ F)#λ ~> (F ∘ W)#λ,
-    coalgebra: Coalgebra[F, A]
+  def gana[S, F[_]: Functor, A, R](
+    coalgebra: A => F[S])(
+    scatter: Scatter[F, A, S]
   )(implicit embed: Embed[F, R]): A => R =
-    hylo[F, W[A], R](
-      embed.algebra,
-      wa => distWF(wa.map(coalgebra))
-    ) compose (_.pure[W])
+    a => embed.algebra(coalgebra(a).map(
+      hylo[F, S, R](
+        embed.algebra,
+        s => scatter(s).fold(coalgebra, identity))))
+
+  /** A petting zoo for wild and exotic animals we keep separate from
+    * the regulars in [[scheme]]. For their safety and yours.
+    *
+    * @group exotic
+    *
+    * @groupname refolds Rambunctious Refolds
+    * @groupname folds   Fantastic Folds
+    * @groupname unfolds Unusual Unfolds
+    */
+  object zoo extends Zoo
 
   /** Convenience to specify the base constructor "shape" (such as `Fix`
     * or `Cofree[?[_], Int]`) for recursion.
@@ -300,17 +197,6 @@ object scheme {
       coalgebraM: CoalgebraM[M, PatF[F, ?], A]
     )(implicit embed: EmbedP[F], ev: TraverseP[F]): A => M[PatR[F]] =
       scheme.anaM[M, PatF[F, ?], A, PatR[F]](coalgebraM)
-
-    def apo[F[_], A](
-      rcoalgebra: RCoalgebra[PatR[F], PatF[F, ?], A]
-    )(implicit embed: EmbedP[F], ev: FunctorP[F]): A => PatR[F] =
-      scheme.apo[PatF[F, ?], A, PatR[F]](rcoalgebra)
-
-    def futu[F[_], A](
-      cvcoalgebra: CVCoalgebra[PatF[F, ?], A]
-    )(implicit embed: EmbedP[F], ev: FunctorP[F]): A => PatR[F] =
-      scheme.futu[PatF[F, ?], A, PatR[F]](cvcoalgebra)
-
 
     def cata[F[_], B](
       algebra: Algebra[PatF[F, ?], B]

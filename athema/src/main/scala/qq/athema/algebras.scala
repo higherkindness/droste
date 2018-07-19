@@ -27,7 +27,7 @@ object Evaluate {
 
 object Differentiate {
   def differentiate[V: Ring]: Expr.Fixed[V] => Expr.Fixed[V] =
-    scheme.para(algebra[V])
+    scheme.gcata(algebra[V])(gather.para)
 
   def algebra[V](implicit V: Ring[V]): RAlgebra[Expr.Fixed[V], Expr[V, ?], Expr.Fixed[V]] = {
     case _: Var  [_, _]          => Const.fix(V.one)

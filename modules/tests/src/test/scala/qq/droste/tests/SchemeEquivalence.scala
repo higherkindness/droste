@@ -1,5 +1,5 @@
 package qq.droste
-package test
+package tests
 
 import cats.Functor
 
@@ -55,15 +55,22 @@ final class SchemeEquivalence extends Properties("SchemeEquivalence") {
     )))
 
 
-  property("histo ≡ gcata(dist.cofree, ...)") = {
+  property("histo") = {
 
     forAll { (z: AlgebraFamily) =>
       import z.implicits._
 
-      val f = scheme.histo(z.cvalgebra)
-      val g = scheme.gcata(gather.histo[z.F, z.B], z.cvalgebra)
+      val f = scheme.zoo.histo(z.cvalgebra)
+      val g = scheme.gcata(z.cvalgebra)(gather.histo)
+      val h = scheme.ghylo(z.cvalgebra, z.projectFR.coalgebra)(gather.histo, scatter.ana)
 
-      forAll((r: z.R) => f(r) ?= g(r))
+      forAll { (r: z.R) =>
+        val x = f(r)
+        val y = g(r)
+        val z = h(r)
+
+        (x ?= y) && (x ?= z)
+      }
     }
   }
 

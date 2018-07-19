@@ -24,7 +24,7 @@ final class ListExchange extends Properties("ListExchange") {
   }
 
   val f: List[String] => List[String] =
-    scheme.futu(exchangeCoalgebra) andThen
+    scheme.zoo.futu(exchangeCoalgebra) andThen
     (ListF.toScalaList(_)) compose
     (ListF.fromScalaList(_))
 

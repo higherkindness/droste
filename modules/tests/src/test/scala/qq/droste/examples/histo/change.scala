@@ -34,10 +34,10 @@ final class MakeChange extends Properties("MakeChange") {
     a && b && c && d
   }
 
-  val solve = scheme.histo(makeChangeAlgebra)
+  val solve = scheme.zoo.histo(makeChangeAlgebra)
 
   // dyna is the same as an ana followed by a histo
-  val solveFused = scheme.dyna(makeChangeAlgebra, toNatCoalgebra)
+  val solveFused = scheme.zoo.dyna(makeChangeAlgebra, toNatCoalgebra)
 
   property("1 cent solutions") =
     solve(toNat(1)) ?= Set(Penny :: Nil)

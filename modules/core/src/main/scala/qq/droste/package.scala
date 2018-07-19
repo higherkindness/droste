@@ -21,9 +21,9 @@ object `package` {
   type GAlgebra   [W[_], F[_], A   ] = F[W[A]]         => A
   type GCoalgebra [W[_], F[_], A   ] = A               => F[W[A]]
 
-  //type Gather f a s = a -> f s -> s
 
-  type Gather[F[_], A, S] = (A, F[S]) => S
+  type Gather [F[_], A, S] = (A, F[S]) => S
+  type Scatter[F[_], A, S] = S => Either[A, F[S]]
 
 
 }
