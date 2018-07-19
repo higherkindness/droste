@@ -1,5 +1,5 @@
 package qq.droste
-package test
+package tests
 
 import cats.Functor
 
@@ -8,7 +8,6 @@ import org.scalacheck.Gen
 import org.scalacheck.Properties
 import org.scalacheck.Prop._
 
-import data.prelude._
 import examples.histo.MakeChange
 
 final class SchemeEquivalence extends Properties("SchemeEquivalence") {
@@ -56,15 +55,22 @@ final class SchemeEquivalence extends Properties("SchemeEquivalence") {
     )))
 
 
-  property("histo ≡ gcata(dist.cofree, ...)") = {
+  property("histo") = {
 
     forAll { (z: AlgebraFamily) =>
       import z.implicits._
 
-      val f = scheme.histo(z.cvalgebra)
-      val g = scheme.gcata(dist.cofree[z.F], z.cvalgebra)
+      val f = scheme.zoo.histo(z.cvalgebra)
+      val g = scheme.gcata(z.cvalgebra)(gather.histo)
+      val h = scheme.ghylo(z.cvalgebra, z.projectFR.coalgebra)(gather.histo, scatter.ana)
 
-      forAll((r: z.R) => f(r) ?= g(r))
+      forAll { (r: z.R) =>
+        val x = f(r)
+        val y = g(r)
+        val z = h(r)
+
+        (x ?= y) && (x ?= z)
+      }
     }
   }
 

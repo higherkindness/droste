@@ -63,6 +63,9 @@ object `package` {
     */
   type Cofree[F[_], A] // = (A, F[Cofree[F, A]])
 
+  type :<[F[_], A] = Cofree[F, A]
+  val  :< = Cofree
+
   object Cofree {
     def apply   [F[_], A](head: A, tail: F[Cofree[F, A]]): Cofree[F, A] = apply((head, tail))
     def apply   [F[_], A](f: (A, F[Cofree[F, A]])): Cofree[F, A] = macro Meta.fastCast
