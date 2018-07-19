@@ -3,7 +3,6 @@ import sbt._
 import sbtcrossproject.CrossProject
 import sbtcrossproject.CrossPlugin.autoImport._
 import scalajscrossproject.ScalaJSCrossPlugin.autoImport._
-import com.typesafe.sbt.SbtPgp.autoImport._
 import sbtrelease.ReleasePlugin.autoImport._
 
 object ProjectPlugin extends AutoPlugin {
@@ -55,7 +54,6 @@ object ProjectPlugin extends AutoPlugin {
 
   lazy val publishSettings = Seq(
     releaseCrossBuild := true,
-    releasePublishArtifactsAction := PgpKeys.publishSigned.value,
     homepage := Some(url("https://github.com/andyscott/droste")),
     licenses := Seq("Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
     publishMavenStyle := true,
