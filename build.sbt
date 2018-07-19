@@ -1,6 +1,7 @@
 lazy val root = (project in file("."))
   .settings(noPublishSettings)
   .aggregate(coreJVM, coreJS)
+  .aggregate(metaJVM, metaJS)
   .aggregate(lawsJVM, lawsJS)
   .aggregate(testsJVM, testsJS)
   .aggregate(athemaJVM, athemaJS)
