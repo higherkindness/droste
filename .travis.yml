@@ -8,16 +8,17 @@ stages:
 jobs:
   include:
 
-    - script:
-        - nix-shell --pure --command 'sbt test'
+    - name: "Full Tests"
+      script:
+        - ./scripts/ci-jobs.sh slow-test
 
-    - script:
-        - ./tools/bazel build ...
+    - name: "Quick Tests"
+      script:
+        - ./scripts/ci-jobs.sh quick-test
 
-    - script:
-        - nix-shell --pure --command 'sbt coverage +test coverageReport'
-      after_success:
-        - bash <(curl -s https://codecov.io/bash)
+    - name: "Readme / Docs"
+      script:
+        - ./scripts/ci-jobs.sh readme
 
 cache:
   directories:

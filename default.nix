@@ -16,7 +16,7 @@ stdenv.mkDerivation rec {
   };
 
   buildInputs = [
-    sbt nodejs bazel
+    git sbt nodejs bazel
   ];
 
   installPhase = ''

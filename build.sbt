@@ -5,6 +5,7 @@ lazy val root = (project in file("."))
   .aggregate(lawsJVM, lawsJS)
   .aggregate(testsJVM, testsJS)
   .aggregate(athemaJVM, athemaJS)
+  .aggregate(readme)
 
 lazy val meta = module("meta")
   .settings(libraryDependencies ++= Seq(
@@ -61,3 +62,18 @@ lazy val athema = module("athema", prefix = "")
 
 lazy val athemaJVM = athema.jvm
 lazy val athemaJS  = athema.js
+
+lazy val readme = (project in file("modules/readme"))
+  .enablePlugins(TutPlugin)
+  .dependsOn(coreJVM)
+  .dependsOn(athemaJVM)
+  .settings(noPublishSettings)
+  .settings(
+    scalacOptions in Tut ~= {
+      _.filterNot(Set(
+        "-Ywarn-unused-import",
+        "-Yno-predef",
+        "-Ywarn-unused:imports"))
+    },
+    tutTargetDirectory := (baseDirectory in LocalRootProject).value
+  )
