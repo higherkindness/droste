@@ -4,15 +4,115 @@
 
 Droste is a recursion library for Scala.
 
-# Usage
+**SBT installation**
 
-```tut
-1 + 1
+Select a tagged release version (`x.y.z`) and then add the following
+to your SBT build:
+
+```scala
+libraryDependencies += "io.higherkindness" %% "droste-core" % "x.y.z"
 ```
 
-Refer to the included example project [athema](athema). Athema is a
-math expression parser/processor that demonstrates several common
-recursion schemes.
+# Usage
+
+Droste makes it easy to assemble morphisms. For example, calculating
+Fibonacci values can be done with a histomorphism if we model natural
+numbers as a chain of `Option`. We can easily unfold with an
+anamorphism and then fold to our result with a histomorphism.
+
+```tut:silent
+import qq.droste._
+import qq.droste.data._
+import cats.implicits._
+
+val natCoalgebra: Coalgebra[Option, BigDecimal] =
+  Coalgebra(n => if (n > 0) Some(n - 1) else None)
+
+val fibAlgebra: CVAlgebra[Option, BigDecimal] = CVAlgebra {
+  case Some(r1 :< Some(r2 :< _)) => r1 + r2
+  case Some(_ :< None)           => 1
+  case None                      => 0
+}
+
+val fib: BigDecimal => BigDecimal = scheme.ghylo(
+  fibAlgebra.gather(Gather.histo),
+  natCoalgebra.scatter(Scatter.ana))
+```
+
+```tut
+fib(0)
+fib(1)
+fib(2)
+fib(10)
+fib(100)
+```
+
+An anamorphism followed by a histomorphism is also known as a
+dynamorphism. Recursion scheme animals like dyna are available
+in the zoo:
+
+```tut:silent
+
+val fibAlt: BigDecimal => BigDecimal =
+  scheme.zoo.dyna(fibAlgebra, natCoalgebra)
+```
+
+```tut
+fibAlt(0)
+fibAlt(1)
+fibAlt(2)
+fibAlt(10)
+fibAlt(100)
+```
+
+What if we want to do two things at once? Let's calculate a
+Fibonacci value and the sum of all squares.
+
+```tut:silent
+val sumSquaresAlgebra: RAlgebra[BigDecimal, Option, BigDecimal] = RAlgebra {
+  case Some((n, prev)) => prev + n * n
+  case None            => 0
+}
+
+val fromNatAlgebra: Algebra[Option, BigDecimal] = Algebra {
+  case Some(n) => n + 1
+  case None    => 0
+}
+
+val sumSquares: BigDecimal => BigDecimal = scheme.ghylo(
+  sumSquaresAlgebra.gather(Gather.zygo(fromNatAlgebra.andThenRun(_ + 1))),
+  natCoalgebra.scatter(Scatter.ana))
+```
+
+```tut
+sumSquares(0)
+sumSquares(1)
+sumSquares(2)
+sumSquares(10)
+sumSquares(100)
+```
+
+Now we can zip the two algebras into one so that we calculate
+both results in one pass.
+
+```tut:silent
+val fused: BigDecimal => (BigDecimal, BigDecimal) =
+  scheme.ghylo(
+    fibAlgebra.gather(Gather.histo) zip
+    sumSquaresAlgebra.gather(Gather.zygo(fromNatAlgebra.andThenRun(_ + 1))),
+    natCoalgebra.scatter(Scatter.ana))
+```
+
+```tut
+fused(0)
+fused(1)
+fused(2)
+fused(10)
+fused(100)
+```
+
+Droste includes [athema](athema), a math expression parser/processor,
+as a more extensive example of recursion schemes.
 
 # Credits
 
@@ -38,4 +138,5 @@ available at http://www.apache.org/licenses/LICENSE-2.0.
 # Disclamer
 
 Please be advised that I have no idea what I am doing.
-Nevertheless, this project is being used in production.
+Nevertheless, this project is already being used for real
+work with real data in real life.
