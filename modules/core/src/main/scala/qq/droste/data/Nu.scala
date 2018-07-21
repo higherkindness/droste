@@ -24,10 +24,10 @@ object Nu {
     Default(unfold0, a0)
 
   def algebra[F[_]: Functor]: Algebra[F, Nu[F]] =
-    t => MuEqA((_: F[Nu[F]]) map coalgebra, t)
+    Algebra(t => MuEqA(Coalgebra[F, F[Nu[F]]](_ map coalgebra.run), t))
 
   def coalgebra[F[_]: Functor]: Coalgebra[F, Nu[F]] =
-    nf => nf.unfold(nf.a) map (MuEqA(nf.unfold, _))
+    Coalgebra(nf => nf.unfold(nf.a) map (MuEqA(nf.unfold, _)))
 
   def apply  [F[_]: Functor](fnf: F[Nu[F]]):   Nu[F]  = embed(fnf)
   def embed  [F[_]: Functor](fnf: F[Nu[F]]):   Nu[F]  = algebra  [F].apply(fnf)

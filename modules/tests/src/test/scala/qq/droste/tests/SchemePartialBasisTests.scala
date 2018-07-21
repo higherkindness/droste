@@ -24,7 +24,8 @@ class SchemePartialBasisTests extends Properties("SchemePartialBasis") {
 
   property("scheme[Fix].ana") = {
 
-    val f = scheme[Fix].ana((n: Int) => if (n > 0) Some(n - 1) else None)
+    val f = scheme[Fix].ana(
+      Coalgebra((n: Int) => if (n > 0) Some(n - 1) else None))
 
     def expected(n: Int): Fix[Option] =
       if (n > 0) Fix(Some(expected(n - 1)))
@@ -35,7 +36,8 @@ class SchemePartialBasisTests extends Properties("SchemePartialBasis") {
 
   property("scheme[Cofree[?[_], Int]].ana") = {
 
-    val f = scheme[Cofree[?[_], Int]].ana((n: Int) => (if (n > 0) Some(n - 1) else None) attr n)
+    val f = scheme[Cofree[?[_], Int]].ana(
+      Coalgebra((n: Int) => (if (n > 0) Some(n - 1) else None) attr n))
 
     def expected(n: Int): Cofree[Option, Int] =
       if (n > 0) Cofree(n, Some(expected(n - 1)))
@@ -46,7 +48,8 @@ class SchemePartialBasisTests extends Properties("SchemePartialBasis") {
 
   property("scheme[cats.free.Cofree[?[_], Int]].ana") = {
 
-    val f = scheme[cats.free.Cofree[?[_], Int]].ana((n: Int) => (if (n > 0) Some(n - 1) else None) attr n)
+    val f = scheme[cats.free.Cofree[?[_], Int]].ana(
+      Coalgebra((n: Int) => (if (n > 0) Some(n - 1) else None) attr n))
 
     def expected(n: Int): cats.free.Cofree[Option, Int] =
       if (n > 0) cats.free.Cofree(n, Eval.now(Some(expected(n - 1))))
@@ -57,7 +60,8 @@ class SchemePartialBasisTests extends Properties("SchemePartialBasis") {
 
   property("scheme[Mu].ana") = {
 
-    val f = scheme[Mu].ana((n: Int) => if (n > 0) Some(n - 1) else None)
+    val f = scheme[Mu].ana(
+      Coalgebra((n: Int) => if (n > 0) Some(n - 1) else None))
 
     def expected(n: Int): Mu[Option] =
       if (n > 0) Mu.embed(Some(expected(n - 1)))
@@ -68,7 +72,8 @@ class SchemePartialBasisTests extends Properties("SchemePartialBasis") {
 
   property("scheme[Nu].ana") = {
 
-    val f = scheme[Nu].ana((n: Int) => if (n > 0) Some(n - 1) else None)
+    val f = scheme[Nu].ana(
+      Coalgebra((n: Int) => if (n > 0) Some(n - 1) else None))
 
     def expected(n: Int): Nu[Option] =
       if (n > 0) Nu.embed(Some(expected(n - 1)))

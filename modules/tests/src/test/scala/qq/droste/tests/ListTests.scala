@@ -44,7 +44,7 @@ final class ListTests extends Properties("ListTest") {
   property("rountrip List") = {
     // TODO: is there a way to rework/augment some of the schemes to return a
     // natural transformation valid for all lists?
-    val f = scheme.hylo(ListF.toScalaListAlgebra[String], ListF.fromScalaListCoalgebra[String])
+    val f = scheme.hylo(ListF.toScalaListAlgebra[String].run, ListF.fromScalaListCoalgebra[String].run)
     forAll((list: List[String]) => f(list) ?= list)
   }
 

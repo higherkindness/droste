@@ -144,13 +144,13 @@ object MakeChange {
   final case class Next[A](a: A) extends Nat[A]
 
   val toNatCoalgebra: Coalgebra[Nat, Int] =
-    n => if (n > 0) Next(n - 1) else Zero
+    Coalgebra(n => if (n > 0) Next(n - 1) else Zero)
 
   val toNat: Int => Fix[Nat] =
     scheme.ana(toNatCoalgebra)
 
   val fromNat: Fix[Nat] => Int =
-    scheme[Fix].cata[Nat, Int]({
+    scheme[Fix].cata[Nat, Int](Algebra {
       case Next(n) => n + 1
       case Zero    => 0
     })
@@ -162,7 +162,7 @@ object MakeChange {
       case Zero => Set.empty
     }
 
-  val makeChangeAlgebra: CVAlgebra[Nat, Set[List[Coin]]] = {
+  val makeChangeAlgebra: CVAlgebra[Nat, Set[List[Coin]]] = CVAlgebra {
     case Next(attr) =>
       val given = fromNat(attr.forget) + 1
       val validCoins = allCoins

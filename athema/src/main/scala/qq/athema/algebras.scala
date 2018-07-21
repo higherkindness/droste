@@ -26,11 +26,13 @@ object Evaluate {
 }
 
 object Differentiate {
-  def differentiate[V: Ring]: Expr.Fixed[V] => Expr.Fixed[V] =
-    scheme.gcata(algebra[V])(gather.para)
 
-  def algebra[V](implicit V: Ring[V]): RAlgebra[Expr.Fixed[V], Expr[V, ?], Expr.Fixed[V]] = {
-    case _: Var  [_, _]          => Const.fix(V.one)
+  def differentiate[V: Ring](wrt: String): Expr.Fixed[V] => Expr.Fixed[V] =
+    scheme.gcata(algebra[V](wrt))(Gather.para)
+
+  def algebra[V](wrt: String)(implicit V: Ring[V]): RAlgebra[Expr.Fixed[V], Expr[V, ?], Expr.Fixed[V]] = RAlgebra {
+    case Var(`wrt`)              => Const.fix(V.one)
+    case _: Var  [_, _]          => Const.fix(V.zero)
     case _: Const[_, _]          => Const.fix(V.zero)
     case Neg  ((_, xx))          => Neg(xx)
     case Add  ((_, xx), (_, yy)) => Add(xx, yy)
@@ -44,7 +46,7 @@ object Simplify {
   def simplify[V: Field]: Expr.Fixed[V] => Expr.Fixed[V] =
     scheme.cata(algebra[V])
 
-  def algebra[V](implicit V: Field[V]): Algebra[Expr[V, ?], Expr.Fixed[V]] = { fa =>
+  def algebra[V](implicit V: Field[V]): Algebra[Expr[V, ?], Expr.Fixed[V]] = Algebra { fa =>
 
     val Zero: Expr.Fixed[V] = Const.fix(V.zero)
     val One : Expr.Fixed[V] = Const.fix(V.one)
@@ -56,6 +58,8 @@ object Simplify {
       case Prod(One, v)         => v
       case Prod(v, One)         => v
       case Sub (Zero, v)        => Neg(v)
+      case Add (Zero, v)        => v
+      case Add (v, Zero)        => v
       case Add (x, y) if x == y => Prod(Two, x)
       case Add (x, Prod(Const(n: V), y)) if x == y => Prod(Const.fix(V.plus(n, V.one)), x)
       case other                => Fix(other)
