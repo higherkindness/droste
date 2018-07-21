@@ -45,8 +45,8 @@ object scheme {
     *   @inheritdoc
     */
   def hylo[F[_]: Functor, A, B](
-    algebra: Algebra[F, B],
-    coalgebra: Coalgebra[F, A]
+    algebra  : F[B] => B,
+    coalgebra: A    => F[A]
   ): A => B =
     new (A => B) {
       def apply(a: A): B = algebra(coalgebra(a).map(this))
@@ -63,8 +63,8 @@ object scheme {
     *   @inheritdoc
     */
   @inline def hyloC[F[_]: Functor, G[_]: Functor, A, B](
-    algebra: Algebra[(F ∘ G)#λ, B],
-    coalgebra: Coalgebra[(F ∘ G)#λ, A]
+    algebra  : F[G[B]] => B,
+    coalgebra: A       => F[G[A]]
   ): A => B = hylo[(F ∘ G)#λ, A, B](algebra, coalgebra)
 
   /** Build a monadic hylomorphism
@@ -93,7 +93,7 @@ object scheme {
     *   @inheritdoc
     */
   def hyloM[M[_]: Monad, F[_]: Traverse, A, B](
-    algebra: AlgebraM[M, F, B],
+    algebra  : AlgebraM[M, F, B],
     coalgebra: CoalgebraM[M, F, A]
   ): A => M[B] =
     hyloC[M, F, A, M[B]](
@@ -104,16 +104,15 @@ object scheme {
     coalgebra: Coalgebra[F, A]
   )(implicit embed: Embed[F, R]): A => R =
     hylo(
-      embed.algebra,
-      coalgebra)
+      embed.algebra.run,
+      coalgebra.run)
 
   def cata[F[_]: Functor, R, B](
     algebra: Algebra[F, B]
   )(implicit project: Project[F, R]): R => B =
     hylo(
-      algebra,
-      project.coalgebra)
-
+      algebra.run,
+      project.coalgebra.run)
 
   def anaM[M[_]: Monad, F[_]: Traverse, A, R](
     coalgebraM: CoalgebraM[M, F, A]
@@ -130,33 +129,53 @@ object scheme {
       project.coalgebra.lift[M])
 
   def ghylo[SA, SB, F[_]: Functor, A, B](
-    algebra: F[SB] => B,
-    coalgebra: A => F[SA])(
-    gather: Gather[F, B, SB],
-    scatter: Scatter[F, A, SA]
+    algebra  : GAlgebra  [SB, F, B],
+    coalgebra: GCoalgebra[SA, F, A])(
+    gather   : Gather    [SB, F, B],
+    scatter  : Scatter   [SA, F, A]
   ): A => B =
     a => algebra(coalgebra(a).map(
       hylo[F, SA, SB](
         fb => gather(algebra(fb), fb),
-        sa => scatter(sa).fold(coalgebra, identity))))
+        sa => scatter(sa).fold(coalgebra.run, identity))))
+
+  def ghylo[SA, SB, F[_]: Functor, A, B](
+    gathered : GAlgebra.Gathered   [SB, F, B],
+    scattered: GCoalgebra.Scattered[SA, F, A]
+  ): A => B =
+    ghylo(
+      gathered.algebra, scattered.coalgebra)(
+      gathered.gather, scattered.scatter)
+
 
   def gcata[S, F[_]: Functor, R, B](
-    algebra: F[S] => B)(
-    gather: Gather[F, B, S]
+    galgebra: GAlgebra[S, F, B])(
+    gather  : Gather  [S, F, B]
   )(implicit project: Project[F, R]): R => B =
-    r => algebra(project.coalgebra(r).map(
+    r => galgebra(project.coalgebra(r).map(
       hylo[F, R, S](
-        fb => gather(algebra(fb), fb),
-        project.coalgebra)))
+        fb => gather(galgebra(fb), fb),
+        project.coalgebra.run)))
+
+  def gcata[S, F[_]: Functor, R, B](
+    gathered: GAlgebra.Gathered[S, F, B]
+  )(implicit project: Project[F, R]): R => B =
+    gcata(gathered.algebra)(gathered.gather)
+
 
   def gana[S, F[_]: Functor, A, R](
-    coalgebra: A => F[S])(
-    scatter: Scatter[F, A, S]
+    coalgebra: GCoalgebra[S, F, A])(
+    scatter  : Scatter   [S, F, A]
   )(implicit embed: Embed[F, R]): A => R =
     a => embed.algebra(coalgebra(a).map(
       hylo[F, S, R](
-        embed.algebra,
-        s => scatter(s).fold(coalgebra, identity))))
+        embed.algebra.run,
+        s => scatter(s).fold(coalgebra.run, identity))))
+
+  def gana[S, F[_]: Functor, A, R](
+    scattered: GCoalgebra.Scattered[S, F, A]
+  )(implicit embed: Embed[F, R]): A => R =
+    gana(scattered.coalgebra)(scattered.scatter)
 
   /** A petting zoo for wild and exotic animals we keep separate from
     * the regulars in [[scheme]]. For their safety and yours.

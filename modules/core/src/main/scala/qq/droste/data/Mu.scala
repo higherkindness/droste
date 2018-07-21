@@ -17,10 +17,11 @@ sealed abstract class Mu[F[_]] extends (Algebra[F, ?] ~> Id) with Serializable
 
 object Mu {
   def algebra[F[_]: Functor]: Algebra[F, Mu[F]] =
-    fmf => Default(fmf)
+    Algebra(fmf => Default(fmf))
 
   def coalgebra[F[_]: Functor]: Coalgebra[F, Mu[F]] =
-    mf => mf[F[Mu[F]]](_ map algebra)
+    Coalgebra[F, Mu[F]](mf =>
+      mf[F[Mu[F]]](Algebra(_ map algebra.run)))
 
   def apply  [F[_]: Functor](fmf: F[Mu[F]]):   Mu[F]  = embed(fmf)
   def embed  [F[_]: Functor](fmf: F[Mu[F]]):   Mu[F]  = algebra  [F].apply(fmf)

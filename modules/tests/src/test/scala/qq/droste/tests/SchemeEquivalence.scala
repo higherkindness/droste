@@ -61,8 +61,10 @@ final class SchemeEquivalence extends Properties("SchemeEquivalence") {
       import z.implicits._
 
       val f = scheme.zoo.histo(z.cvalgebra)
-      val g = scheme.gcata(z.cvalgebra)(gather.histo)
-      val h = scheme.ghylo(z.cvalgebra, z.projectFR.coalgebra)(gather.histo, scatter.ana)
+      val g = scheme.gcata(z.cvalgebra.gather(Gather.histo))
+      val h = scheme.ghylo(
+        z.cvalgebra.gather(Gather.histo),
+        z.projectFR.coalgebra.scatter(Scatter.ana))
 
       forAll { (r: z.R) =>
         val x = f(r)

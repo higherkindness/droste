@@ -56,8 +56,8 @@ private[droste] sealed trait FloatingBasisInstances0[H[F[_], A] >: Basis[F, A]] 
 
   implicit def drosteBasisForCatsCofree[F[_], E]: H[EnvT[E, F, ?], cats.free.Cofree[F, E]] =
     Basis.Default[EnvT[E, F, ?], cats.free.Cofree[F, E]](
-      fa => cats.free.Cofree(fa.ask, Eval.now(fa.lower)),
-      a => EnvT(a.head, a.tailForced))
+      Algebra(fa => cats.free.Cofree(fa.ask, Eval.now(fa.lower))),
+      Coalgebra(a => EnvT(a.head, a.tailForced)))
 }
 
 private[droste] sealed trait FloatingBasisSolveInstances {

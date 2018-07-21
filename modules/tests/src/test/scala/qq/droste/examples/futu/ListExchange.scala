@@ -13,7 +13,7 @@ final class ListExchange extends Properties("ListExchange") {
   type FixedList[A] = Fix[ListF[A, ?]]
 
   // TODO: make this more ergonomic to write
-  val exchangeCoalgebra: CVCoalgebra[ListF[String, ?], FixedList[String]] = Fix.unfix(_) match {
+  val exchangeCoalgebra: CVCoalgebra[ListF[String, ?], FixedList[String]] = CVCoalgebra(Fix.unfix(_) match {
     case NilF => NilF
     case ConsF(head, tail) => Fix.unfix(tail) match {
       case NilF => ConsF(head, Free.pure(tail))
@@ -21,7 +21,7 @@ final class ListExchange extends Properties("ListExchange") {
         ConsF(tailHead, Free.roll(
           ConsF(head, Free.pure[ListF[String, ?], FixedList[String]](tailTail))))
     }
-  }
+  })
 
   val f: List[String] => List[String] =
     scheme.zoo.futu(exchangeCoalgebra) andThen

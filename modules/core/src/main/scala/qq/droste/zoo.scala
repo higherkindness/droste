@@ -27,8 +27,8 @@ private[droste] trait Zoo {
     coalgebra: RCoalgebra[R, F, A]
   )(implicit embed: Embed[F, R]): A => R =
     scheme.hyloC(
-      embed.algebra.compose((frr: F[(R | R)]) => frr.map(_.merge)),
-      coalgebra)
+      embed.algebra.compose((frr: F[(R | R)]) => frr.map(_.merge)).run,
+      coalgebra.run)
 
   /** A variation of a catamorphism that gives you access to the input value at
     * every point in the computation.
@@ -47,8 +47,8 @@ private[droste] trait Zoo {
     algebra: RAlgebra[R, F, B]
   )(implicit project: Project[F, R]): R => B =
     scheme.hyloC(
-      algebra,
-      project.coalgebra.andThen(_.map(r => (r, r))))
+      algebra.run,
+      project.coalgebra.andThen(_.map(r => (r, r))).run)
 
 
   /** Histomorphism
@@ -63,7 +63,7 @@ private[droste] trait Zoo {
   )(implicit project: Project[F, R]): R => B =
     scheme.hylo[F, R, Cofree[F, B]](
       fb => Cofree(algebra(fb), fb),
-      project.coalgebra
+      project.coalgebra.run
     ) andThen (_.head)
 
   /** Futumorphism
@@ -77,8 +77,8 @@ private[droste] trait Zoo {
     coalgebra: CVCoalgebra[F, A]
   )(implicit embed: Embed[F, R]): A => R =
     scheme.hylo[F, Free[F, A], R](
-      embed.algebra,
-      _.fold(coalgebra, identity)
+      embed.algebra.run,
+      _.fold(coalgebra.run, identity)
     ) compose (Free.pure(_))
 
   /** A fusion refold of a futumorphism followed by a histomorphism
@@ -94,7 +94,7 @@ private[droste] trait Zoo {
   ): A => B =
     scheme.hylo[F, Free[F, A], Cofree[F, B]](
       fb => Cofree(algebra(fb), fb),
-      _.fold(coalgebra, identity)
+      _.fold(coalgebra.run, identity)
     ) andThen (_.head) compose (Free.pure(_))
 
   /** A fusion refold of an anamorphism followed by a histomorphism
@@ -110,6 +110,6 @@ private[droste] trait Zoo {
   ): A => B =
     scheme.hylo[F, A, Cofree[F, B]](
       fb => Cofree(algebra(fb), fb),
-      coalgebra
+      coalgebra.run
     ) andThen (_.head)
 }

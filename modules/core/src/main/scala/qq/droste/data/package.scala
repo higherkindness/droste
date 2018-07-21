@@ -26,8 +26,8 @@ object `package` {
     def fix  [F[_]](f: F[Fix[F]]): Fix[F]    = macro Meta.fastCast
     def unfix[F[_]](f: Fix[F])   : F[Fix[F]] = macro Meta.fastCast
 
-    def algebra  [F[_]]: Algebra  [F, Fix[F]] = fix(_)
-    def coalgebra[F[_]]: Coalgebra[F, Fix[F]] = unfix(_)
+    def algebra  [F[_]]: Algebra  [F, Fix[F]] = Algebra(fix(_))
+    def coalgebra[F[_]]: Coalgebra[F, Fix[F]] = Coalgebra(unfix(_))
   }
 
   /** A very basic free monad.
@@ -74,19 +74,19 @@ object `package` {
     def unapply [F[_], A](f: Cofree[F, A]): Option[(A, F[Cofree[F,A]])] = Some(f.tuple)
 
     def algebra[E, F[_]]: Algebra[EnvT[E, F, ?], Cofree[F, E]] =
-      fa => Cofree(EnvT.unenvT(fa))
+      Algebra(fa => Cofree(EnvT.unenvT(fa)))
 
     def coalgebra[E, F[_]]: Coalgebra[EnvT[E, F, ?], Cofree[F, E]] =
-      a => EnvT(Cofree.uncofree(a))
+      Coalgebra(a => EnvT(Cofree.uncofree(a)))
 
     def fromCats[F[_]: Functor, A](cofree: cats.free.Cofree[F, A]): Cofree[F, A] =
       ana(cofree)(_.tail.value, _.head)
 
-    def unfold[F[_]: Functor, A](a: A)(coalgebra: Coalgebra[F, A]): Cofree[F, A] =
+    def unfold[F[_]: Functor, A](a: A)(coalgebra: A => F[A]): Cofree[F, A] =
       ana(a)(coalgebra, identity)
 
     /** An inlined anamorphism to `Cofree` with a fused map */
-    def ana[F[_]: Functor, A, C](a: A)(coalgebra: Coalgebra[F, A], f: A => C): Cofree[F, C] =
+    def ana[F[_]: Functor, A, C](a: A)(coalgebra: A => F[A], f: A => C): Cofree[F, C] =
       Cofree(f(a), coalgebra(a).map(ana(_)(coalgebra, f)))
 
     final class Ops[F[_], A](val cofree: Cofree[F, A]) extends AnyVal {
