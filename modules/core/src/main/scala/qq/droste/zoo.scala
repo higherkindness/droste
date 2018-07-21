@@ -27,7 +27,7 @@ private[droste] trait Zoo {
     coalgebra: RCoalgebra[R, F, A]
   )(implicit embed: Embed[F, R]): A => R =
     scheme.hyloC(
-      embed.algebra.compose((frr: F[(R | R)]) => frr.map(_.merge)).run,
+      embed.algebra.run.compose((frr: F[(R | R)]) => frr.map(_.merge)),
       coalgebra.run)
 
   /** A variation of a catamorphism that gives you access to the input value at
@@ -48,7 +48,7 @@ private[droste] trait Zoo {
   )(implicit project: Project[F, R]): R => B =
     scheme.hyloC(
       algebra.run,
-      project.coalgebra.andThen(_.map(r => (r, r))).run)
+      project.coalgebra.run.andThen(_.map(r => (r, r))))
 
 
   /** Histomorphism

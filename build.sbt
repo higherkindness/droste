@@ -39,6 +39,7 @@ lazy val tests = module("tests")
   .settings(libraryDependencies ++= Seq(
     "org.scalacheck" %%% "scalacheck"         % "1.14.0",
     "org.typelevel"  %%% "algebra"            % "1.0.0",
+    "org.typelevel"  %%% "cats-laws"          % "1.1.0",
     "eu.timepit"     %%% "refined"            % "0.9.2",
     "eu.timepit"     %%% "refined-scalacheck" % "0.9.2"))
 
