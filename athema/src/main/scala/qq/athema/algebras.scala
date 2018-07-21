@@ -30,7 +30,7 @@ object Differentiate {
   def differentiate[V: Ring](wrt: String): Expr.Fixed[V] => Expr.Fixed[V] =
     scheme.gcata(algebra[V](wrt))(Gather.para)
 
-  def algebra[V](wrt: String)(implicit V: Ring[V]): RAlgebra[Expr.Fixed[V], Expr[V, ?], Expr.Fixed[V]] = GAlgebra {
+  def algebra[V](wrt: String)(implicit V: Ring[V]): RAlgebra[Expr.Fixed[V], Expr[V, ?], Expr.Fixed[V]] = RAlgebra {
     case Var(`wrt`)              => Const.fix(V.one)
     case _: Var  [_, _]          => Const.fix(V.zero)
     case _: Const[_, _]          => Const.fix(V.zero)
