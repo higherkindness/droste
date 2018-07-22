@@ -93,8 +93,8 @@ object scheme {
     *   @inheritdoc
     */
   def hyloM[M[_]: Monad, F[_]: Traverse, A, B](
-    algebra  : AlgebraM[M, F, B],
-    coalgebra: CoalgebraM[M, F, A]
+    algebra  : F[B] => M[B],
+    coalgebra: A => M[F[A]]
   ): A => M[B] =
     hyloC[M, F, A, M[B]](
       _.flatMap(_.sequence.flatMap(algebra)),
@@ -118,15 +118,15 @@ object scheme {
     coalgebraM: CoalgebraM[M, F, A]
   )(implicit embed: Embed[F, R]): A => M[R] =
     hyloM(
-      embed.algebra.lift[M],
-      coalgebraM)
+      embed.algebra.lift[M].run,
+      coalgebraM.run)
 
   def cataM[M[_]: Monad, F[_]: Traverse, R, B](
     algebraM: AlgebraM[M, F, B]
   )(implicit project: Project[F, R]): R => M[B] =
     hyloM(
-      algebraM,
-      project.coalgebra.lift[M])
+      algebraM.run,
+      project.coalgebra.lift[M].run)
 
   def ghylo[F[_]: Functor, A, SA, SB, B](
     algebra  : GAlgebra  [F, SB, B],

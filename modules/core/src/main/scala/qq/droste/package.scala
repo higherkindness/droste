@@ -8,9 +8,8 @@ object `package` {
   type Algebra    [F[_]      , A] = GAlgebra  [F, A, A]
   type Coalgebra  [F[_]      , A] = GCoalgebra[F, A, A]
 
-  // TODO: Introduce GAlgebraM/GCoalgebraM
-  type AlgebraM   [M[_], F[_], A] = F[A] => M[A]
-  type CoalgebraM [M[_], F[_], A] = A    => M[F[A]]
+  type AlgebraM   [M[_], F[_], A] = GAlgebraM  [M, F, A, A]
+  type CoalgebraM [M[_], F[_], A] = GCoalgebraM[M, F, A, A]
 
   type RAlgebra   [R,    F[_], A] = GAlgebra  [F, (R, A),       A]
   type RCoalgebra [R,    F[_], A] = GCoalgebra[F, A,            Either[R, A]]
@@ -27,6 +26,14 @@ object `package` {
 
   object Coalgebra {
     def apply[F[_], A](f: A => F[A]): Coalgebra[F, A] = GCoalgebra(f)
+  }
+
+  object AlgebraM {
+    def apply[M[_], F[_], A](f: F[A] => M[A]): AlgebraM[M, F, A] = GAlgebraM(f)
+  }
+
+  object CoalgebraM {
+    def apply[M[_], F[_], A](f: A => M[F[A]]): CoalgebraM[M, F, A] = GCoalgebraM(f)
   }
 
   object RAlgebra {

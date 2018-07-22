@@ -14,9 +14,9 @@ final class NuTests extends Properties("Nu") {
 
   implicit val arbNuOption: Arbitrary[Nu[Option]] =
     Arbitrary(Gen.sized(maxSize =>
-      scheme[Nu].anaM((size: Int) =>
+      scheme[Nu].anaM(CoalgebraM((size: Int) =>
         Gen.choose(0, size).flatMap(n =>
-          if (n > 0) Some(n) else None)).apply(maxSize)))
+          if (n > 0) Some(n) else None))).apply(maxSize)))
 
   include(BasisLaws.props[Option, Nu[Option]](
     "Option", "Nu[Option]"))

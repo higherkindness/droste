@@ -15,6 +15,25 @@ import cats.syntax.comonad._
 import cats.syntax.flatMap._
 import cats.syntax.functor._
 
+final class GAlgebraM[M[_], F[_], S, A](val run: F[S] => M[A]) extends AnyVal {
+  def apply(fs: F[S]): M[A] =
+    run(fs)
+}
+
+object GAlgebraM {
+  def apply[M[_], F[_], S, A](run: F[S] => M[A]): GAlgebraM[M, F, S, A] =
+    new GAlgebraM(run)
+}
+
+final class GCoalgebraM[M[_], F[_], A, S](val run: A => M[F[S]]) extends AnyVal {
+  def apply(a: A): M[F[S]] = run(a)
+}
+
+object GCoalgebraM {
+  def apply[M[_], F[_], S, A](run: A => M[F[S]]): GCoalgebraM[M, F, A, S] =
+    new GCoalgebraM(run)
+}
+
 final class GAlgebra[F[_], S, A](val run: F[S] => A) extends AnyVal {
   def apply(fs: F[S]): A =
     run(fs)
@@ -25,7 +44,8 @@ final class GAlgebra[F[_], S, A](val run: F[S] => A) extends AnyVal {
   def gather(gather: Gather[F, S, A]): GAlgebra.Gathered[F, S, A] =
     GAlgebra.Gathered(this, gather)
 
-  def lift[M[_]](implicit M: Applicative[M]): F[S] => M[A] = fs => run(fs).pure[M]
+  def lift[M[_]](implicit M: Applicative[M]): GAlgebraM[M, F, S, A] =
+    GAlgebraM(fs => run(fs).pure[M])
 
   def compose[Z](f: GAlgebra[F, Z, S])(implicit F: CoflatMap[F]): GAlgebra[F, Z, A] =
     GAlgebra(fz => run(fz coflatMap f.run))
@@ -68,8 +88,8 @@ final class GCoalgebra[F[_], A, S](val run: A => F[S]) extends AnyVal {
   def scatter(scatter: Scatter[F, A, S]): GCoalgebra.Scattered[F, A, S] =
     GCoalgebra.Scattered(this, scatter)
 
-  def lift[M[_]](implicit M: Applicative[M]): A => M[F[S]] =
-    a => run(a).pure[M]
+  def lift[M[_]](implicit M: Applicative[M]): GCoalgebraM[M, F, A, S] =
+    GCoalgebraM(a => run(a).pure[M])
 
   def compose[Z](f: GCoalgebra[F, Z, A])(implicit F: FlatMap[F]): GCoalgebra[F, Z, S] =
     GCoalgebra(z => f(z) flatMap run)
