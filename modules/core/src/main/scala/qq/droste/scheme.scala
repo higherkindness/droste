@@ -4,6 +4,7 @@ import cats.Functor
 import cats.Monad
 import cats.Traverse
 
+import cats.syntax.applicative._
 import cats.syntax.functor._
 import cats.syntax.flatMap._
 import cats.syntax.traverse._
@@ -147,6 +148,26 @@ object scheme {
       gathered.algebra, scattered.coalgebra)(
       gathered.gather, scattered.scatter)
 
+  def ghyloM[M[_]: Monad, F[_]: Traverse, A, SA, SB, B](
+    algebra  : GAlgebraM  [M, F, SB, B],
+    coalgebra: GCoalgebraM[M, F, A, SA])(
+    gather   : Gather     [   F, SB, B],
+    scatter  : Scatter    [   F, A, SA]
+  ): A => M[B] =
+    a => coalgebra(a).flatMap(fsa =>
+      fsa
+        .traverse(hyloM[M, F, SA, SB](
+          fb => algebra(fb).map(gather(_, fb)),
+          sa => scatter(sa).fold(coalgebra.run, _.pure[M])))
+        .flatMap(algebra.run))
+
+  def ghyloM[M[_]: Monad, F[_]: Traverse, A, SA, SB, B](
+    gathered : GAlgebraM.Gathered   [M, F, SB, B],
+    scattered: GCoalgebraM.Scattered[M, F, A, SA]
+  ): A => M[B] =
+    ghyloM(
+      gathered.algebra, scattered.coalgebra)(
+      gathered.gather, scattered.scatter)
 
   def gcata[F[_]: Functor, R, S, B](
     galgebra: GAlgebra[F, S, B])(
@@ -162,6 +183,21 @@ object scheme {
   )(implicit project: Project[F, R]): R => B =
     gcata(gathered.algebra)(gathered.gather)
 
+  def gcataM[M[_]: Monad, F[_]: Traverse, R, S, B](
+    algebra  : GAlgebraM  [M, F, S, B])(
+    gather   : Gather     [   F, S, B]
+  )(implicit project: Project[F, R]): R => M[B] =
+    r => project.coalgebra(r)
+      .traverse(
+        hyloM[M, F, R, S](
+          fb => algebra(fb).map(gather(_, fb)),
+          project.coalgebra.lift[M].run))
+      .flatMap(algebra.run)
+
+  def gcataM[M[_]: Monad, F[_]: Traverse, R, S, B](
+    gathered: GAlgebraM.Gathered[M, F, S, B]
+  )(implicit project: Project[F, R]): R => M[B] =
+    gcataM(gathered.algebra)(gathered.gather)
 
   def gana[F[_]: Functor, A, S, R](
     coalgebra: GCoalgebra[F, A, S])(
@@ -176,6 +212,22 @@ object scheme {
     scattered: GCoalgebra.Scattered[F, A, S]
   )(implicit embed: Embed[F, R]): A => R =
     gana(scattered.coalgebra)(scattered.scatter)
+
+  def ganaM[M[_]: Monad, F[_]: Traverse, A, S, R](
+    coalgebra: GCoalgebraM[M, F, A, S])(
+    scatter  : Scatter    [   F, A, S]
+  )(implicit embed: Embed[F, R]): A => M[R] =
+    a => coalgebra(a)
+      .flatMap(_.traverse(hyloM[M, F, S, R](
+        embed.algebra.lift[M].run,
+        sa => scatter(sa).fold(coalgebra.run, _.pure[M]))))
+      .map(embed.algebra.run)
+
+  def ganaM[M[_]: Monad, F[_]: Traverse, A, S, R](
+    scattered: GCoalgebraM.Scattered[M, F, A, S]
+  )(implicit embed: Embed[F, R]): A => M[R] =
+    ganaM(scattered.coalgebra)(scattered.scatter)
+
 
   /** A petting zoo for wild and exotic animals we keep separate from
     * the regulars in [[scheme]]. For their safety and yours.
