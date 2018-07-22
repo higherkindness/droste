@@ -20,7 +20,7 @@ Fibonacci values can be done with a histomorphism if we model natural
 numbers as a chain of `Option`. We can easily unfold with an
 anamorphism and then fold to our result with a histomorphism.
 
-```scala
+```tut:silent
 import qq.droste._
 import qq.droste.data._
 import cats.implicits._
@@ -39,54 +39,36 @@ val fib: BigDecimal => BigDecimal = scheme.ghylo(
   natCoalgebra.scatter(Scatter.ana))
 ```
 
-```scala
-scala> fib(0)
-res0: BigDecimal = 0
-
-scala> fib(1)
-res1: BigDecimal = 1
-
-scala> fib(2)
-res2: BigDecimal = 1
-
-scala> fib(10)
-res3: BigDecimal = 55
-
-scala> fib(100)
-res4: BigDecimal = 354224848179261915075
+```tut
+fib(0)
+fib(1)
+fib(2)
+fib(10)
+fib(100)
 ```
 
 An anamorphism followed by a histomorphism is also known as a
 dynamorphism. Recursion scheme animals like dyna are available
 in the zoo:
 
-```scala
+```tut:silent
 
 val fibAlt: BigDecimal => BigDecimal =
   scheme.zoo.dyna(fibAlgebra, natCoalgebra)
 ```
 
-```scala
-scala> fibAlt(0)
-res5: BigDecimal = 0
-
-scala> fibAlt(1)
-res6: BigDecimal = 1
-
-scala> fibAlt(2)
-res7: BigDecimal = 1
-
-scala> fibAlt(10)
-res8: BigDecimal = 55
-
-scala> fibAlt(100)
-res9: BigDecimal = 354224848179261915075
+```tut
+fibAlt(0)
+fibAlt(1)
+fibAlt(2)
+fibAlt(10)
+fibAlt(100)
 ```
 
 What if we want to do two things at once? Let's calculate a
 Fibonacci value and the sum of all squares.
 
-```scala
+```tut:silent
 val sumSquaresAlgebra: RAlgebra[BigDecimal, Option, BigDecimal] = RAlgebra {
   case Some((n, prev)) => prev + n * n
   case None            => 0
@@ -102,27 +84,18 @@ val sumSquares: BigDecimal => BigDecimal = scheme.ghylo(
   natCoalgebra.scatter(Scatter.ana))
 ```
 
-```scala
-scala> sumSquares(0)
-res10: BigDecimal = 0
-
-scala> sumSquares(1)
-res11: BigDecimal = 1
-
-scala> sumSquares(2)
-res12: BigDecimal = 10
-
-scala> sumSquares(10)
-res13: BigDecimal = 1330
-
-scala> sumSquares(100)
-res14: BigDecimal = 1333300
+```tut
+sumSquares(0)
+sumSquares(1)
+sumSquares(2)
+sumSquares(10)
+sumSquares(100)
 ```
 
 Now we can zip the two algebras into one so that we calculate
 both results in one pass.
 
-```scala
+```tut:silent
 val fused: BigDecimal => (BigDecimal, BigDecimal) =
   scheme.ghylo(
     fibAlgebra.gather(Gather.histo) zip
@@ -130,21 +103,12 @@ val fused: BigDecimal => (BigDecimal, BigDecimal) =
     natCoalgebra.scatter(Scatter.ana))
 ```
 
-```scala
-scala> fused(0)
-res15: (BigDecimal, BigDecimal) = (0,0)
-
-scala> fused(1)
-res16: (BigDecimal, BigDecimal) = (1,1)
-
-scala> fused(2)
-res17: (BigDecimal, BigDecimal) = (1,10)
-
-scala> fused(10)
-res18: (BigDecimal, BigDecimal) = (55,1330)
-
-scala> fused(100)
-res19: (BigDecimal, BigDecimal) = (354224848179261915075,1333300)
+```tut
+fused(0)
+fused(1)
+fused(2)
+fused(10)
+fused(100)
 ```
 
 Droste includes [athema](athema), a math expression parser/processor,
