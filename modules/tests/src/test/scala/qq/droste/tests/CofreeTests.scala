@@ -17,12 +17,12 @@ final class CofreeTests extends Properties("Cofree") {
 
   implicit def arbCofreeOption[A: Arbitrary]: Arbitrary[Cofree[Option, A]] =
     Arbitrary(Gen.sized(maxSize =>
-      scheme.anaM((size: Int) =>
+      scheme.anaM(CoalgebraM((size: Int) =>
         (
           arbitrary[A],
           Gen.choose(0, size).flatMap(n => if (n > 0) Some(n) else None)
         ) mapN (EnvT(_, _))
-      ).apply(maxSize)))
+      )).apply(maxSize)))
 
   include(BasisLaws.props[EnvT[Int, Option, ?], Cofree[Option, Int]](
     "EnvT[Int, Option, ?]", "Cofree[Option, Int]"))

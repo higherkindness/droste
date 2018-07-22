@@ -7,6 +7,7 @@ import cats.Applicative
 import cats.Traverse
 import cats.implicits._
 
+import qq.droste.CoalgebraM
 import qq.droste.scheme
 import qq.droste.data.Nu
 import qq.droste.util.DefaultTraverse
@@ -52,7 +53,7 @@ final class NuLookup extends Properties("NuLookup") {
     // Note that we return our result in _one_ level of Option,
     // meaning that everything is unfolded to Nu when f is invoked
     val f: String => Option[Nu[Result]] =
-      scheme.anaM[Option, Result, String, Nu[Result]](lookup.get(_: String))
+      scheme.anaM[Option, Result, String, Nu[Result]](CoalgebraM(lookup.get(_: String)))
 
     @tailrec def unroll(nu: Nu[Result]): String = {
       Nu.project(nu) match {

@@ -21,7 +21,7 @@ final class MathExprExample extends Properties("MathExprExample") {
 
   def evalAlgebraMWithOverride[V: Field](
     variables: Map[String, V]
-  ): AlgebraM[String | ?, EnvT[Option[V], Expr[V, ?], ?], V] = {
+  ): AlgebraM[String | ?, EnvT[Option[V], Expr[V, ?], ?], V] = AlgebraM {
     val algebra = Evaluate.algebraM(variables)
     fa => fa match {
       case EnvT(Some(value), _) => value.asRight
@@ -50,7 +50,7 @@ final class MathExprExample extends Properties("MathExprExample") {
     val f2: Mu[Expr[Double, ?]] = toMu(Fix(Add(Fix(Const(1.0)), Fix(Const(2.0)))))
     val f3: Mu[Expr[Double, ?]] = toMu(Fix(Neg(Fix(Add(Fix(Const(1.0)), Fix(Const(2.0)))))))
 
-    val algebra = Algebra(Evaluate.algebraM[Double](Map.empty).andThen(_.fold(sys.error, identity)))
+    val algebra = Algebra(Evaluate.algebraM[Double](Map.empty).run.andThen(_.fold(sys.error, identity)))
 
     val p1 = f1(algebra) ?= 1.0
     val p2 = f2(algebra) ?= 3.0
