@@ -128,52 +128,52 @@ object scheme {
       algebraM,
       project.coalgebra.lift[M])
 
-  def ghylo[SA, SB, F[_]: Functor, A, B](
-    algebra  : GAlgebra  [SB, F, B],
-    coalgebra: GCoalgebra[SA, F, A])(
-    gather   : Gather    [SB, F, B],
-    scatter  : Scatter   [SA, F, A]
+  def ghylo[F[_]: Functor, A, SA, SB, B](
+    algebra  : GAlgebra  [F, SB, B],
+    coalgebra: GCoalgebra[F, A, SA])(
+    gather   : Gather    [F, SB, B],
+    scatter  : Scatter   [F, A, SA]
   ): A => B =
     a => algebra(coalgebra(a).map(
       hylo[F, SA, SB](
         fb => gather(algebra(fb), fb),
         sa => scatter(sa).fold(coalgebra.run, identity))))
 
-  def ghylo[SA, SB, F[_]: Functor, A, B](
-    gathered : GAlgebra.Gathered   [SB, F, B],
-    scattered: GCoalgebra.Scattered[SA, F, A]
+  def ghylo[F[_]: Functor, A, SA, SB, B](
+    gathered : GAlgebra.Gathered   [F, SB, B],
+    scattered: GCoalgebra.Scattered[F, A, SA]
   ): A => B =
     ghylo(
       gathered.algebra, scattered.coalgebra)(
       gathered.gather, scattered.scatter)
 
 
-  def gcata[S, F[_]: Functor, R, B](
-    galgebra: GAlgebra[S, F, B])(
-    gather  : Gather  [S, F, B]
+  def gcata[F[_]: Functor, R, S, B](
+    galgebra: GAlgebra[F, S, B])(
+    gather  : Gather  [F, S, B]
   )(implicit project: Project[F, R]): R => B =
     r => galgebra(project.coalgebra(r).map(
       hylo[F, R, S](
         fb => gather(galgebra(fb), fb),
         project.coalgebra.run)))
 
-  def gcata[S, F[_]: Functor, R, B](
-    gathered: GAlgebra.Gathered[S, F, B]
+  def gcata[F[_]: Functor, R, S, B](
+    gathered: GAlgebra.Gathered[F, S, B]
   )(implicit project: Project[F, R]): R => B =
     gcata(gathered.algebra)(gathered.gather)
 
 
-  def gana[S, F[_]: Functor, A, R](
-    coalgebra: GCoalgebra[S, F, A])(
-    scatter  : Scatter   [S, F, A]
+  def gana[F[_]: Functor, A, S, R](
+    coalgebra: GCoalgebra[F, A, S])(
+    scatter  : Scatter   [F, A, S]
   )(implicit embed: Embed[F, R]): A => R =
     a => embed.algebra(coalgebra(a).map(
       hylo[F, S, R](
         embed.algebra.run,
         s => scatter(s).fold(coalgebra.run, identity))))
 
-  def gana[S, F[_]: Functor, A, R](
-    scattered: GCoalgebra.Scattered[S, F, A]
+  def gana[F[_]: Functor, A, S, R](
+    scattered: GCoalgebra.Scattered[F, A, S]
   )(implicit embed: Embed[F, R]): A => R =
     gana(scattered.coalgebra)(scattered.scatter)
 

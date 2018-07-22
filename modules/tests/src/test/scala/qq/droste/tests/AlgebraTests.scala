@@ -15,34 +15,34 @@ import cats.laws.discipline.eq._
 
 final class AlgebraTests extends Properties("algebras") {
 
-  implicit def galgebraEq[S, F[_], A](implicit FS: Arbitrary[F[S]], A: Eq[A]): Eq[GAlgebra[S, F, A]] =
-    Eq.by[GAlgebra[S, F, A], F[S] => A](_.run)
+  implicit def galgebraEq[F[_], S, A](implicit FS: Arbitrary[F[S]], A: Eq[A]): Eq[GAlgebra[F, S, A]] =
+    Eq.by[GAlgebra[F, S, A], F[S] => A](_.run)
 
-  implicit def gcoalgebraEq[S, F[_], A](implicit A: Arbitrary[A], FS: Eq[F[S]]): Eq[GCoalgebra[S, F, A]] =
-    Eq.by[GCoalgebra[S, F, A], A => F[S]](_.run)
+  implicit def gcoalgebraEq[F[_], A, S](implicit A: Arbitrary[A], FS: Eq[F[S]]): Eq[GCoalgebra[F, A, S]] =
+    Eq.by[GCoalgebra[F, A, S], A => F[S]](_.run)
 
-  implicit def arbitraryGAlgebra[S, F[_], A](
+  implicit def arbitraryGAlgebra[F[_], S, A](
     implicit arbA: Arbitrary[A], cogenFS: Cogen[F[S]]
-  ): Arbitrary[GAlgebra[S, F, A]] =
+  ): Arbitrary[GAlgebra[F, S, A]] =
     Arbitrary(Gen.function1(arbitrary[A]).map(GAlgebra(_)))
 
-  implicit def arbitraryGCoalgebra[S, F[_], A](
+  implicit def arbitraryGCoalgebra[F[_], A, S](
     implicit arbFS: Arbitrary[F[S]], cogenA: Cogen[A]
-  ): Arbitrary[GCoalgebra[S, F, A]] =
+  ): Arbitrary[GCoalgebra[F, A, S]] =
     Arbitrary(Gen.function1(arbitrary[F[S]]).map(GCoalgebra(_)))
 
-  include(ArrowTests[GAlgebra[?, (Int, ?), ?]]
+  include(ArrowTests[GAlgebra[(Int, ?), ?, ?]]
     .arrow[Int, Int, Int, Int, Int, Int].all, "GAlgebra.")
 
-  include(ArrowTests[λ[(α, β) => GCoalgebra[β, (Int, ?), α]]]
+  include(ArrowTests[GCoalgebra[(Int, ?), ?, ?]]
     .arrow[Int, Int, Int, Int, Int, Int].all, "GCoalgebra.")
 
   property("GAlgebra round trip Cokleisli") =
-    forAll((algebra: GAlgebra[Int, (Int, ?), Int]) =>
+    forAll((algebra: GAlgebra[(Int, ?), Int, Int]) =>
       algebra === GAlgebra(algebra.toCokleisli.run))
 
   property("GCoalgebra round trip Kleisli") =
-    forAll((coalgebra: GCoalgebra[Int, (Int, ?), Int]) =>
+    forAll((coalgebra: GCoalgebra[(Int, ?), Int, Int]) =>
       coalgebra === GCoalgebra(coalgebra.toKleisli.run))
 
 
