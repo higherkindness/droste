@@ -69,18 +69,19 @@ What if we want to do two things at once? Let's calculate a
 Fibonacci value and the sum of all squares.
 
 ```tut:silent
-val sumSquaresAlgebra: RAlgebra[BigDecimal, Option, BigDecimal] = RAlgebra {
-  case Some((n, prev)) => prev + n * n
-  case None            => 0
-}
-
 val fromNatAlgebra: Algebra[Option, BigDecimal] = Algebra {
   case Some(n) => n + 1
   case None    => 0
 }
 
+// note: n is the fromNatAlgebra helper value from the previous level of recursion
+val sumSquaresAlgebra: RAlgebra[BigDecimal, Option, BigDecimal] = RAlgebra {
+  case Some((n, value)) => value + (n + 1) * (n + 1)
+  case None             => 0
+}
+
 val sumSquares: BigDecimal => BigDecimal = scheme.ghylo(
-  sumSquaresAlgebra.gather(Gather.zygo(fromNatAlgebra.andThenRun(_ + 1))),
+  sumSquaresAlgebra.gather(Gather.zygo(fromNatAlgebra)),
   natCoalgebra.scatter(Scatter.ana))
 ```
 
@@ -99,7 +100,7 @@ both results in one pass.
 val fused: BigDecimal => (BigDecimal, BigDecimal) =
   scheme.ghylo(
     fibAlgebra.gather(Gather.histo) zip
-    sumSquaresAlgebra.gather(Gather.zygo(fromNatAlgebra.andThenRun(_ + 1))),
+    sumSquaresAlgebra.gather(Gather.zygo(fromNatAlgebra)),
     natCoalgebra.scatter(Scatter.ana))
 ```
 

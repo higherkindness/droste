@@ -33,9 +33,6 @@ final class GAlgebra[S, F[_], A](val run: F[S] => A) extends AnyVal {
   def andThen[B](f: GAlgebra[A, F, B])(implicit F: CoflatMap[F]): GAlgebra[S, F, B] =
     f compose this
 
-  def andThenRun[B](f: A => B): GAlgebra[S, F, B] =
-    GAlgebra(fs => f(run(fs)))
-
   def toCokleisli: Cokleisli[F, S, A] =
     Cokleisli(run)
 }
