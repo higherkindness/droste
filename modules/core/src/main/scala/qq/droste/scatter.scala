@@ -5,14 +5,14 @@ import cats.syntax.functor._
 
 object Scatter {
 
-  def ana[F[_], A]: Scatter[A, F, A] =
+  def ana[F[_], A]: Scatter[F, A, A] =
     Left(_)
 
-  def gapo[F[_]: Functor, A, B](coalgebra: Coalgebra[F, B]): Scatter[Either[B, A], F, A] = {
+  def gapo[F[_]: Functor, A, B](coalgebra: Coalgebra[F, B]): Scatter[F, A, Either[B, A]] = {
     case Left(b) => Right(coalgebra(b).map(Left(_)))
     case Right(a) => Left(a)
   }
 
-  def apo[F[_]: Functor, A, B](implicit project: Project[F, B]): Scatter[Either[B, A], F, A] =
+  def apo[F[_]: Functor, A, B](implicit project: Project[F, B]): Scatter[F, A, Either[B, A]] =
     gapo(project.coalgebra)
 }
