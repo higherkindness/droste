@@ -8,12 +8,8 @@ import qq.droste.data._
 import qq.droste.util.DefaultTraverse
 
 sealed trait Expr[V, A]
-final case class Var  [V, A](name: String) extends Expr[V, A] {
-  def retag[B]: Var[V, B] = this.asInstanceOf[Var[V, B]]
-}
-final case class Const[V, A](value: V)     extends Expr[V, A] {
-  def retag[B]: Const[V, B] = this.asInstanceOf[Const[V, B]]
-}
+final case class Var  [V, A](name: String) extends Expr[V, A]
+final case class Const[V, A](value: V)     extends Expr[V, A]
 final case class Neg  [V, A](x: A)         extends Expr[V, A]
 final case class Add  [V, A](x: A, y: A)   extends Expr[V, A]
 final case class Sub  [V, A](x: A, y: A)   extends Expr[V, A]

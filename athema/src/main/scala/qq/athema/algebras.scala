@@ -31,9 +31,9 @@ object Differentiate {
     scheme.gcata(algebra[V](wrt))(Gather.para)
 
   def algebra[V](wrt: String)(implicit V: Ring[V]): RAlgebra[Expr.Fixed[V], Expr[V, ?], Expr.Fixed[V]] = RAlgebra {
-    case Var(`wrt`)              => Const.fix(V.one)
-    case _: Var  [_, _]          => Const.fix(V.zero)
-    case _: Const[_, _]          => Const.fix(V.zero)
+    case Var(`wrt`)              => Const(V.one).fix
+    case _: Var  [_, _]          => Const(V.zero).fix
+    case _: Const[_, _]          => Const(V.zero).fix
     case Neg  ((_, xx))          => Neg(xx)
     case Add  ((_, xx), (_, yy)) => Add(xx, yy)
     case Sub  ((_, xx), (_, yy)) => Sub(xx, yy)
@@ -46,23 +46,30 @@ object Simplify {
   def simplify[V: Field]: Expr.Fixed[V] => Expr.Fixed[V] =
     scheme.cata(algebra[V])
 
-  def algebra[V](implicit V: Field[V]): Algebra[Expr[V, ?], Expr.Fixed[V]] = Algebra { fa =>
-
-    val Zero: Expr.Fixed[V] = Const.fix(V.zero)
-    val One : Expr.Fixed[V] = Const.fix(V.one)
-    val Two : Expr.Fixed[V] = Const.fix(V.plus(V.one, V.one))
+  def trans[V](implicit V: Field[V]): Trans[Expr[V, ?], Expr[V, ?], Expr.Fixed[V]] = Trans { fa =>
+    val Zero = V.zero
+    val One  = V.one
+    val Two  = V.plus(V.one, V.one)
 
     fa match {
-      case Prod(Zero, _)        => Zero
-      case Prod(_, Zero)        => Zero
-      case Prod(One, v)         => v
-      case Prod(v, One)         => v
-      case Sub (Zero, v)        => Neg(v)
-      case Add (Zero, v)        => v
-      case Add (v, Zero)        => v
-      case Add (x, y) if x == y => Prod(Two, x)
-      case Add (x, Prod(Const(n: V), y)) if x == y => Prod(Const.fix(V.plus(n, V.one)), x)
-      case other                => Fix(other)
+
+      case Prod(Const(Zero), _)        => Const(Zero)
+      case Prod(_, Const(Zero))        => Const(Zero)
+      case Prod(Const(One), v)         => v.unfix
+      case Prod(v, Const(One))         => v.unfix
+
+      case Sub (Const(Zero), v)        => Neg(v)
+
+      case Add (Const(Zero), v)        => v.unfix
+      case Add (v, Const(Zero))        => v.unfix
+      case Add (x, y) if x == y        => Prod(Const(Two).fix, x)
+      case Add (x, Prod(Const(n: V), y)) if x == y => Prod(Const(V.plus(n, V.one)).fix, x)
+
+      case other                => other
     }
   }
+
+  def algebra[V](implicit V: Field[V]): Algebra[Expr[V, ?], Expr.Fixed[V]] =
+    trans.algebra
+
 }
