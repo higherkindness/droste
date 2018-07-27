@@ -4,15 +4,20 @@ package syntax
 import cats.Applicative
 
 import data.EnvT
+import data.Fix
 
 object all
     extends AliasSyntax
     with AttrSyntax
     with LiftSyntax
+    with FixSyntax
+    with UnfixSyntax
 
 object alias extends AliasSyntax
 object attr extends AttrSyntax
 object lift extends LiftSyntax
+object fix extends FixSyntax
+object unfix extends UnfixSyntax
 
 sealed trait AliasSyntax {
   /** Compose two functors `F` and `G.
@@ -74,5 +79,27 @@ sealed trait LiftSyntax {
 object LiftSyntax {
   final class Ops[A, B](val f: A => B) extends AnyVal {
     def lift[F[_]](implicit F: Applicative[F]): A => F[B] = a => F.pure(f(a))
+  }
+}
+
+sealed trait FixSyntax {
+  implicit def toFixSyntaxOps[F[_]](unfix: F[_]): FixSyntax.Ops[F] =
+    new FixSyntax.Ops(unfix)
+}
+
+object FixSyntax {
+  final class Ops[F[_]](val unfix: F[_]) extends AnyVal {
+    def fix[G[a] >: F[a]]: Fix[G] = Fix.fix(unfix.asInstanceOf[G[Fix[G]]])
+  }
+}
+
+sealed trait UnfixSyntax {
+  implicit def toUnfixSyntaxOps[F[_]](fix: Fix[F]): UnfixSyntax.Ops[F] =
+    new UnfixSyntax.Ops(fix)
+}
+
+object UnfixSyntax {
+  final class Ops[F[_]](val fix: Fix[F]) extends AnyVal {
+    def unfix: F[Fix[F]] = Fix.unfix(fix)
   }
 }
