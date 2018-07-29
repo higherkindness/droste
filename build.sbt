@@ -3,6 +3,7 @@ lazy val root = (project in file("."))
   .aggregate(coreJVM, coreJS)
   .aggregate(metaJVM, metaJS)
   .aggregate(macrosJVM, macrosJS)
+  .aggregate(reftreeJVM, reftreeJS)
   .aggregate(lawsJVM, lawsJS)
   .aggregate(testsJVM, testsJS)
   .aggregate(athemaJVM, athemaJS)
@@ -37,6 +38,14 @@ lazy val macros = module("macros")
 
 lazy val macrosJVM = macros.jvm
 lazy val macrosJS  = macros.js
+
+lazy val reftree = module("reftree")
+  .dependsOn(core)
+  .settings(libraryDependencies ++= Seq(
+    "io.github.stanch" %%% "reftree" % "1.2.1"))
+
+lazy val reftreeJVM = reftree.jvm
+lazy val reftreeJS  = reftree.js
 
 lazy val laws = module("laws")
   .dependsOn(core)
