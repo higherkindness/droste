@@ -8,8 +8,8 @@ import org.scalacheck.Prop._
 
 trait BasisLaws[F[_], R] {
   def basis: Basis[F, R]
-  def algebraComposeCoalgebra(r: R): Prop =
-      basis.algebra(basis.coalgebra(r)) ?= r
+  def algebraComposeCoalgebraIdentity(r: R): Prop =
+    basis.algebra(basis.coalgebra(r)) ?= r
 }
 
 object BasisLaws {
@@ -31,8 +31,8 @@ object BasisLaws {
       val basis = ev
     }
 
-    property("algebra compose coalgebra") =
-      forAll((r: R) => laws.algebraComposeCoalgebra(r))
+    property("algebra compose coalgebra identity") =
+      forAll((r: R) => laws.algebraComposeCoalgebraIdentity(r))
   }
 
 }

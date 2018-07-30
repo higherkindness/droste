@@ -56,7 +56,7 @@ final class NuLookup extends Properties("NuLookup") {
       scheme.anaM[Option, Result, String, Nu[Result]](CoalgebraM(lookup.get(_: String)))
 
     @tailrec def unroll(nu: Nu[Result]): String = {
-      Nu.project(nu) match {
+      Nu.un(nu) match {
         case Ref(a)   => unroll(a)
         case Value(v) => v
       }

@@ -29,9 +29,8 @@ object Nu {
   def coalgebra[F[_]: Functor]: Coalgebra[F, Nu[F]] =
     Coalgebra(nf => nf.unfold(nf.a) map (MuEqA(nf.unfold, _)))
 
-  def apply  [F[_]: Functor](fnf: F[Nu[F]]):   Nu[F]  = embed(fnf)
-  def embed  [F[_]: Functor](fnf: F[Nu[F]]):   Nu[F]  = algebra  [F].apply(fnf)
-  def project[F[_]: Functor](nf :   Nu[F] ): F[Nu[F]] = coalgebra[F].apply(nf)
+  def apply  [F[_]: Functor](fnf: F[Nu[F]]):   Nu[F]  = algebra  [F].apply(fnf)
+  def un     [F[_]: Functor](nf :   Nu[F] ): F[Nu[F]] = coalgebra[F].apply(nf)
 
   private final case class Default[F[_]](unfold: Coalgebra[F, F[Nu[F]]], a: F[Nu[F]]) extends Nu[F]
 

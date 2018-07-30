@@ -89,7 +89,7 @@ sealed trait FixSyntax {
 
 object FixSyntax {
   final class Ops[F[_]](val unfix: F[_]) extends AnyVal {
-    def fix[G[a] >: F[a]]: Fix[G] = Fix.fix(unfix.asInstanceOf[G[Fix[G]]])
+    def fix[G[a] >: F[a]]: Fix[G] = Fix(unfix.asInstanceOf[G[Fix[G]]])
   }
 }
 
@@ -100,6 +100,6 @@ sealed trait UnfixSyntax {
 
 object UnfixSyntax {
   final class Ops[F[_]](val fix: Fix[F]) extends AnyVal {
-    def unfix: F[Fix[F]] = Fix.unfix(fix)
+    def unfix: F[Fix[F]] = Fix.un(fix)
   }
 }
