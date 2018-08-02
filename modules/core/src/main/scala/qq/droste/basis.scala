@@ -2,7 +2,9 @@ package qq.droste
 
 import data.prelude._
 import data.Cofree
+import data.CoenvT
 import data.EnvT
+import data.Free
 import data.Fix
 
 import cats.Eval
@@ -48,6 +50,9 @@ object Basis extends FloatingBasisInstances[Basis] {
 private[droste] sealed trait FloatingBasisInstances[H[F[_], A] >: Basis[F, A]] extends FloatingBasisInstances0[H] {
   implicit def drosteBasisForCofree[F[_], E]: H[EnvT[E, F, ?], Cofree[F, E]] =
     Basis.Default[EnvT[E, F, ?], Cofree[F, E]](Cofree.algebra, Cofree.coalgebra)
+
+  implicit def drosteBasisForFree[F[_], E]: H[CoenvT[E, F, ?], Free[F, E]] =
+    Basis.Default[CoenvT[E, F, ?], Free[F, E]](Free.algebra, Free.coalgebra)
 }
 
 private[droste] sealed trait FloatingBasisInstances0[H[F[_], A] >: Basis[F, A]] {

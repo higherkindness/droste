@@ -50,7 +50,7 @@ object TransDemo {
 
   // converting a list to a non-empty list can fail, so we use TransM
   def transListToNeList[A]: TransM[Option, ListF[A, ?], NeListF[A, ?], Fix[ListF[A, ?]]] = TransM {
-    case ConsF(head, tail) => Fix.unfix(tail) match {
+    case ConsF(head, tail) => Fix.un(tail) match {
       case NilF =>  NeLastF(head).some
       case _    =>  NeConsF(head, tail).some
     }

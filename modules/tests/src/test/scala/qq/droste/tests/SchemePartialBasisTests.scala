@@ -64,8 +64,8 @@ class SchemePartialBasisTests extends Properties("SchemePartialBasis") {
       Coalgebra((n: Int) => if (n > 0) Some(n - 1) else None))
 
     def expected(n: Int): Mu[Option] =
-      if (n > 0) Mu.embed(Some(expected(n - 1)))
-      else Mu.embed(None: Option[Mu[Option]])
+      if (n > 0) Mu(Some(expected(n - 1)))
+      else Mu(None: Option[Mu[Option]])
 
     forAll((n: Int Refined Less[W.`100`.T]) => f(n) ?= expected(n))
   }
@@ -76,8 +76,8 @@ class SchemePartialBasisTests extends Properties("SchemePartialBasis") {
       Coalgebra((n: Int) => if (n > 0) Some(n - 1) else None))
 
     def expected(n: Int): Nu[Option] =
-      if (n > 0) Nu.embed(Some(expected(n - 1)))
-      else Nu.embed(None: Option[Nu[Option]])
+      if (n > 0) Nu(Some(expected(n - 1)))
+      else Nu(None: Option[Nu[Option]])
 
     forAll((n: Int Refined Less[W.`100`.T]) => f(n) ?= expected(n))
   }

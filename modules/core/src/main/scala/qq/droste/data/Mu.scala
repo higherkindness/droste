@@ -23,9 +23,8 @@ object Mu {
     Coalgebra[F, Mu[F]](mf =>
       mf[F[Mu[F]]](Algebra(_ map algebra.run)))
 
-  def apply  [F[_]: Functor](fmf: F[Mu[F]]):   Mu[F]  = embed(fmf)
-  def embed  [F[_]: Functor](fmf: F[Mu[F]]):   Mu[F]  = algebra  [F].apply(fmf)
-  def project[F[_]: Functor](mf :   Mu[F] ): F[Mu[F]] = coalgebra[F].apply(mf)
+  def apply[F[_]: Functor](fmf: F[Mu[F]]):   Mu[F]  = algebra  [F].apply(fmf)
+  def un   [F[_]: Functor](mf :   Mu[F] ): F[Mu[F]] = coalgebra[F].apply(mf)
 
   private final case class Default[F[_]: Functor](fmf: F[Mu[F]]) extends Mu[F] {
     def apply[A](fold: Algebra[F, A]): Id[A] =
