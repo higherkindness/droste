@@ -26,7 +26,7 @@ private[droste] trait Zoo {
   def apo[F[_]: Functor, A, R](
     coalgebra: RCoalgebra[R, F, A]
   )(implicit embed: Embed[F, R]): A => R =
-    scheme.hyloC(
+    kernel.hyloC(
       embed.algebra.run.compose((frr: F[(R | R)]) => frr.map(_.merge)),
       coalgebra.run)
 
@@ -46,7 +46,7 @@ private[droste] trait Zoo {
   def para[F[_]: Functor, R, B](
     algebra: RAlgebra[R, F, B]
   )(implicit project: Project[F, R]): R => B =
-    scheme.hyloC(
+    kernel.hyloC(
       algebra.run,
       project.coalgebra.run.andThen(_.map(r => (r, r))))
 
@@ -61,7 +61,7 @@ private[droste] trait Zoo {
   def histo[F[_]: Functor, R, B](
     algebra: CVAlgebra[F, B]
   )(implicit project: Project[F, R]): R => B =
-    scheme.hylo[F, R, Cofree[F, B]](
+    kernel.hylo[F, R, Cofree[F, B]](
       fb => Cofree(algebra(fb), fb),
       project.coalgebra.run
     ) andThen (_.head)
@@ -76,7 +76,7 @@ private[droste] trait Zoo {
   def futu[F[_]: Functor, A, R](
     coalgebra: CVCoalgebra[F, A]
   )(implicit embed: Embed[F, R]): A => R =
-    scheme.hylo[F, Free[F, A], R](
+    kernel.hylo[F, Free[F, A], R](
       embed.algebra.run,
       _.fold(coalgebra.run, identity)
     ) compose (Free.pure(_))
@@ -92,7 +92,7 @@ private[droste] trait Zoo {
     algebra: CVAlgebra[F, B],
     coalgebra: CVCoalgebra[F, A]
   ): A => B =
-    scheme.hylo[F, Free[F, A], Cofree[F, B]](
+    kernel.hylo[F, Free[F, A], Cofree[F, B]](
       fb => Cofree(algebra(fb), fb),
       _.fold(coalgebra.run, identity)
     ) andThen (_.head) compose (Free.pure(_))
@@ -108,7 +108,7 @@ private[droste] trait Zoo {
     algebra: CVAlgebra[F, B],
     coalgebra: Coalgebra[F, A]
   ): A => B =
-    scheme.hylo[F, A, Cofree[F, B]](
+    kernel.hylo[F, A, Cofree[F, B]](
       fb => Cofree(algebra(fb), fb),
       coalgebra.run
     ) andThen (_.head)

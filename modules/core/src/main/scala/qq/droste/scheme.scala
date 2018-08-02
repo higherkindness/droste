@@ -9,7 +9,6 @@ import cats.syntax.functor._
 import cats.syntax.flatMap._
 import cats.syntax.traverse._
 
-import syntax.all._
 import implicits.composedFunctor._
 
 /**
@@ -18,7 +17,11 @@ import implicits.composedFunctor._
   * @groupname unfolds Unfolds
   * @groupname exotic  Exotic
   */
-object scheme extends SchemeConvenientPorcelain with SchemeGeneralizedPorcelain {
+object scheme
+    extends SchemeHyloPorcelain
+    with SchemeConvenientPorcelain
+    with SchemeGeneralizedPorcelain
+{
 
   /** A petting zoo for wild and exotic animals we keep separate from
     * the regulars in [[scheme]]. For their safety and yours.
@@ -32,7 +35,7 @@ object scheme extends SchemeConvenientPorcelain with SchemeGeneralizedPorcelain 
   object zoo extends Zoo
 }
 
-private[droste] sealed trait SchemeConvenientPorcelain extends SchemeHyloPlumbing {
+private[droste] sealed trait SchemeConvenientPorcelain {
 
   // these _could_ go in the zoo, but they are very common for people
   // learning recursion schemes, so it's nice to have them here
@@ -40,28 +43,28 @@ private[droste] sealed trait SchemeConvenientPorcelain extends SchemeHyloPlumbin
   def ana[F[_]: Functor, A, R](
     coalgebra: Coalgebra[F, A]
   )(implicit embed: Embed[F, R]): A => R =
-    hylo(
+    kernel.hylo(
       embed.algebra.run,
       coalgebra.run)
 
   def anaM[M[_]: Monad, F[_]: Traverse, A, R](
     coalgebraM: CoalgebraM[M, F, A]
   )(implicit embed: Embed[F, R]): A => M[R] =
-    hyloM(
+    kernel.hyloM(
       embed.algebra.lift[M].run,
       coalgebraM.run)
 
   def cata[F[_]: Functor, R, B](
     algebra: Algebra[F, B]
   )(implicit project: Project[F, R]): R => B =
-    hylo(
+    kernel.hylo(
       algebra.run,
       project.coalgebra.run)
 
   def cataM[M[_]: Monad, F[_]: Traverse, R, B](
     algebraM: AlgebraM[M, F, B]
   )(implicit project: Project[F, R]): R => M[B] =
-    hyloM(
+    kernel.hyloM(
       algebraM.run,
       project.coalgebra.lift[M].run)
 
@@ -148,7 +151,7 @@ private[droste] sealed trait SchemeGeneralizedPorcelain extends SchemeGeneralize
 
 }
 
-private[droste] sealed trait SchemeGeneralizedPlumbing extends SchemeHyloPlumbing {
+private[droste] sealed trait SchemeGeneralizedPlumbing {
 
   def ghylo[F[_]: Functor, A, SA, SB, B](
     algebra  : GAlgebra  [F, SB, B],
@@ -157,7 +160,7 @@ private[droste] sealed trait SchemeGeneralizedPlumbing extends SchemeHyloPlumbin
     scatter  : Scatter   [F, A, SA]
   ): A => B =
     a => algebra(coalgebra(a).map(
-      hylo[F, SA, SB](
+      kernel.hylo[F, SA, SB](
         fb => gather(algebra(fb), fb),
         sa => scatter(sa).fold(coalgebra.run, identity))))
 
@@ -169,7 +172,7 @@ private[droste] sealed trait SchemeGeneralizedPlumbing extends SchemeHyloPlumbin
   ): A => M[B] =
     a => coalgebra(a).flatMap(fsa =>
       fsa
-        .traverse(hyloM[M, F, SA, SB](
+        .traverse(kernel.hyloM[M, F, SA, SB](
           fb => algebra(fb).map(gather(_, fb)),
           sa => scatter(sa).fold(coalgebra.run, _.pure[M])))
         .flatMap(algebra.run))
@@ -179,7 +182,7 @@ private[droste] sealed trait SchemeGeneralizedPlumbing extends SchemeHyloPlumbin
     gather  : Gather  [F, S, B]
   )(implicit project: Project[F, R]): R => B =
     r => galgebra(project.coalgebra(r).map(
-      hylo[F, R, S](
+      kernel.hylo[F, R, S](
         fb => gather(galgebra(fb), fb),
         project.coalgebra.run)))
 
@@ -189,7 +192,7 @@ private[droste] sealed trait SchemeGeneralizedPlumbing extends SchemeHyloPlumbin
   )(implicit project: Project[F, R]): R => M[B] =
     r => project.coalgebra(r)
       .traverse(
-        hyloM[M, F, R, S](
+        kernel.hyloM[M, F, R, S](
           fb => algebra(fb).map(gather(_, fb)),
           project.coalgebra.lift[M].run))
       .flatMap(algebra.run)
@@ -199,7 +202,7 @@ private[droste] sealed trait SchemeGeneralizedPlumbing extends SchemeHyloPlumbin
     scatter  : Scatter   [F, A, S]
   )(implicit embed: Embed[F, R]): A => R =
     a => embed.algebra(coalgebra(a).map(
-      hylo[F, S, R](
+      kernel.hylo[F, S, R](
         embed.algebra.run,
         s => scatter(s).fold(coalgebra.run, identity))))
 
@@ -208,14 +211,14 @@ private[droste] sealed trait SchemeGeneralizedPlumbing extends SchemeHyloPlumbin
     scatter  : Scatter    [   F, A, S]
   )(implicit embed: Embed[F, R]): A => M[R] =
     a => coalgebra(a)
-      .flatMap(_.traverse(hyloM[M, F, S, R](
+      .flatMap(_.traverse(kernel.hyloM[M, F, S, R](
         embed.algebra.lift[M].run,
         sa => scatter(sa).fold(coalgebra.run, _.pure[M]))))
       .map(embed.algebra.run)
 
 }
 
-private[droste] sealed trait SchemeHyloPlumbing {
+private[droste] sealed trait SchemeHyloPorcelain {
 
   /** Build a hylomorphism by recursively unfolding with `coalgebra` and
     * refolding with `algebra`.
@@ -234,31 +237,14 @@ private[droste] sealed trait SchemeHyloPlumbing {
     *
     * @group refolds
     *
-    * @usecase def hylo[F[_], A, B](algebra: F[B] => B, coalgebra: A => F[A]): A => B
+    * @usecase def hylo[F[_], A, B](algebra: Algebra[F, B], coalgebra: Coalgebra[F, A]): A => B
     *   @inheritdoc
     */
   def hylo[F[_]: Functor, A, B](
-    algebra  : F[B] => B,
-    coalgebra: A    => F[A]
+    algebra  : Algebra[F, B],
+    coalgebra: Coalgebra[F, A]
   ): A => B =
-    new (A => B) {
-      def apply(a: A): B = algebra(coalgebra(a).map(this))
-    }
-
-  /** Convenience to build a hylomorphism for the composed functor `F[G[_]]`.
-    *
-    * This is strictly for convenience and just delegates
-    * to `hylo` with the types set properly.
-    *
-    * @group refolds
-    *
-    * @usecase def hyloC[F[_], G[_], A, B](algebra: F[G[B]] => B, coalgebra: A => F[G[A]]): A => B
-    *   @inheritdoc
-    */
-  @inline def hyloC[F[_]: Functor, G[_]: Functor, A, B](
-    algebra  : F[G[B]] => B,
-    coalgebra: A       => F[G[A]]
-  ): A => B = hylo[(F ∘ G)#λ, A, B](algebra, coalgebra)
+    kernel.hylo(algebra.run, coalgebra.run)
 
   /** Build a monadic hylomorphism
     *
@@ -282,15 +268,14 @@ private[droste] sealed trait SchemeHyloPlumbing {
     *
     * @group refolds
     *
-    * @usecase def hyloM[M[_], F[_], A, B](algebra: F[B] => M[B], coalgebra: A => M[F[A]]): A => M[B]
+    * @usecase def hyloM[M[_], F[_], A, B](algebra: AlgebraM[M, F, B], coalgebra: CoalgebraM[M, F, A]): A => M[B]
     *   @inheritdoc
     */
   def hyloM[M[_]: Monad, F[_]: Traverse, A, B](
-    algebra  : F[B] => M[B],
-    coalgebra: A => M[F[A]]
+    algebra  : AlgebraM[M, F, B],
+    coalgebra: CoalgebraM[M, F, A]
   ): A => M[B] =
-    hyloC[M, F, A, M[B]](
-      _.flatMap(_.sequence.flatMap(algebra)),
-      coalgebra)
+    kernel.hyloM(algebra.run, coalgebra.run)
+
 
 }

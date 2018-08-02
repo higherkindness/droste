@@ -43,8 +43,8 @@ final class MathExprExample extends Properties("MathExprExample") {
   property("mu expressions") = {
 
     val toMu = scheme.hylo(
-      Mu.algebra[Expr[Double, ?]].run,
-      Fix.coalgebra[Expr[Double, ?]].run)
+      Mu.algebra[Expr[Double, ?]],
+      Fix.coalgebra[Expr[Double, ?]])
 
     val f1: Mu[Expr[Double, ?]] = toMu(Fix(Const(1.0)))
     val f2: Mu[Expr[Double, ?]] = toMu(Fix(Add(Fix(Const(1.0)), Fix(Const(2.0)))))
@@ -62,8 +62,8 @@ final class MathExprExample extends Properties("MathExprExample") {
   property("nu expressions") = {
 
     val toNu = scheme.hylo(
-      Nu.algebra[Expr[Double, ?]].run,
-      Fix.coalgebra[Expr[Double, ?]].run)
+      Nu.algebra[Expr[Double, ?]],
+      Fix.coalgebra[Expr[Double, ?]])
 
     val fixed: Fix[Expr[Double, ?]] = Fix(Add(Fix(Const(10.0)), Fix(Neg(Fix(Add(Fix(Const(1.0)), Fix(Const(2.0))))))))
     val z: Nu[Expr[Double, ?]] = toNu(fixed)
