@@ -52,4 +52,15 @@ object `package` {
     def apply[F[_], A](f: A => F[Free[F, A]]): CVCoalgebra[F, A] = GCoalgebra(f)
   }
 
+  type Trans[F[_], G[_], A] = GTrans[F, G, A, A]
+  type TransM[M[_], F[_], G[_], A] = GTransM[M, F, G, A, A]
+
+  object Trans {
+    def apply[F[_], G[_], A](f: F[A] => G[A]): Trans[F, G, A] = GTrans(f)
+  }
+
+  object TransM {
+    def apply[M[_], F[_], G[_], A](f: F[A] => M[G[A]]): TransM[M, F, G, A] = GTransM(f)
+  }
+
 }
