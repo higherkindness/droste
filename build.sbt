@@ -19,10 +19,23 @@ lazy val core = module("core")
   .dependsOn(meta)
   .settings(libraryDependencies ++= Seq(
     "org.typelevel" %%% "cats-core"   % "1.1.0",
-    "org.typelevel" %%% "cats-free"   % "1.1.0"))
+    "org.typelevel" %%% "cats-free"   % "1.1.0",
+    "org.typelevel" %%% "kittens"     % "1.1.0",
+    compilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.patch)
+  ))
 
 lazy val coreJVM = core.jvm
 lazy val coreJS  = core.js
+
+lazy val macros = module("macros")
+  .dependsOn(core)
+  .settings(libraryDependencies ++= Seq(
+    "org.typelevel" %%% "kittens"     % "1.1.0",
+    compilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.patch)
+  ))
+
+lazy val macrosJVM = macros.jvm
+lazy val macrosJS  = macros.js
 
 lazy val laws = module("laws")
   .dependsOn(core)
@@ -33,9 +46,7 @@ lazy val lawsJVM = laws.jvm
 lazy val lawsJS  = laws.js
 
 lazy val tests = module("tests")
-  .dependsOn(core)
-  .dependsOn(laws)
-  .dependsOn(athema)
+  .dependsOn(core, laws, athema, macros)
   .settings(noPublishSettings)
   .settings(libraryDependencies ++= Seq(
     "org.scalacheck" %%% "scalacheck"         % "1.14.0",
