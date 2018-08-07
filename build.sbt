@@ -2,6 +2,7 @@ lazy val root = (project in file("."))
   .settings(noPublishSettings)
   .aggregate(coreJVM, coreJS)
   .aggregate(metaJVM, metaJS)
+  .aggregate(macrosJVM, macrosJS)
   .aggregate(lawsJVM, lawsJS)
   .aggregate(testsJVM, testsJS)
   .aggregate(athemaJVM, athemaJS)
@@ -53,7 +54,8 @@ lazy val tests = module("tests")
     "org.typelevel"  %%% "algebra"            % "1.0.0",
     "org.typelevel"  %%% "cats-laws"          % "1.1.0",
     "eu.timepit"     %%% "refined"            % "0.9.2",
-    "eu.timepit"     %%% "refined-scalacheck" % "0.9.2"))
+    "eu.timepit"     %%% "refined-scalacheck" % "0.9.2",
+    compilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.patch)))
 
 lazy val testsJVM = tests.jvm
 lazy val testsJS  = tests.js
