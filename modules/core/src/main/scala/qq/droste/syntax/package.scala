@@ -12,15 +12,19 @@ object all
     with LiftSyntax
     with FixSyntax
     with UnfixSyntax
+    with EmbedSyntax
+    with ProjectSyntax
 
 object alias extends AliasSyntax
 object attr extends AttrSyntax
 object lift extends LiftSyntax
 object fix extends FixSyntax
 object unfix extends UnfixSyntax
+object embed extends EmbedSyntax
+object project extends ProjectSyntax
 
 sealed trait AliasSyntax {
-  /** Compose two functors `F` and `G.
+  /** Compose two functors `F` and `G`.
     *
     * This allows you to inline what would otherwise require
     * a type alias.
@@ -101,5 +105,39 @@ sealed trait UnfixSyntax {
 object UnfixSyntax {
   final class Ops[F[_]](val fix: Fix[F]) extends AnyVal {
     def unfix: F[Fix[F]] = Fix.un(fix)
+  }
+}
+
+sealed trait EmbedSyntax {
+  implicit def toEmbedSyntaxOps[F[_], T](t: F[T])(implicit Embed: Embed[F, T]): EmbedSyntax.Ops[F, T] =
+    new EmbedSyntax.Ops[F, T] {
+      def tc   = Embed
+      def self = t
+    }
+}
+
+object EmbedSyntax {
+  trait Ops[F[_], T] {
+    def tc: Embed[F, T]
+    def self: F[T]
+
+    def embed: T = tc.algebra(self)
+  }
+}
+
+sealed trait ProjectSyntax {
+  implicit def toProjectSyntaxOps[F[_], T](t: T)(implicit Project: Project[F, T]): ProjectSyntax.Ops[F, T] =
+    new ProjectSyntax.Ops[F, T] {
+      def tc   = Project
+      def self = t
+    }
+}
+
+object ProjectSyntax {
+  trait Ops[F[_], T] {
+    def tc: Project[F, T]
+    def self: T
+
+    def project: F[T] = tc.coalgebra(self)
   }
 }
