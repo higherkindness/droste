@@ -1,7 +1,7 @@
 package qq.droste
 package examples.trans
 
-import org.scalacheck.Arbitrary
+import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Properties
 import org.scalacheck.Prop._
@@ -11,6 +11,7 @@ import cats.Traverse
 import cats.data.NonEmptyList
 import cats.syntax.all._
 import cats.instances.option._
+import cats.Eq
 
 import qq.droste.data.Fix
 import qq.droste.data.list._
@@ -28,7 +29,6 @@ final class TransDemo extends Properties("TransDemo") {
       toNelF(listF).map(fromNelF) ?= Some(listF)
     }
   }
-
 }
 
 object TransDemo {
@@ -77,5 +77,6 @@ object TransDemo {
       tail <- arbitrary[List[A]]
     } yield NonEmptyList.of(head, tail: _*))
 
+  implicit def transNeListEq[A: Eq, Z: Eq]: Eq[NeListF[A, Z]] = Eq.fromUniversalEquals
 
 }
