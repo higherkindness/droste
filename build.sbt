@@ -9,6 +9,15 @@ lazy val root = (project in file("."))
   .aggregate(athemaJVM, athemaJS)
   .aggregate(readme)
 
+lazy val V = new {
+  val cats       = "1.2.0"
+  val refined    = "0.9.0"
+  val algebra    = "1.0.0"
+  val atto       = "0.6.2"
+  val kittens    = "1.1.0"
+  val scalacheck = "1.13.5"
+}
+
 lazy val meta = module("meta")
   .settings(libraryDependencies ++= Seq(
     "org.scala-lang" % "scala-reflect"  % scalaVersion.value,
@@ -20,11 +29,8 @@ lazy val metaJS  = meta.js
 lazy val core = module("core")
   .dependsOn(meta)
   .settings(libraryDependencies ++= Seq(
-    "org.typelevel" %%% "cats-core"   % "1.1.0",
-    "org.typelevel" %%% "cats-free"   % "1.1.0",
-    "org.typelevel" %%% "kittens"     % "1.1.0",
-    compilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.patch)
-  ))
+    "org.typelevel" %%% "cats-core"   % V.cats,
+    "org.typelevel" %%% "cats-free"   % V.cats))
 
 lazy val coreJVM = core.jvm
 lazy val coreJS  = core.js
@@ -32,7 +38,7 @@ lazy val coreJS  = core.js
 lazy val macros = module("macros")
   .dependsOn(core)
   .settings(libraryDependencies ++= Seq(
-    "org.typelevel" %%% "kittens"     % "1.1.0",
+    "org.typelevel" %%% "kittens" % V.kittens,
     compilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.patch)
   ))
 
@@ -50,7 +56,7 @@ lazy val reftreeJS  = reftree.js
 lazy val laws = module("laws")
   .dependsOn(core)
   .settings(libraryDependencies ++= Seq(
-    "org.scalacheck" %%% "scalacheck" % "1.14.0"))
+    "org.scalacheck" %%% "scalacheck" % V.scalacheck))
 
 lazy val lawsJVM = laws.jvm
 lazy val lawsJS  = laws.js
@@ -59,11 +65,11 @@ lazy val tests = module("tests")
   .dependsOn(core, laws, athema, macros)
   .settings(noPublishSettings)
   .settings(libraryDependencies ++= Seq(
-    "org.scalacheck" %%% "scalacheck"         % "1.14.0",
-    "org.typelevel"  %%% "algebra"            % "1.0.0",
-    "org.typelevel"  %%% "cats-laws"          % "1.1.0",
-    "eu.timepit"     %%% "refined"            % "0.9.2",
-    "eu.timepit"     %%% "refined-scalacheck" % "0.9.2",
+    "org.scalacheck" %%% "scalacheck"         % V.scalacheck,
+    "org.typelevel"  %%% "algebra"            % V.algebra,
+    "org.typelevel"  %%% "cats-laws"          % V.cats,
+    "eu.timepit"     %%% "refined"            % V.refined,
+    "eu.timepit"     %%% "refined-scalacheck" % V.refined,
     compilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.patch)))
 
 lazy val testsJVM = tests.jvm
@@ -74,11 +80,11 @@ lazy val athema = module("athema", prefix = "")
   .settings(noPublishSettings)
   .settings(libraryDependencies ++=
     Seq(
-      "org.typelevel" %%% "algebra" % "1.0.0",
-      "org.tpolecat" %%% "atto-core" % "0.6.2"
+      "org.typelevel" %%% "algebra" % V.algebra,
+      "org.tpolecat"  %%% "atto-core" % V.atto
     ) ++
     Seq(
-      "org.scalacheck" %%% "scalacheck" % "1.14.0"
+      "org.scalacheck" %%% "scalacheck" % V.scalacheck
     ).map(_ % "test"))
 
 
