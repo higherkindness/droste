@@ -5,7 +5,7 @@ import org.scalacheck.Properties
 import org.scalacheck.Prop._
 
 import data.list._
-import data.{:<, Cofree}
+import data.:<
 
 final class WorkDone extends Properties("WorkDone") {
 
@@ -25,8 +25,8 @@ final class WorkDone extends Properties("WorkDone") {
       val sf = new Sketch()
       val sg = new Sketch()
 
-      val rf = scheme.cata[ListF[Unit, ?], List[Unit], Int](cataAlgebra(sf)).apply(list)
-      val rg = scheme.gcata[ListF[Unit, ?], List[Unit], Int, Int](cataAlgebra(sg))(Gather.cata).apply(list)
+      val rf = scheme.cata(cataAlgebra(sf)).apply(list)
+      val rg = scheme.gcata(cataAlgebra(sg))(Gather.cata).apply(list)
 
       ((rf ?= rg) :| "same result") &&
       ((sf.value ?= sg.value) :| "same work")
@@ -48,8 +48,8 @@ final class WorkDone extends Properties("WorkDone") {
       val sf = new Sketch()
       val sg = new Sketch()
 
-      val rf = scheme.zoo.histo[ListF[Unit, ?], List[Unit], Int](histoAlgebra(sf)).apply(list)
-      val rg = scheme.gcata[ListF[Unit, ?], List[Unit], Cofree[ListF[Unit, ?], Int], Int](histoAlgebra(sg))(Gather.histo).apply(list)
+      val rf = scheme.zoo.histo(histoAlgebra(sf)).apply(list)
+      val rg = scheme.gcata(histoAlgebra(sg))(Gather.histo).apply(list)
 
       ((rf ?= rg) :| "same result") &&
       ((sf.value ?= sg.value) :| "same work")

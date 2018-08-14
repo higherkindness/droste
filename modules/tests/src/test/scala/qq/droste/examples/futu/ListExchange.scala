@@ -21,7 +21,7 @@ final class ListExchange extends Properties("ListExchange") {
   }
 
   val f: List[String] => List[String] =
-    scheme.zoo.futu[ListF[String, ?], List[String], List[String]](exchangeCoalgebra)
+    scheme.zoo.futu(exchangeCoalgebra)
 
   property("simple pair wise swap check") = {
     val in: List[String] = List("a", "b", "c", "d", "e", "f")

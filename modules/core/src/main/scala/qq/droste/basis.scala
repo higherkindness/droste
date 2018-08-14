@@ -49,6 +49,9 @@ object Basis extends FloatingBasisInstances[Basis] {
 }
 
 private[droste] sealed trait FloatingBasisInstances[H[F[_], A] >: Basis[F, A]] extends FloatingBasisInstances0[H] {
+  implicit def drosteBasisForListF[A]: H[ListF[A, ?], List[A]] =
+    Basis.Default[ListF[A, ?], List[A]](ListF.toScalaListAlgebra, ListF.fromScalaListCoalgebra)
+
   implicit def drosteBasisForCofree[F[_], E]: H[EnvT[E, F, ?], Cofree[F, E]] =
     Basis.Default[EnvT[E, F, ?], Cofree[F, E]](Cofree.algebra, Cofree.coalgebra)
 
@@ -57,9 +60,6 @@ private[droste] sealed trait FloatingBasisInstances[H[F[_], A] >: Basis[F, A]] e
 }
 
 private[droste] sealed trait FloatingBasisInstances0[H[F[_], A] >: Basis[F, A]] {
-  implicit def drosteBasisForListF[A]: H[ListF[A, ?], List[A]] =
-    Basis.Default[ListF[A, ?], List[A]](ListF.toScalaListAlgebra, ListF.fromScalaListCoalgebra)
-
   implicit def drosteBasisForFix[F[_]]: H[F, Fix[F]] =
     Basis.Default[F, Fix[F]](Fix.algebra, Fix.coalgebra)
 
