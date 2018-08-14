@@ -5,28 +5,23 @@ import org.scalacheck.Properties
 import org.scalacheck.Prop._
 
 import qq.droste.data.list._
-import qq.droste.data.Fix
 import qq.droste.data.Free
 
 final class ListExchange extends Properties("ListExchange") {
 
-  type FixedList[A] = Fix[ListF[A, ?]]
-
   // TODO: make this more ergonomic to write
-  val exchangeCoalgebra: CVCoalgebra[ListF[String, ?], FixedList[String]] = CVCoalgebra(Fix.un(_) match {
-    case NilF => NilF
-    case ConsF(head, tail) => Fix.un(tail) match {
-      case NilF => ConsF(head, Free.pure(tail))
-      case ConsF(tailHead, tailTail) =>
+  val exchangeCoalgebra: CVCoalgebra[ListF[String, ?], List[String]] = CVCoalgebra {
+    case Nil => NilF
+    case head :: tail => tail match {
+      case Nil => ConsF(head, Free.pure(tail))
+      case tailHead :: tailTail =>
         ConsF(tailHead, Free.roll(
-          ConsF(head, Free.pure[ListF[String, ?], FixedList[String]](tailTail))))
+          ConsF(head, Free.pure[ListF[String, ?], List[String]](tailTail))))
     }
-  })
+  }
 
   val f: List[String] => List[String] =
-    scheme.zoo.futu(exchangeCoalgebra) andThen
-    (ListF.toScalaList(_)) compose
-    (ListF.fromScalaList(_))
+    scheme.zoo.futu(exchangeCoalgebra)
 
   property("simple pair wise swap check") = {
     val in: List[String] = List("a", "b", "c", "d", "e", "f")

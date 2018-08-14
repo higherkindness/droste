@@ -1,19 +1,13 @@
 package qq.droste
 package tests
 
-import org.scalacheck.Arbitrary
-import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Properties
 import org.scalacheck.Prop._
 
 import data.list._
-import data.Fix
 import data.:<
 
 final class WorkDone extends Properties("WorkDone") {
-
-  implicit def aribtraryFixListF[A: Arbitrary]: Arbitrary[Fix[ListF[A, ?]]] =
-    Arbitrary(arbitrary[List[A]].map(_.take(10)).map(ListF.fromScalaList[A, Fix](_)))
 
   final class Sketch(var value: Int = 0)
 
@@ -27,7 +21,7 @@ final class WorkDone extends Properties("WorkDone") {
   }
 
   property("cata vs gcata") = {
-    forAll { (list: Fix[ListF[Unit, ?]]) =>
+    forAll { list: List[Unit] =>
       val sf = new Sketch()
       val sg = new Sketch()
 
@@ -50,7 +44,7 @@ final class WorkDone extends Properties("WorkDone") {
 
   property("histo vs gcata") = {
 
-    forAll { (list: Fix[ListF[Unit, ?]]) =>
+    forAll { list: List[Unit] =>
       val sf = new Sketch()
       val sg = new Sketch()
 

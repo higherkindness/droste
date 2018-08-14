@@ -6,6 +6,7 @@ import data.CoenvT
 import data.EnvT
 import data.Free
 import data.Fix
+import data.list._
 
 import cats.Eval
 
@@ -48,6 +49,9 @@ object Basis extends FloatingBasisInstances[Basis] {
 }
 
 private[droste] sealed trait FloatingBasisInstances[H[F[_], A] >: Basis[F, A]] extends FloatingBasisInstances0[H] {
+  implicit def drosteBasisForListF[A]: H[ListF[A, ?], List[A]] =
+    Basis.Default[ListF[A, ?], List[A]](ListF.toScalaListAlgebra, ListF.fromScalaListCoalgebra)
+
   implicit def drosteBasisForCofree[F[_], E]: H[EnvT[E, F, ?], Cofree[F, E]] =
     Basis.Default[EnvT[E, F, ?], Cofree[F, E]](Cofree.algebra, Cofree.coalgebra)
 
