@@ -1,19 +1,13 @@
 package qq.droste
 package tests
 
-import org.scalacheck.Arbitrary
-import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Properties
 import org.scalacheck.Prop._
 
 import data.list._
-import data.Fix
-import data.:<
+import data.{:<, Cofree}
 
 final class WorkDone extends Properties("WorkDone") {
-
-  implicit def aribtraryFixListF[A: Arbitrary]: Arbitrary[Fix[ListF[A, ?]]] =
-    Arbitrary(arbitrary[List[A]].map(_.take(10)).map(ListF.fromScalaList[A, Fix](_)))
 
   final class Sketch(var value: Int = 0)
 
@@ -27,12 +21,12 @@ final class WorkDone extends Properties("WorkDone") {
   }
 
   property("cata vs gcata") = {
-    forAll { (list: Fix[ListF[Unit, ?]]) =>
+    forAll { list: List[Unit] =>
       val sf = new Sketch()
       val sg = new Sketch()
 
-      val rf = scheme.cata(cataAlgebra(sf)).apply(list)
-      val rg = scheme.gcata(cataAlgebra(sg))(Gather.cata).apply(list)
+      val rf = scheme.cata[ListF[Unit, ?], List[Unit], Int](cataAlgebra(sf)).apply(list)
+      val rg = scheme.gcata[ListF[Unit, ?], List[Unit], Int, Int](cataAlgebra(sg))(Gather.cata).apply(list)
 
       ((rf ?= rg) :| "same result") &&
       ((sf.value ?= sg.value) :| "same work")
@@ -50,12 +44,12 @@ final class WorkDone extends Properties("WorkDone") {
 
   property("histo vs gcata") = {
 
-    forAll { (list: Fix[ListF[Unit, ?]]) =>
+    forAll { list: List[Unit] =>
       val sf = new Sketch()
       val sg = new Sketch()
 
-      val rf = scheme.zoo.histo(histoAlgebra(sf)).apply(list)
-      val rg = scheme.gcata(histoAlgebra(sg))(Gather.histo).apply(list)
+      val rf = scheme.zoo.histo[ListF[Unit, ?], List[Unit], Int](histoAlgebra(sf)).apply(list)
+      val rg = scheme.gcata[ListF[Unit, ?], List[Unit], Cofree[ListF[Unit, ?], Int], Int](histoAlgebra(sg))(Gather.histo).apply(list)
 
       ((rf ?= rg) :| "same result") &&
       ((sf.value ?= sg.value) :| "same work")
