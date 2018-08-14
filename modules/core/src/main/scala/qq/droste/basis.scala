@@ -7,7 +7,6 @@ import data.EnvT
 import data.Free
 import data.Fix
 import data.list._
-import ListF._
 
 import cats.Eval
 
@@ -59,7 +58,7 @@ private[droste] sealed trait FloatingBasisInstances[H[F[_], A] >: Basis[F, A]] e
 
 private[droste] sealed trait FloatingBasisInstances0[H[F[_], A] >: Basis[F, A]] {
   implicit def drosteBasisForListF[A]: H[ListF[A, ?], List[A]] =
-    Basis.Default[ListF[A, ?], List[A]](toScalaListAlgebra, fromScalaListCoalgebra)
+    Basis.Default[ListF[A, ?], List[A]](ListF.toScalaListAlgebra, ListF.fromScalaListCoalgebra)
 
   implicit def drosteBasisForFix[F[_]]: H[F, Fix[F]] =
     Basis.Default[F, Fix[F]](Fix.algebra, Fix.coalgebra)
