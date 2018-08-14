@@ -2,6 +2,7 @@ package qq.droste
 package tests
 
 import org.scalacheck.Gen
+import org.scalacheck.droste.Compat
 import cats.Monad
 
 private[tests] trait ScalacheckSupport {
@@ -11,7 +12,7 @@ private[tests] trait ScalacheckSupport {
     override def map[A, B](a: Gen[A])(f: A => B): Gen[B] = a.map(f)
     def flatMap[A, B](a: Gen[A])(f: A => Gen[B]): Gen[B] = a.flatMap(f)
     def tailRecM[A, B](a: A)(f: A => Gen[Either[A, B]]): Gen[B] =
-      Gen.tailRecM(a)(f)
+      Compat.gen_tailRecM(a)(f)
   }
 
 }
