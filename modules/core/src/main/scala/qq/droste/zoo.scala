@@ -1,6 +1,6 @@
 package qq.droste
 
-import cats.Functor
+import cats.{Functor, Traverse, Monad}
 import cats.instances.either._
 import cats.instances.tuple._
 import cats.syntax.functor._
@@ -30,6 +30,20 @@ private[droste] trait Zoo {
       embed.algebra.run.compose((frr: F[(R | R)]) => frr.map(_.merge)),
       coalgebra.run)
 
+  /** A monadic version of an apomorphism.
+    *
+    * @group unfolds
+    *
+    * @usecase def apoM[M[_], F[_], A, R](coalgebraM: RCoalgebraM[R, M, F, A]): A => M[R]
+    *   @inheritdoc
+    */
+  def apoM[M[_]: Monad, F[_]: Traverse, A, R](
+    coalgebraM: RCoalgebraM[R, M, F, A]
+  )(implicit embed: Embed[F, R]): A => M[R] =
+    kernel.hyloMC(
+      embed.algebra.lift[M].run.compose((frr: F[(R | R)]) => frr.map(_.merge)),
+      coalgebraM.run)
+
   /** A variation of a catamorphism that gives you access to the input value at
     * every point in the computation.
     *
@@ -50,6 +64,19 @@ private[droste] trait Zoo {
       algebra.run,
       project.coalgebra.run.andThen(_.map(r => (r, r))))
 
+  /** A monadic version of a paramorphism.
+    *
+    * @group folds
+    *
+    * @usecase def paraM[M[_], F[_], R, B](algebraM: RAlgebraM[R, M, F, B]): R => M[B]
+    *   @inheritdoc
+    */
+  def paraM[M[_]: Monad, F[_]: Traverse, R, B](
+    algebraM: RAlgebraM[R, M, F, B]
+  )(implicit project: Project[F, R]): R => M[B] =
+    kernel.hyloMC(
+      algebraM.run,
+      project.coalgebra.lift[M].run.andThen(_.map(_.map(r => (r, r)))))
 
   /** Histomorphism
     *

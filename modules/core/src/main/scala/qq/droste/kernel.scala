@@ -9,6 +9,7 @@ import cats.syntax.functor._
 import cats.syntax.traverse._
 
 import implicits.composedFunctor._
+import implicits.composedTraverse._
 import syntax.alias._
 
 /** Fundamental recursion schemes implemented in terms of
@@ -92,5 +93,18 @@ object kernel {
     hyloC[M, F, A, M[B]](
       _.flatMap(_.sequence.flatMap(algebra)),
       coalgebra)
+
+  /** Convenience to build a monadic hylomorphism for the composed functor `F[G[_]]`.
+    *
+    * @group refolds
+    *
+    * @usecase def hyloMC[M[_], F[_], G[_], A, B](algebra: F[G[B]] => M[B], coalgebra: A => M[F[G[A]]]): A => M[B]
+    *   @inheritdoc
+    */
+  def hyloMC[M[_]: Monad, F[_]: Traverse, G[_]: Traverse, A, B](
+    algebra  : F[G[B]] => M[B],
+    coalgebra: A => M[F[G[A]]]
+  ): A => M[B] =
+    hyloM[M, (F ∘ G)#λ, A, B](algebra, coalgebra)
 
 }
