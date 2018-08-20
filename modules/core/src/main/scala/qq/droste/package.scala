@@ -5,17 +5,20 @@ import data.Free
 
 object `package` {
 
-  type Algebra    [F[_]      , A] = GAlgebra  [F, A, A]
-  type Coalgebra  [F[_]      , A] = GCoalgebra[F, A, A]
+  type Algebra    [         F[_], A] = GAlgebra  [F, A, A]
+  type Coalgebra  [         F[_], A] = GCoalgebra[F, A, A]
 
-  type AlgebraM   [M[_], F[_], A] = GAlgebraM  [M, F, A, A]
-  type CoalgebraM [M[_], F[_], A] = GCoalgebraM[M, F, A, A]
+  type AlgebraM   [   M[_], F[_], A] = GAlgebraM  [M, F, A, A]
+  type CoalgebraM [   M[_], F[_], A] = GCoalgebraM[M, F, A, A]
 
-  type RAlgebra   [R,    F[_], A] = GAlgebra  [F, (R, A),       A]
-  type RCoalgebra [R,    F[_], A] = GCoalgebra[F, A,            Either[R, A]]
+  type RAlgebra   [R,       F[_], A] = GAlgebra  [F, (R, A),A]
+  type RCoalgebra [R,       F[_], A] = GCoalgebra[F, A,     Either[R, A]]
 
-  type CVAlgebra  [      F[_], A] = GAlgebra  [F, Cofree[F, A], A]
-  type CVCoalgebra[      F[_], A] = GCoalgebra[F, A,            Free[F, A]]
+  type RAlgebraM  [R, M[_], F[_], A] = GAlgebraM  [M, F, (R, A), A]
+  type RCoalgebraM[R, M[_], F[_], A] = GCoalgebraM[M, F, A,      Either[R, A]]
+
+  type CVAlgebra  [         F[_], A] = GAlgebra  [F, Cofree[F, A], A]
+  type CVCoalgebra[         F[_], A] = GCoalgebra[F, A,            Free[F, A]]
 
   type Gather     [F[_], S, A] = (A, F[S]) => S
   type Scatter    [F[_], A, S] = S         => Either[A, F[S]]
@@ -42,6 +45,14 @@ object `package` {
 
   object RCoalgebra {
     def apply[R, F[_], A](f: A => F[Either[R, A]]): RCoalgebra[R, F, A] = GCoalgebra(f)
+  }
+
+  object RAlgebraM {
+    def apply[R, M[_], F[_], A](f: F[(R, A)] => M[A]): RAlgebraM[R, M, F, A] = GAlgebraM(f)
+  }
+
+  object RCoalgebraM {
+    def apply[R, M[_], F[_], A](f: A => M[F[Either[R, A]]]): RCoalgebraM[R, M, F, A] = GCoalgebraM(f)
   }
 
   object CVAlgebra {
