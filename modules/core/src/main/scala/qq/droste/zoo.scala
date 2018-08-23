@@ -153,7 +153,7 @@ private[droste] trait Zoo {
     */
   def prepro[F[_] : Functor, R, B](
     natTrans: F ~> F,
-    algebra: Algebra[F, B],
+    algebra: Algebra[F, B]
   )(implicit project: Project[F, R]): R => B =
     kernel.hylo[Yoneda[F, ?], R, B](
       yfb => algebra.run(yfb.mapK(natTrans).run),

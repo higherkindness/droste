@@ -4,7 +4,7 @@ import org.scalacheck.Properties
 import org.scalacheck.Prop._
 
 import cats.Monad
-import cats.syntax.flatMap._
+import cats.syntax.functor._
 import cats.instances.option._
 
 import qq.droste.data.list._
@@ -35,7 +35,7 @@ object HeadEff {
     scheme.zoo.apoM(
       RCoalgebraM[List[A], M, ListF[A, ?], List[A]] {
         case Nil => M.pure(NilF)
-        case h :: t => f(h).flatMap(r => M.pure(ConsF(r, Left(t))))
+        case h :: t => f(h).map(ConsF(_, Left(t)))
       }
     )
 

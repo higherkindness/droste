@@ -33,5 +33,4 @@ final class SmallPre extends Properties("SmallPre") {
   property("mixed sum") =
     smallSum((1 to 100).toList) ?= 55
 
-
 }
