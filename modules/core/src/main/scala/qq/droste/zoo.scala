@@ -171,7 +171,7 @@ private[droste] trait Zoo {
     */
   def postpro[F[_] : Functor, A, R](
     coalgebra: Coalgebra[F, A],
-    natTrans: F ~> F,
+    natTrans: F ~> F
   )(implicit embed: Embed[F, R]): A => R =
     kernel.hylo[Yoneda[F, ?], A, R](
       yfb => embed.algebra.run(yfb.run),
