@@ -3,7 +3,7 @@ package syntax
 
 import cats.Applicative
 
-import data.EnvT
+import data.AttrF
 import data.Fix
 
 object all
@@ -71,7 +71,7 @@ sealed trait AttrSyntax {
 
 object AttrSyntax {
   final class Ops[V[_], A](val lower: V[A]) extends AnyVal {
-    implicit def attr[E, W[a] >: V[a]](ask: E): EnvT[E, W, A] = EnvT(ask, lower)
+    implicit def attr[E, W[a] >: V[a]](ask: E): AttrF[E, W, A] = AttrF(ask, lower)
   }
 }
 

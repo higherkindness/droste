@@ -5,7 +5,7 @@ import org.scalacheck.Properties
 import org.scalacheck.Prop._
 
 import qq.droste.data.list._
-import qq.droste.data.Free
+import qq.droste.data.Coattr
 
 final class ListExchange extends Properties("ListExchange") {
 
@@ -13,10 +13,10 @@ final class ListExchange extends Properties("ListExchange") {
   val exchangeCoalgebra: CVCoalgebra[ListF[String, ?], List[String]] = CVCoalgebra {
     case Nil => NilF
     case head :: tail => tail match {
-      case Nil => ConsF(head, Free.pure(tail))
+      case Nil => ConsF(head, Coattr.pure(tail))
       case tailHead :: tailTail =>
-        ConsF(tailHead, Free.roll(
-          ConsF(head, Free.pure[ListF[String, ?], List[String]](tailTail))))
+        ConsF(tailHead, Coattr.roll(
+          ConsF(head, Coattr.pure[ListF[String, ?], List[String]](tailTail))))
     }
   }
 

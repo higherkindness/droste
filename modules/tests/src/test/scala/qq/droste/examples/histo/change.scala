@@ -8,10 +8,10 @@ import cats.Applicative
 import cats.Traverse
 import cats.syntax.all._
 
-import qq.droste.data.prelude._
-import qq.droste.data.Cofree
+import qq.droste.data.Attr
 import qq.droste.data.Fix
 import qq.droste.util.DefaultTraverse
+import qq.droste.data.prelude._
 
 /** Making change with histomorphisms.
   *
@@ -155,7 +155,7 @@ object MakeChange {
       case Zero    => 0
     })
 
-  def lookup(cache: Cofree[Nat, Set[List[Coin]]], n: Int): Set[List[Coin]] =
+  def lookup(cache: Attr[Nat, Set[List[Coin]]], n: Int): Set[List[Coin]] =
     if (n == 0) cache.head
     else cache.tail match {
       case Next(inner) => lookup(inner, n - 1)

@@ -1,11 +1,11 @@
 package qq.droste
 
-import data.prelude._
-import data.Cofree
-import data.CoenvT
-import data.EnvT
-import data.Free
+import data.Attr
+import data.AttrF
+import data.Coattr
+import data.CoattrF
 import data.Fix
+import data.prelude._
 import data.list._
 
 import cats.Eval
@@ -52,27 +52,27 @@ private[droste] sealed trait FloatingBasisInstances[H[F[_], A] >: Basis[F, A]] e
   implicit def drosteBasisForListF[A]: H[ListF[A, ?], List[A]] =
     Basis.Default[ListF[A, ?], List[A]](ListF.toScalaListAlgebra, ListF.fromScalaListCoalgebra)
 
-  implicit def drosteBasisForCofree[F[_], E]: H[EnvT[E, F, ?], Cofree[F, E]] =
-    Basis.Default[EnvT[E, F, ?], Cofree[F, E]](Cofree.algebra, Cofree.coalgebra)
+  implicit def drosteBasisForAttr[F[_], E]: H[AttrF[E, F, ?], Attr[F, E]] =
+    Basis.Default[AttrF[E, F, ?], Attr[F, E]](Attr.algebra, Attr.coalgebra)
 
-  implicit def drosteBasisForFree[F[_], E]: H[CoenvT[E, F, ?], Free[F, E]] =
-    Basis.Default[CoenvT[E, F, ?], Free[F, E]](Free.algebra, Free.coalgebra)
+  implicit def drosteBasisForCoattr[F[_], E]: H[CoattrF[E, F, ?], Coattr[F, E]] =
+    Basis.Default[CoattrF[E, F, ?], Coattr[F, E]](Coattr.algebra, Coattr.coalgebra)
 }
 
 private[droste] sealed trait FloatingBasisInstances0[H[F[_], A] >: Basis[F, A]] {
   implicit def drosteBasisForFix[F[_]]: H[F, Fix[F]] =
     Basis.Default[F, Fix[F]](Fix.algebra, Fix.coalgebra)
 
-  implicit def drosteBasisForCatsCofree[F[_], E]: H[EnvT[E, F, ?], cats.free.Cofree[F, E]] =
-    Basis.Default[EnvT[E, F, ?], cats.free.Cofree[F, E]](
+  implicit def drosteBasisForCatsCofree[F[_], E]: H[AttrF[E, F, ?], cats.free.Cofree[F, E]] =
+    Basis.Default[AttrF[E, F, ?], cats.free.Cofree[F, E]](
       Algebra(fa => cats.free.Cofree(fa.ask, Eval.now(fa.lower))),
-      Coalgebra(a => EnvT(a.head, a.tailForced)))
+      Coalgebra(a => AttrF(a.head, a.tailForced)))
 }
 
 private[droste] sealed trait FloatingBasisSolveInstances {
   import Basis.Solve
 
   implicit val drosteSolveFix: Solve.Aux[Fix, λ[(F[_], α) => F[α]]] = null
-  implicit def drosteSolveCofree[E]: Solve.Aux[Cofree[?[_], E], EnvT[E, ?[_], ?]] = null
-  implicit def drosteSolveCatsCofree[E]: Solve.Aux[cats.free.Cofree[?[_], E], EnvT[E, ?[_], ?]] = null
+  implicit def drosteSolveAttr[E]: Solve.Aux[Attr[?[_], E], AttrF[E, ?[_], ?]] = null
+  implicit def drosteSolveCatsCofree[E]: Solve.Aux[cats.free.Cofree[?[_], E], AttrF[E, ?[_], ?]] = null
 }

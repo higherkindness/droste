@@ -2,7 +2,7 @@ package qq.droste
 package data
 
 object prelude
-    extends CoenvTImplicits
-    with CofreeImplicits
-    with EnvTImplicits
-    with FreeImplicits
+    extends AttrImplicits
+    with AttrFImplicits
+    with CoattrImplicits
+    with CoattrFImplicits

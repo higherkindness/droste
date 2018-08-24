@@ -8,8 +8,8 @@ import cats.instances.tuple._
 import cats.syntax.functor._
 
 import data.prelude._
-import data.Cofree
-import data.Free
+import data.Attr
+import data.Coattr
 import syntax.alias._
 
 private[droste] trait Zoo {
@@ -90,8 +90,8 @@ private[droste] trait Zoo {
   def histo[F[_]: Functor, R, B](
     algebra: CVAlgebra[F, B]
   )(implicit project: Project[F, R]): R => B =
-    kernel.hylo[F, R, Cofree[F, B]](
-      fb => Cofree(algebra(fb), fb),
+    kernel.hylo[F, R, Attr[F, B]](
+      fb => Attr(algebra(fb), fb),
       project.coalgebra.run
     ) andThen (_.head)
 
@@ -105,10 +105,10 @@ private[droste] trait Zoo {
   def futu[F[_]: Functor, A, R](
     coalgebra: CVCoalgebra[F, A]
   )(implicit embed: Embed[F, R]): A => R =
-    kernel.hylo[F, Free[F, A], R](
+    kernel.hylo[F, Coattr[F, A], R](
       embed.algebra.run,
       _.fold(coalgebra.run, identity)
-    ) compose (Free.pure(_))
+    ) compose (Coattr.pure(_))
 
   /** A fusion refold of a futumorphism followed by a histomorphism
     *
@@ -121,10 +121,10 @@ private[droste] trait Zoo {
     algebra: CVAlgebra[F, B],
     coalgebra: CVCoalgebra[F, A]
   ): A => B =
-    kernel.hylo[F, Free[F, A], Cofree[F, B]](
-      fb => Cofree(algebra(fb), fb),
+    kernel.hylo[F, Coattr[F, A], Attr[F, B]](
+      fb => Attr(algebra(fb), fb),
       _.fold(coalgebra.run, identity)
-    ) andThen (_.head) compose (Free.pure(_))
+    ) andThen (_.head) compose (Coattr.pure(_))
 
   /** A fusion refold of an anamorphism followed by a histomorphism
     *
@@ -137,8 +137,8 @@ private[droste] trait Zoo {
     algebra: CVAlgebra[F, B],
     coalgebra: Coalgebra[F, A]
   ): A => B =
-    kernel.hylo[F, A, Cofree[F, B]](
-      fb => Cofree(algebra(fb), fb),
+    kernel.hylo[F, A, Attr[F, B]](
+      fb => Attr(algebra(fb), fb),
       coalgebra.run
     ) andThen (_.head)
 
