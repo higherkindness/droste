@@ -25,13 +25,13 @@ object stratagem {
       AttrF(algebra(fa.map(_.head)), fa)).algebra)
 
   /** An algebra for listing all possible partial structures */
-  def allPartials[F[_]: Traverse, A]: Algebra[AttrF[A, F, ?], List[Coattr[F, A]]] =
+  def allPartials[F[_]: Traverse, A]: Algebra[AttrF[F, A, ?], List[Coattr[F, A]]] =
     partials(Applicative[List])
 
   /** An algebra for listing partial structures showing the path a fold might
     * take through a data structure
     */
-  def perimeterPartials[F[_]: Traverse, A]: Algebra[AttrF[A, F, ?], List[Coattr[F, A]]] =
+  def perimeterPartials[F[_]: Traverse, A]: Algebra[AttrF[F, A, ?], List[Coattr[F, A]]] =
     partials(listPerimeterApplicative)
 
   /** An algebra for converting an annotated structure into a list of partial
@@ -40,7 +40,7 @@ object stratagem {
     * This is useful for snapshotting the intermediate data structures during a
     * fold.
     */
-  def partials[F[_]: Traverse, A](app: Applicative[List]): Algebra[AttrF[A, F, ?], List[Coattr[F, A]]] =
+  def partials[F[_]: Traverse, A](app: Applicative[List]): Algebra[AttrF[F, A, ?], List[Coattr[F, A]]] =
     Algebra(envt =>
       Coattr.pure[F, A](envt.ask) :: Traverse[F].sequence(envt.lower)(app).map(Coattr.roll))
 

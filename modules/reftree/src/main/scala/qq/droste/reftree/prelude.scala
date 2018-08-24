@@ -29,7 +29,7 @@ object prelude {
     implicit evF: ToRefTree[F[RefTree]], evA: ToRefTree[A]
   ): ToRefTree[Attr[F, A]] =
     ToRefTree(input =>
-      scheme.hyloM[Zedd.M, AttrF[A, F, ?], Attr[F, A], RefTree](
+      scheme.hyloM[Zedd.M, AttrF[F, A, ?], Attr[F, A], RefTree](
         Zedd.up(cofreeToRefTreeAlgebra[F, A]),
         Zedd.down
       ).apply(input).runA(Zedd.empty).value
@@ -39,7 +39,7 @@ object prelude {
     implicit evF: ToRefTree[F[RefTree]], evA: ToRefTree[A]
   ): ToRefTree[Coattr[F, A]] =
     ToRefTree(input =>
-      scheme.hyloM[Zedd.M, CoattrF[A, F, ?], Coattr[F, A], RefTree](
+      scheme.hyloM[Zedd.M, CoattrF[F, A, ?], Coattr[F, A], RefTree](
         Zedd.up(freeToRefTreeAlgebra[F, A]),
         Zedd.down
       ).apply(input).runA(Zedd.empty).value
@@ -52,8 +52,8 @@ object prelude {
 
   private def cofreeToRefTreeAlgebra[F[_] <: AnyRef, A](
     implicit evF: ToRefTree[F[RefTree]], evA: ToRefTree[A]
-  ): Algebra[AttrF[A, F, ?], RefTree] =
-    Algebra { (fa: AttrF[A, F, RefTree]) =>
+  ): Algebra[AttrF[F, A, ?], RefTree] =
+    Algebra { (fa: AttrF[F, A, RefTree]) =>
       val children = evF.refTree(fa.lower) match {
         case ref: RefTree.Ref => ref.children.toList
         case other            => List(other.toField.withName("value"))
@@ -64,6 +64,6 @@ object prelude {
 
   private def freeToRefTreeAlgebra[F[_] <: AnyRef, A](
     implicit evF: ToRefTree[F[RefTree]], evA: ToRefTree[A]
-  ): Algebra[CoattrF[A, F, ?], RefTree] =
+  ): Algebra[CoattrF[F, A, ?], RefTree] =
     Algebra(CoattrF.un(_).fold(evA.refTree, evF.refTree))
 }

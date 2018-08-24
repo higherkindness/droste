@@ -30,12 +30,12 @@ package object data {
     * This is also the environment comonad transformer "EnvT".
     *
     * Implemented as an obscured alias:
-    * {{{type AttrF[E, W[_], A] = (E, W[A])}}}
+    * {{{type AttrF[F[_], A, B] = (A, F[B])}}}
     *
     * The companion object can be used to translate between
     * representations.
     */
-  type AttrF[E, W[_], A] // = (E, W[A])
+  type AttrF[F[_], A, B] // = (A, F[B])
 
   /** A very basic free monad.
     *
@@ -57,10 +57,10 @@ package object data {
     * The dual of [[AttrF]].
     *
     * Implemented as an obscured alias:
-    * {{{type CoattrF[E, W[_], A] = Either[E, W[A]]}}}
+    * {{{type CoattrF[F[_], A, B] = Either[A, F[B]]}}}
     *
     * The companion object can be used to translate between
     * representations.
     */
-  type CoattrF[E, W[_], A] // = Either[E, W[A]]
+  type CoattrF[F[_], A, B] // = Either[A, F[B]]
 }

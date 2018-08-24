@@ -13,38 +13,38 @@ import data.prelude._
 import util.DefaultTraverse
 
 object AttrF {
-  def apply  [E, W[_], A](ask: E, lower: W[A]): AttrF[E, W, A] = apply((ask, lower))
-  def apply  [E, W[_], A](f: (E, W[A])): AttrF[E, W, A] = macro Meta.fastCast
-  def un     [E, W[_], A](f: AttrF[E, W, A]): (E, W[A]) = macro Meta.fastCast
-  def unapply[E, W[_], A](f: AttrF[E, W, A]): Option[(E, W[A])] = Some(f.tuple)
+  def apply  [F[_], A, B](ask: A, lower: F[B]): AttrF[F, A, B] = apply((ask, lower))
+  def apply  [F[_], A, B](f: (A, F[B])): AttrF[F, A, B] = macro Meta.fastCast
+  def un     [F[_], A, B](f: AttrF[F, A, B]): (A, F[B]) = macro Meta.fastCast
+  def unapply[F[_], A, B](f: AttrF[F, A, B]): Option[(A, F[B])] = Some(f.tuple)
 }
 
 private[data] trait AttrFImplicits extends AttrFImplicits0 {
-  implicit final class AttrFOps[E, W[_], A](attrf: AttrF[E, W, A]) {
-    def tuple: (E, W[A]) = AttrF.un(attrf)
-    def ask: E = tuple._1
-    def lower: W[A] = tuple._2
+  implicit final class AttrFOps[F[_], A, B](attrf: AttrF[F, A, B]) {
+    def tuple: (A, F[B]) = AttrF.un(attrf)
+    def ask: A = tuple._1
+    def lower: F[B] = tuple._2
   }
 
-  implicit def drosteAttrFTraverse[E, W[_]: Traverse]: Traverse[AttrF[E, W, ?]] =
-    new AttrFTraverse[E, W]
+  implicit def drosteAttrFTraverse[F[_]: Traverse, A]: Traverse[AttrF[F, A, ?]] =
+    new AttrFTraverse[F, A]
 }
 
 private[data] sealed trait AttrFImplicits0 {
-  implicit def drosteAttrFFunctor[E, W[_]: Functor]: Functor[AttrF[E, W, ?]] =
-    new AttrFFunctor[E, W]
+  implicit def drosteAttrFFunctor[F[_]: Functor, A]: Functor[AttrF[F, A, ?]] =
+    new AttrFFunctor[F, A]
 }
 
 
-private[data] sealed class AttrFFunctor[E, W[_]: Functor] extends Functor[AttrF[E, W, ?]] {
-  def map[A, B](fa: AttrF[E, W, A])(f: A => B): AttrF[E, W, B] =
-    AttrF(fa.ask, fa.lower.map(f))
+private[data] sealed class AttrFFunctor[F[_]: Functor, A] extends Functor[AttrF[F, A, ?]] {
+  def map[B, C](fb: AttrF[F, A, B])(f: B => C): AttrF[F, A, C] =
+    AttrF(fb.ask, fb.lower.map(f))
 }
 
-private[data] final class AttrFTraverse[E, W[_]: Traverse]
-    extends AttrFFunctor[E, W]
-    with DefaultTraverse[AttrF[E, W, ?]]
+private[data] final class AttrFTraverse[F[_]: Traverse, A]
+    extends AttrFFunctor[F, A]
+    with DefaultTraverse[AttrF[F, A, ?]]
 {
-  def traverse[G[_]: Applicative, A, B](fa: AttrF[E, W, A])(f: A => G[B]): G[AttrF[E, W, B]] =
-    fa.lower.traverse(f).map(AttrF(fa.ask, _))
+  def traverse[G[_]: Applicative, B, C](fb: AttrF[F, A, B])(f: B => G[C]): G[AttrF[F, A, C]] =
+    fb.lower.traverse(f).map(AttrF(fb.ask, _))
 }

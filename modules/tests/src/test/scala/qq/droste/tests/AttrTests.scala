@@ -24,7 +24,7 @@ final class AttrTests extends Properties("Attr") {
         ) mapN (AttrF(_, _))
       )).apply(maxSize)))
 
-  include(BasisLaws.props[AttrF[Int, Option, ?], Attr[Option, Int]](
+  include(BasisLaws.props[AttrF[Option, Int, ?], Attr[Option, Int]](
     "AttrF[Int, Option, ?]", "Attr[Option, Int]"))
 
 }

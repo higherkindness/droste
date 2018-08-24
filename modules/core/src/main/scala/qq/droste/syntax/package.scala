@@ -70,8 +70,8 @@ sealed trait AttrSyntax {
 }
 
 object AttrSyntax {
-  final class Ops[V[_], A](val lower: V[A]) extends AnyVal {
-    implicit def attr[E, W[a] >: V[a]](ask: E): AttrF[E, W, A] = AttrF(ask, lower)
+  final class Ops[F[_], B](val lower: F[B]) extends AnyVal {
+    implicit def attr[G[a] >: F[a], A](ask: A): AttrF[G, A, B] = AttrF(ask, lower)
   }
 }
 

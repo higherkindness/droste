@@ -16,10 +16,10 @@ object Attr {
   def un     [F[_], A](f: Attr[F, A]): (A, F[Attr[F, A]]) = macro Meta.fastCast
   def unapply[F[_], A](f: Attr[F, A]): Option[(A, F[Attr[F,A]])] = Some(f.tuple)
 
-  def algebra[E, F[_]]: Algebra[AttrF[E, F, ?], Attr[F, E]] =
+  def algebra[F[_], A]: Algebra[AttrF[F, A, ?], Attr[F, A]] =
     Algebra(fa => Attr(AttrF.un(fa)))
 
-  def coalgebra[E, F[_]]: Coalgebra[AttrF[E, F, ?], Attr[F, E]] =
+  def coalgebra[F[_], A]: Coalgebra[AttrF[F, A, ?], Attr[F, A]] =
     Coalgebra(a => AttrF(Attr.un(a)))
 
   def fromCats[F[_]: Functor, A](cofree: cats.free.Cofree[F, A]): Attr[F, A] =
