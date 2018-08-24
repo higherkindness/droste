@@ -12,7 +12,10 @@ package object data {
     */
   type Fix[F[_]] // = F[Fix[F]]
 
-  /** A very basic cofree comonad.
+  /** A fix point function for types that adds an additional
+    * attribute to each node in the resulting data structure.
+    *
+    * This a cofree comonad.
     *
     * Implemented as an obscured alias:
     * {{{type Attr[F[_], A] = (A, F[Attr[F, A]])}}}
@@ -37,9 +40,10 @@ package object data {
     */
   type AttrF[F[_], A, B] // = (A, F[B])
 
-  /** A very basic free monad.
+  /** A fix point function for types that allows for the replacements of
+    * nodes in the data structure with values of a different type.
     *
-    * The dual of [[Attr]].
+    * This is the dual of [[Attr]] and a very basic free monad.
     *
     * This implementation is not lazy and is used strictly for
     * data.
