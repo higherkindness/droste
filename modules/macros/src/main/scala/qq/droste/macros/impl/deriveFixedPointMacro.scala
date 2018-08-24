@@ -36,12 +36,16 @@ object deriveFixedPointMacro {
 
     val AdtCases = companion.impl.body.collect(isCase)
 
-    val convertCaseClassParam: ValDef => ValDef = { valDef =>
-      val recursive = valDef.tpt.toString == clait.name.toString || valDef.tpt.toString.contains(clait.name.toString)
+    def substType(rec: Tree => Boolean): Tree => Tree = {
+      case x: Ident if rec(x) => Ident(A)
+      case x: AppliedTypeTree => AppliedTypeTree(x.tpt, x.args.map(substType(rec)))
+      case x => x
+    }
 
-      if (recursive) {
-        ValDef(valDef.mods, valDef.name, Ident(A), valDef.rhs)
-      } else valDef
+    val convertCaseClassParam: ValDef => ValDef = { valDef =>
+      val recursive: Tree => Boolean = _.toString == clait.name.toString
+
+      ValDef(valDef.mods, valDef.name, substType(recursive)(valDef.tpt), valDef.rhs)
     }
 
     def convertCaseObject(module: ModuleDef): ClassDef = {

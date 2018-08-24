@@ -10,10 +10,9 @@ import qq.droste.macros.deriveFixedPoint
 object RecursiveExpr {
   final case class Const(value: BigDecimal) extends RecursiveExpr
   final case class Add(x: RecursiveExpr, y: RecursiveExpr) extends RecursiveExpr
+  final case class AddList(list: List[RecursiveExpr]) extends RecursiveExpr
 }
 
-// This example is basically the same as expr2.scala but with the
-// boilerplate removed by @deriveFixedPoint.
 final class RecursiveExprChecks extends Properties("deriveFixedPoint") {
   import RecursiveExpr._
   import RecursiveExpr.fixedpoint._
@@ -21,6 +20,7 @@ final class RecursiveExprChecks extends Properties("deriveFixedPoint") {
   val evaluateAlgebra: Algebra[RecursiveExprF, BigDecimal] = Algebra {
     case ConstF(v) => v
     case AddF(x, y) => x + y
+    case AddListF(l) => l.reduce(_ + _)
   }
 
   val evaluate: RecursiveExpr => BigDecimal = scheme.cata(evaluateAlgebra)
@@ -33,4 +33,7 @@ final class RecursiveExprChecks extends Properties("deriveFixedPoint") {
 
   property("1 + 2 + 5") =
     evaluate(Add(Add(Const(1), Const(2)), Const(5))) ?= 8
+
+  property("1 + 2 + 3 + 4 + 5") =
+    evaluate(AddList(List(Const(1), Const(2), Const(3), Const(4), Const(5)))) ?= 15
 }
