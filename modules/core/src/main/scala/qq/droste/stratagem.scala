@@ -7,10 +7,10 @@ import cats.instances.list._
 import cats.syntax.functor._
 
 import data.prelude._
-import data.Cofree
-import data.EnvT
+import data.Attr
+import data.AttrF
+import data.Coattr
 import data.Fix
-import data.Free
 
 /** Miscellaneous recursion scheme variations, tools, and helpers.
   *
@@ -20,18 +20,18 @@ import data.Free
   */
 object stratagem {
 
-  def attributeCata[F[_]: Functor, A](algebra: Algebra[F, A]): Fix[F] => Cofree[F, A] =
-    scheme.cata(Trans((fa: F[Cofree[F, A]]) =>
-      EnvT(algebra(fa.map(_.head)), fa)).algebra)
+  def attributeCata[F[_]: Functor, A](algebra: Algebra[F, A]): Fix[F] => Attr[F, A] =
+    scheme.cata(Trans((fa: F[Attr[F, A]]) =>
+      AttrF(algebra(fa.map(_.head)), fa)).algebra)
 
   /** An algebra for listing all possible partial structures */
-  def allPartials[F[_]: Traverse, A]: Algebra[EnvT[A, F, ?], List[Free[F, A]]] =
+  def allPartials[F[_]: Traverse, A]: Algebra[AttrF[F, A, ?], List[Coattr[F, A]]] =
     partials(Applicative[List])
 
   /** An algebra for listing partial structures showing the path a fold might
     * take through a data structure
     */
-  def perimeterPartials[F[_]: Traverse, A]: Algebra[EnvT[A, F, ?], List[Free[F, A]]] =
+  def perimeterPartials[F[_]: Traverse, A]: Algebra[AttrF[F, A, ?], List[Coattr[F, A]]] =
     partials(listPerimeterApplicative)
 
   /** An algebra for converting an annotated structure into a list of partial
@@ -40,9 +40,9 @@ object stratagem {
     * This is useful for snapshotting the intermediate data structures during a
     * fold.
     */
-  def partials[F[_]: Traverse, A](app: Applicative[List]): Algebra[EnvT[A, F, ?], List[Free[F, A]]] =
+  def partials[F[_]: Traverse, A](app: Applicative[List]): Algebra[AttrF[F, A, ?], List[Coattr[F, A]]] =
     Algebra(envt =>
-      Free.pure[F, A](envt.ask) :: Traverse[F].sequence(envt.lower)(app).map(Free.roll))
+      Coattr.pure[F, A](envt.ask) :: Traverse[F].sequence(envt.lower)(app).map(Coattr.roll))
 
 
   private lazy val listPerimeterApplicative: Applicative[List] = new Applicative[List] {

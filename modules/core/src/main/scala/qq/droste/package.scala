@@ -1,7 +1,7 @@
 package qq.droste
 
-import data.Cofree
-import data.Free
+import data.Attr
+import data.Coattr
 
 object `package` {
 
@@ -12,13 +12,13 @@ object `package` {
   type CoalgebraM [   M[_], F[_], A] = GCoalgebraM[M, F, A, A]
 
   type RAlgebra   [R,       F[_], A] = GAlgebra  [F, (R, A),A]
-  type RCoalgebra [R,       F[_], A] = GCoalgebra[F, A,     Either[R, A]]
+  type RCoalgebra [R,       F[_], A] = GCoalgebra[F, A, Either[R, A]]
 
   type RAlgebraM  [R, M[_], F[_], A] = GAlgebraM  [M, F, (R, A), A]
-  type RCoalgebraM[R, M[_], F[_], A] = GCoalgebraM[M, F, A,      Either[R, A]]
+  type RCoalgebraM[R, M[_], F[_], A] = GCoalgebraM[M, F, A, Either[R, A]]
 
-  type CVAlgebra  [         F[_], A] = GAlgebra  [F, Cofree[F, A], A]
-  type CVCoalgebra[         F[_], A] = GCoalgebra[F, A,            Free[F, A]]
+  type CVAlgebra  [         F[_], A] = GAlgebra  [F, Attr[F, A], A]
+  type CVCoalgebra[         F[_], A] = GCoalgebra[F, A, Coattr[F, A]]
 
   type Gather     [F[_], S, A] = (A, F[S]) => S
   type Scatter    [F[_], A, S] = S         => Either[A, F[S]]
@@ -56,11 +56,11 @@ object `package` {
   }
 
   object CVAlgebra {
-    def apply[F[_], A](f: F[Cofree[F, A]] => A): CVAlgebra[F, A] = GAlgebra(f)
+    def apply[F[_], A](f: F[Attr[F, A]] => A): CVAlgebra[F, A] = GAlgebra(f)
   }
 
   object CVCoalgebra {
-    def apply[F[_], A](f: A => F[Free[F, A]]): CVCoalgebra[F, A] = GCoalgebra(f)
+    def apply[F[_], A](f: A => F[Coattr[F, A]]): CVCoalgebra[F, A] = GCoalgebra(f)
   }
 
   type Trans[F[_], G[_], A] = GTrans[F, G, A, A]

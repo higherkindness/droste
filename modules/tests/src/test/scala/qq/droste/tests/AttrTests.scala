@@ -1,8 +1,8 @@
 package qq.droste
 package tests
 
-import data.Cofree
-import data.EnvT
+import data.Attr
+import data.AttrF
 import data.prelude._
 import laws.BasisLaws
 
@@ -13,18 +13,18 @@ import org.scalacheck.Properties
 
 import cats.implicits._
 
-final class CofreeTests extends Properties("Cofree") {
+final class AttrTests extends Properties("Attr") {
 
-  implicit def arbCofreeOption[A: Arbitrary]: Arbitrary[Cofree[Option, A]] =
+  implicit def arbAttrOption[A: Arbitrary]: Arbitrary[Attr[Option, A]] =
     Arbitrary(Gen.sized(maxSize =>
       scheme.anaM(CoalgebraM((size: Int) =>
         (
           arbitrary[A],
           Gen.choose(0, size).flatMap(n => if (n > 0) Some(n) else None)
-        ) mapN (EnvT(_, _))
+        ) mapN (AttrF(_, _))
       )).apply(maxSize)))
 
-  include(BasisLaws.props[EnvT[Int, Option, ?], Cofree[Option, Int]](
-    "EnvT[Int, Option, ?]", "Cofree[Option, Int]"))
+  include(BasisLaws.props[AttrF[Option, Int, ?], Attr[Option, Int]](
+    "AttrF[Int, Option, ?]", "Attr[Option, Int]"))
 
 }

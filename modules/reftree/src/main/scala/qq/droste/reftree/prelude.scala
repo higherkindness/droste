@@ -6,12 +6,12 @@ import _root_.reftree.core.ToRefTree
 
 import cats.Traverse
 
-import data.prelude._
-import data.CoenvT
-import data.Cofree
-import data.EnvT
+import data.Attr
+import data.AttrF
+import data.Coattr
+import data.CoattrF
 import data.Fix
-import data.Free
+import data.prelude._
 
 object prelude {
 
@@ -27,9 +27,9 @@ object prelude {
 
   implicit def cofreeToRefTree[F[_] <: AnyRef: Traverse, A](
     implicit evF: ToRefTree[F[RefTree]], evA: ToRefTree[A]
-  ): ToRefTree[Cofree[F, A]] =
+  ): ToRefTree[Attr[F, A]] =
     ToRefTree(input =>
-      scheme.hyloM[Zedd.M, EnvT[A, F, ?], Cofree[F, A], RefTree](
+      scheme.hyloM[Zedd.M, AttrF[F, A, ?], Attr[F, A], RefTree](
         Zedd.up(cofreeToRefTreeAlgebra[F, A]),
         Zedd.down
       ).apply(input).runA(Zedd.empty).value
@@ -37,9 +37,9 @@ object prelude {
 
   implicit def freeToRefTree[F[_] <: AnyRef: Traverse, A](
     implicit evF: ToRefTree[F[RefTree]], evA: ToRefTree[A]
-  ): ToRefTree[Free[F, A]] =
+  ): ToRefTree[Coattr[F, A]] =
     ToRefTree(input =>
-      scheme.hyloM[Zedd.M, CoenvT[A, F, ?], Free[F, A], RefTree](
+      scheme.hyloM[Zedd.M, CoattrF[F, A, ?], Coattr[F, A], RefTree](
         Zedd.up(freeToRefTreeAlgebra[F, A]),
         Zedd.down
       ).apply(input).runA(Zedd.empty).value
@@ -52,8 +52,8 @@ object prelude {
 
   private def cofreeToRefTreeAlgebra[F[_] <: AnyRef, A](
     implicit evF: ToRefTree[F[RefTree]], evA: ToRefTree[A]
-  ): Algebra[EnvT[A, F, ?], RefTree] =
-    Algebra { (fa: EnvT[A, F, RefTree]) =>
+  ): Algebra[AttrF[F, A, ?], RefTree] =
+    Algebra { (fa: AttrF[F, A, RefTree]) =>
       val children = evF.refTree(fa.lower) match {
         case ref: RefTree.Ref => ref.children.toList
         case other            => List(other.toField.withName("value"))
@@ -64,6 +64,6 @@ object prelude {
 
   private def freeToRefTreeAlgebra[F[_] <: AnyRef, A](
     implicit evF: ToRefTree[F[RefTree]], evA: ToRefTree[A]
-  ): Algebra[CoenvT[A, F, ?], RefTree] =
-    Algebra(CoenvT.un(_).fold(evA.refTree, evF.refTree))
+  ): Algebra[CoattrF[F, A, ?], RefTree] =
+    Algebra(CoattrF.un(_).fold(evA.refTree, evF.refTree))
 }
