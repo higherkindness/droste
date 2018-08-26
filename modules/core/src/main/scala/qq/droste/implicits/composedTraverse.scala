@@ -2,7 +2,7 @@ package qq.droste
 package implicits
 
 import cats.Traverse
-import syntax.alias._
+import syntax.compose._
 
 object composedTraverse {
   implicit def drosteComposedTraverse[F[_], G[_]](

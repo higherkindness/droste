@@ -10,7 +10,6 @@ import cats.implicits._
 import qq.droste._
 import qq.droste.data._
 import qq.droste.data.prelude._
-import qq.droste.syntax.alias._
 
 // note:
 // athema is a dummy math engine packaged with droste
@@ -21,7 +20,7 @@ final class MathExprExample extends Properties("MathExprExample") {
 
   def evalAlgebraMWithOverride[V: Field](
     variables: Map[String, V]
-  ): AlgebraM[String | ?, AttrF[Expr[V, ?], Option[V], ?], V] = AlgebraM {
+  ): AlgebraM[Either[String, ?], AttrF[Expr[V, ?], Option[V], ?], V] = AlgebraM {
     val algebra = Evaluate.algebraM(variables)
     fa => fa match {
       case AttrF(Some(value), _) => value.asRight

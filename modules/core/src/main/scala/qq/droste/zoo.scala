@@ -7,10 +7,9 @@ import cats.instances.either._
 import cats.instances.tuple._
 import cats.syntax.functor._
 
-import data.prelude._
 import data.Attr
 import data.Coattr
-import syntax.alias._
+import data.prelude._
 
 private[droste] trait Zoo {
 
@@ -29,7 +28,7 @@ private[droste] trait Zoo {
     coalgebra: RCoalgebra[R, F, A]
   )(implicit embed: Embed[F, R]): A => R =
     kernel.hyloC(
-      embed.algebra.run.compose((frr: F[(R | R)]) => frr.map(_.merge)),
+      embed.algebra.run.compose((frr: F[(R Either R)]) => frr.map(_.merge)),
       coalgebra.run)
 
   /** A monadic version of an apomorphism.
@@ -43,7 +42,7 @@ private[droste] trait Zoo {
     coalgebraM: RCoalgebraM[R, M, F, A]
   )(implicit embed: Embed[F, R]): A => M[R] =
     kernel.hyloMC(
-      embed.algebra.lift[M].run.compose((frr: F[(R | R)]) => frr.map(_.merge)),
+      embed.algebra.lift[M].run.compose((frr: F[(R Either R)]) => frr.map(_.merge)),
       coalgebraM.run)
 
   /** A variation of a catamorphism that gives you access to the input value at

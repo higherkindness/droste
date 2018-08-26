@@ -5,7 +5,6 @@ import algebra.ring.Ring
 import cats.implicits._
 
 import qq.droste._
-import qq.droste.data._
 import qq.droste.syntax.all._
 
 object Evaluate {
@@ -14,7 +13,7 @@ object Evaluate {
 
   def algebraM[V](
     variables: Map[String, V]
-  )(implicit V: Field[V]): AlgebraM[String | ?, Expr[V, ?], V] = AlgebraM {
+  )(implicit V: Field[V]): AlgebraM[Either[String, ?], Expr[V, ?], V] = AlgebraM {
     case Var  (name)  => variables.get(name).toRight(s"unknown variable: $name")
     case Const(v)     => v.asRight
     case Neg  (x)     => V.negate(x).asRight
