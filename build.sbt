@@ -14,7 +14,6 @@ lazy val V = new {
   val refined    = "0.9.0"
   val algebra    = "1.0.0"
   val atto       = "0.6.2"
-  val kittens    = "1.1.0"
   val scalacheck = "1.13.5"
 }
 
@@ -38,7 +37,6 @@ lazy val coreJS  = core.js
 lazy val macros = module("macros")
   .dependsOn(core)
   .settings(libraryDependencies ++= Seq(
-    "org.typelevel" %%% "kittens" % V.kittens,
     compilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.patch)
   ))
 
