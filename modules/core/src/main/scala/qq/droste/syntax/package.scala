@@ -7,7 +7,7 @@ import data.AttrF
 import data.Fix
 
 object all
-    extends AliasSyntax
+    extends ComposeSyntax
     with AttrSyntax
     with LiftSyntax
     with FixSyntax
@@ -15,7 +15,7 @@ object all
     with EmbedSyntax
     with ProjectSyntax
 
-object alias extends AliasSyntax
+object compose extends ComposeSyntax
 object attr extends AttrSyntax
 object lift extends LiftSyntax
 object fix extends FixSyntax
@@ -23,7 +23,7 @@ object unfix extends UnfixSyntax
 object embed extends EmbedSyntax
 object project extends ProjectSyntax
 
-sealed trait AliasSyntax {
+sealed trait ComposeSyntax {
   /** Compose two functors `F` and `G`.
     *
     * This allows you to inline what would otherwise require
@@ -59,9 +59,6 @@ sealed trait AliasSyntax {
     * }}}
     */
   type ∘[F[_], G[_]] = { type λ[α] = F[G[α]] }
-
-  type &[L, R] = (L, R)
-  type |[L, R] = Either[L, R]
 }
 
 sealed trait AttrSyntax {

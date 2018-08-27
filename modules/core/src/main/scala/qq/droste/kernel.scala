@@ -10,7 +10,7 @@ import cats.syntax.traverse._
 
 import implicits.composedFunctor._
 import implicits.composedTraverse._
-import syntax.alias._
+import syntax.compose._
 
 /** Fundamental recursion schemes implemented in terms of
   * functions and nothing else.
