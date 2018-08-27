@@ -26,8 +26,8 @@ object deriveFixedPointMacro {
 
     def isSealed(classOrTrait: ClassDef): Boolean =
       classOrTrait.mods.hasFlag(TRAIT) ||
-        classOrTrait.mods.hasFlag(ABSTRACT) &&
-          classOrTrait.mods.hasFlag(SEALED)
+    classOrTrait.mods.hasFlag(ABSTRACT) &&
+    classOrTrait.mods.hasFlag(SEALED)
 
     val isCase: PartialFunction[Tree, Tree] = {
       case c: ClassDef if c.mods.hasFlag(CASE)  => c
@@ -81,12 +81,51 @@ object deriveFixedPointMacro {
 
     val λ: TypeDef = q"type λ[α] = $NonRecursiveAdtName[..${clait.tparams.map(_.name)}, α]"
 
-    val functorInstance = q"""
-      implicit def functorInstance[..${clait.tparams}]: cats.Functor[({ $λ })#λ] = {
-        import cats.derived._, auto.functor._
-        semi.functor
+    val traverseInstance: DefDef = {
+
+      val G = c.freshName(TypeName("G"))
+      val AA = c.freshName(TypeName("AA"))
+      val B = c.freshName(TypeName("B"))
+
+      val cases = NonRecursiveAdtCases map { origin =>
+        val name = TermName(origin.name.toString)
+        val params = getCaseClassParams(origin)
+        val arity = params.length
+        val freshTerms = List.fill(arity)(TermName(c.freshName))
+        val binds = freshTerms.map(x => Bind(x, Ident(termNames.WILDCARD)))
+        val args = params.zip(freshTerms).map { case (valDef, t) =>
+          if (valDef.tpt.toString == A.toString) {
+            q"fn($t)"
+          } else if(valDef.tpt.toString.contains(A.toString)) {
+            val T = valDef.tpt.asInstanceOf[AppliedTypeTree].tpt
+            q"cats.Traverse[$T].traverse($t)(fn)"
+          } else {
+            q"cats.Applicative[$G].pure($t)"
+          }
+        }
+        val body = if (arity > 1) {
+          val mapN: TermName = TermName(s"map${arity.toString}")
+          q"cats.Applicative[$G].$mapN(..$args)($name.apply[$B])"
+        } else if(arity == 1) {
+          q"cats.Applicative[$G].map($args.head)($name.apply[$B])"
+        } else {
+          q"cats.Applicative[$G].pure($name[$B]())"
+        }
+
+        cq"$name(..$binds) => $body"
+      }
+
+      val mtch = Match(Ident(TermName("fa")), cases)
+
+      q"""
+      implicit def traverseInstance[..${clait.tparams}]: cats.Traverse[λ] = new qq.droste.util.DefaultTraverse[λ] {
+        import cats.implicits._
+
+        def traverse[$G[_]: cats.Applicative, $AA, $B](fa: λ[$AA])(fn: $AA => $G[$B]): $G[λ[$B]] = $mtch
       }
       """
+    }
+
 
     val toRecursive: DefDef = {
       val embedAlgebraCases: List[CaseDef] =
@@ -108,10 +147,10 @@ object deriveFixedPointMacro {
 
       val algebra =
         q"""
-        new qq.droste.GAlgebra[({ $λ })#λ, ${clait.name}[..$claitTypeParamNames], ${clait.name}[..$claitTypeParamNames]]($mtch)
+        new qq.droste.GAlgebra[λ, ${clait.name}[..$claitTypeParamNames], ${clait.name}[..$claitTypeParamNames]]($mtch)
         """
 
-      q"def embedAlgebra[..${clait.tparams}]: qq.droste.Algebra[({ $λ })#λ, ${clait.name}[..$claitTypeParamNames]] = $algebra"
+      q"def embedAlgebra[..${clait.tparams}]: qq.droste.Algebra[λ, ${clait.name}[..$claitTypeParamNames]] = $algebra"
 
     }
 
@@ -136,15 +175,15 @@ object deriveFixedPointMacro {
 
       val algebra =
         q"""
-        new qq.droste.GCoalgebra[({ $λ })#λ, ${clait.name}[..$claitTypeParamNames], ${clait.name}[..$claitTypeParamNames]]($mtch)
+        new qq.droste.GCoalgebra[λ, ${clait.name}[..$claitTypeParamNames], ${clait.name}[..$claitTypeParamNames]]($mtch)
         """
 
-      q"def projectCoalgebra[..${clait.tparams}]: qq.droste.Coalgebra[({ $λ })#λ, ${clait.name}[..$claitTypeParamNames]] = $algebra"
+      q"def projectCoalgebra[..${clait.tparams}]: qq.droste.Coalgebra[λ, ${clait.name}[..$claitTypeParamNames]] = $algebra"
     }
 
     val basisInstance: DefDef = {
       q"""
-      implicit def basisInstance[..${clait.tparams}]: qq.droste.Basis[({ $λ })#λ, ${clait.name}[..$claitTypeParamNames]] =
+      implicit def basisInstance[..${clait.tparams}]: qq.droste.Basis[λ, ${clait.name}[..$claitTypeParamNames]] =
         qq.droste.Basis.Default(embedAlgebra, projectCoalgebra)
       """
     }
@@ -153,7 +192,8 @@ object deriveFixedPointMacro {
       object fixedpoint {
         $nonRecursiveAdt
         ..$NonRecursiveAdtCases
-        $functorInstance
+        $λ
+        $traverseInstance
         $toFixedPoint
         $toRecursive
         $basisInstance
