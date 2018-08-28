@@ -2,8 +2,125 @@ package qq.droste.macros.impl
 
 import scala.reflect.macros.blackbox
 
-object deriveFixedPointMacro {
-  def impl(c: blackbox.Context)(annottees: c.Expr[Any]*): c.Expr[Any] = {
+object Macros {
+  def deriveTraverse(c: blackbox.Context)(annottees: c.Expr[Any]*): c.Expr[Any] = {
+    import c.universe._
+    import Flag._
+
+    val inputs = annottees.map(_.tree).toList
+    val clait: ClassDef      = inputs.collect({ case c: ClassDef  => c }).head
+    val companion: ModuleDef = inputs.collect({ case c: ModuleDef => c }).headOption.getOrElse(
+      ModuleDef(
+        NoMods,
+        clait.name.toTermName,
+        Template(
+          List(TypeTree(typeOf[AnyRef])),
+          noSelfType,
+          List(
+            DefDef(
+              Modifiers(),
+              termNames.CONSTRUCTOR,
+              List(),
+              List(List()),
+              TypeTree(),
+              Block(List(pendingSuperCall), Literal(Constant(())))))
+        )
+      )
+    )
+
+    def isSealed(classOrTrait: ClassDef): Boolean =
+      classOrTrait.mods.hasFlag(TRAIT) ||
+    classOrTrait.mods.hasFlag(ABSTRACT) &&
+    classOrTrait.mods.hasFlag(SEALED)
+
+    val isCase: PartialFunction[Tree, ClassDef] = {
+      case c: ClassDef if c.mods.hasFlag(CASE)  => c
+    }
+
+    val AdtCases = companion.impl.body.collect(isCase)
+
+    def getCaseClassParams(caseClass: ClassDef): List[ValDef] =
+      caseClass.impl.body
+        .collect({
+          case v: ValDef if v.mods.hasFlag(PARAMACCESSOR) && v.mods.hasFlag(CASEACCESSOR) => v
+        })
+    
+    def traverseInstance(λ: TypeName): DefDef = {
+      val G = c.freshName(TypeName("G"))
+      val AA = c.freshName(TypeName("AA"))
+      val B = c.freshName(TypeName("B"))
+
+      val cases = AdtCases map { origin =>
+        val name = TermName(origin.name.toString)
+        val params = getCaseClassParams(origin)
+        val arity = params.length
+        val freshTerms = List.fill(arity)(TermName(c.freshName))
+        val binds = freshTerms.map(x => Bind(x, Ident(termNames.WILDCARD)))
+        val args = params.zip(freshTerms).map { case (valDef, t) =>
+          val RecType = origin.tparams.head.name.toString
+          if (valDef.tpt.toString == RecType) {
+            q"fn($t)"
+          } else if(valDef.tpt.toString.contains(RecType)) {
+            val T = valDef.tpt.asInstanceOf[AppliedTypeTree].tpt
+            q"cats.Traverse[$T].traverse($t)(fn)"
+          } else {
+            q"cats.Applicative[$G].pure($t)"
+          }
+        }
+        val body = if (arity > 1) {
+          val mapN: TermName = TermName(s"map${arity.toString}")
+          q"cats.Applicative[$G].$mapN(..$args)($name.apply[$B])"
+        } else if(arity == 1) {
+          q"cats.Applicative[$G].map($args.head)($name.apply[$B])"
+        } else {
+          q"cats.Applicative[$G].pure($name[$B]())"
+        }
+
+        cq"$name(..$binds) => $body"
+      }
+
+      val mtch = Match(Ident(TermName("fa")), cases)
+
+      q"""
+      implicit def traverseInstance: cats.Traverse[$λ] = new qq.droste.util.DefaultTraverse[$λ] {
+        import cats.implicits._
+
+        def traverse[$G[_]: cats.Applicative, $AA, $B](fa: $λ[$AA])(fn: $AA => $G[$B]): $G[$λ[$B]] = $mtch
+      }
+      """
+    }
+
+    val paramNames = clait.tparams match {
+      case Nil => Nil
+      case nonEmpty => nonEmpty.reverse.tail.reverse.map(_.name)
+    }
+
+    val λ: TypeDef = q"type λ[α] = ${clait.name}[..$paramNames, α]"
+
+    val outputs =
+      clait match {
+        case classOrTrait: ClassDef if isSealed(classOrTrait) =>
+          List(
+            clait,
+            ModuleDef(
+              companion.mods,
+              companion.name,
+              Template(
+                companion.impl.parents,
+                companion.impl.self,
+                companion.impl.body :+ λ :+ traverseInstance(λ.name)
+              )
+            )
+          )
+
+        case _ =>
+          sys.error("@deriveTraverse should only annotate sealed traits or sealed abstract classes")
+      }
+
+    c.Expr[Any](Block(outputs, Literal(Constant(()))))
+  }
+
+  def deriveFixedPoint(c: blackbox.Context)(annottees: c.Expr[Any]*): c.Expr[Any] = {
     import c.universe._
     import Flag._
     val inputs = annottees.map(_.tree).toList
