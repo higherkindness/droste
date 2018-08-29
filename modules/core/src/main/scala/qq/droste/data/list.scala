@@ -4,6 +4,7 @@ package list
 
 import cats.Applicative
 import cats.Traverse
+import cats.kernel.{Monoid, Eq}
 import cats.syntax.applicative._
 import cats.syntax.functor._
 
@@ -43,4 +44,20 @@ object ListF {
           case NilF              => (NilF: ListF[A, C]).pure[F]
         }
     }
+
+  implicit def basisListFMonoid[T, A](implicit T: Basis[ListF[A, ?], T])
+      : Monoid[T] =
+    new Monoid[T] {
+      def empty = T.algebra(NilF)
+      def combine(f1: T, f2: T): T = {
+        scheme.cata(Algebra[ListF[A, ?], T] {
+          case NilF => f2
+          case cons   => T.algebra(cons)
+        }).apply(f1)
+      }
+    }
+
+  implicit def basisListFEq[T, A](implicit T: Basis[ListF[A, ?], T]): Eq[T] =
+    Eq.fromUniversalEquals
+
 }

@@ -1,7 +1,10 @@
 package qq.droste
 package tests
 
-import org.scalacheck.Properties
+import cats.kernel.{Monoid, Eq}
+import cats.kernel.laws.discipline.MonoidTests
+
+import org.scalacheck.{Properties, Arbitrary, Gen}
 import org.scalacheck.Prop._
 
 import qq.droste.data.list._
@@ -48,4 +51,12 @@ final class ListTests extends Properties("ListTest") {
     forAll((list: List[String]) => f(list) ?= list)
   }
 
+  implicit def arbitrary[T]: Arbitrary[Fix[ListF[Int, ?]]] =
+    Arbitrary(Gen.listOf(Gen.posNum[Int]).map(ListF.fromScalaList[Int, Fix]))
+
+  implicit def monoid: Monoid[Fix[ListF[Int, ?]]] = ListF.basisListFMonoid[Fix[ListF[Int, ?]], Int]
+
+  implicit val eq: Eq[Fix[ListF[Int, ?]]] = ListF.basisListFEq[Fix[ListF[Int, ?]], Int]
+
+  include(MonoidTests[Fix[ListF[Int, ?]]].monoid.all)
 }
