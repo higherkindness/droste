@@ -62,18 +62,18 @@ object Macros {
             q"fn($t)"
           } else if(valDef.tpt.toString.contains(RecType)) {
             val T = valDef.tpt.asInstanceOf[AppliedTypeTree].tpt
-            q"cats.Traverse[$T].traverse($t)(fn)"
+            q"_root_.cats.Traverse[$T].traverse($t)(fn)"
           } else {
-            q"cats.Applicative[$G].pure($t)"
+            q"_root_.cats.Applicative[$G].pure($t)"
           }
         }
         val body = if (arity > 1) {
           val mapN: TermName = TermName(s"map${arity.toString}")
-          q"cats.Applicative[$G].$mapN(..$args)($name.apply[$B])"
+          q"_root_.cats.Applicative[$G].$mapN(..$args)($name.apply[$B])"
         } else if(arity == 1) {
-          q"cats.Applicative[$G].map($args.head)($name.apply[$B])"
+          q"_root_.cats.Applicative[$G].map($args.head)($name.apply[$B])"
         } else {
-          q"cats.Applicative[$G].pure($name[$B]())"
+          q"_root_.cats.Applicative[$G].pure($name[$B]())"
         }
 
         cq"$name(..$binds) => $body"
@@ -82,10 +82,10 @@ object Macros {
       val mtch = Match(Ident(TermName("fa")), cases)
 
       q"""
-      implicit def traverseInstance: cats.Traverse[$λ] = new qq.droste.util.DefaultTraverse[$λ] {
-        import cats.implicits._
+      implicit def traverseInstance: _root_.cats.Traverse[$λ] = new _root_.qq.droste.util.DefaultTraverse[$λ] {
+        import _root_.cats.implicits._
 
-        def traverse[$G[_]: cats.Applicative, $AA, $B](fa: $λ[$AA])(fn: $AA => $G[$B]): $G[$λ[$B]] = $mtch
+        def traverse[$G[_]: _root_.cats.Applicative, $AA, $B](fa: $λ[$AA])(fn: $AA => $G[$B]): $G[$λ[$B]] = $mtch
       }
       """
     }
@@ -215,18 +215,18 @@ object Macros {
             q"fn($t)"
           } else if(valDef.tpt.toString.contains(A.toString)) {
             val T = valDef.tpt.asInstanceOf[AppliedTypeTree].tpt
-            q"cats.Traverse[$T].traverse($t)(fn)"
+            q"_root_.cats.Traverse[$T].traverse($t)(fn)"
           } else {
-            q"cats.Applicative[$G].pure($t)"
+            q"_root_.cats.Applicative[$G].pure($t)"
           }
         }
         val body = if (arity > 1) {
           val mapN: TermName = TermName(s"map${arity.toString}")
-          q"cats.Applicative[$G].$mapN(..$args)($name.apply[$B])"
+          q"_root_.cats.Applicative[$G].$mapN(..$args)($name.apply[$B])"
         } else if(arity == 1) {
-          q"cats.Applicative[$G].map($args.head)($name.apply[$B])"
+          q"_root_.cats.Applicative[$G].map($args.head)($name.apply[$B])"
         } else {
-          q"cats.Applicative[$G].pure($name[$B]())"
+          q"_root_.cats.Applicative[$G].pure($name[$B]())"
         }
 
         cq"$name(..$binds) => $body"
@@ -235,10 +235,10 @@ object Macros {
       val mtch = Match(Ident(TermName("fa")), cases)
 
       q"""
-      implicit def traverseInstance[..${clait.tparams}]: cats.Traverse[λ] = new qq.droste.util.DefaultTraverse[λ] {
-        import cats.implicits._
+      implicit def traverseInstance[..${clait.tparams}]: _root_.cats.Traverse[λ] = new _root_.qq.droste.util.DefaultTraverse[λ] {
+        import _root_.cats.implicits._
 
-        def traverse[$G[_]: cats.Applicative, $AA, $B](fa: λ[$AA])(fn: $AA => $G[$B]): $G[λ[$B]] = $mtch
+        def traverse[$G[_]: _root_.cats.Applicative, $AA, $B](fa: λ[$AA])(fn: $AA => $G[$B]): $G[λ[$B]] = $mtch
       }
       """
     }
@@ -264,10 +264,10 @@ object Macros {
 
       val algebra =
         q"""
-        new qq.droste.GAlgebra[λ, ${clait.name}[..$claitTypeParamNames], ${clait.name}[..$claitTypeParamNames]]($mtch)
+        new _root_.qq.droste.GAlgebra[λ, ${clait.name}[..$claitTypeParamNames], ${clait.name}[..$claitTypeParamNames]]($mtch)
         """
 
-      q"def embedAlgebra[..${clait.tparams}]: qq.droste.Algebra[λ, ${clait.name}[..$claitTypeParamNames]] = $algebra"
+      q"def embedAlgebra[..${clait.tparams}]: _root_.qq.droste.Algebra[λ, ${clait.name}[..$claitTypeParamNames]] = $algebra"
 
     }
 
@@ -292,16 +292,16 @@ object Macros {
 
       val algebra =
         q"""
-        new qq.droste.GCoalgebra[λ, ${clait.name}[..$claitTypeParamNames], ${clait.name}[..$claitTypeParamNames]]($mtch)
+        new _root_.qq.droste.GCoalgebra[λ, ${clait.name}[..$claitTypeParamNames], ${clait.name}[..$claitTypeParamNames]]($mtch)
         """
 
-      q"def projectCoalgebra[..${clait.tparams}]: qq.droste.Coalgebra[λ, ${clait.name}[..$claitTypeParamNames]] = $algebra"
+      q"def projectCoalgebra[..${clait.tparams}]: _root_.qq.droste.Coalgebra[λ, ${clait.name}[..$claitTypeParamNames]] = $algebra"
     }
 
     val basisInstance: DefDef = {
       q"""
-      implicit def basisInstance[..${clait.tparams}]: qq.droste.Basis[λ, ${clait.name}[..$claitTypeParamNames]] =
-        qq.droste.Basis.Default(embedAlgebra, projectCoalgebra)
+      implicit def basisInstance[..${clait.tparams}]: _root_.qq.droste.Basis[λ, ${clait.name}[..$claitTypeParamNames]] =
+        _root_.qq.droste.Basis.Default(embedAlgebra, projectCoalgebra)
       """
     }
 
