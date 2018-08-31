@@ -6,9 +6,6 @@ import cats.Monoid
 object newtypes {
 
   final case class @@[A, B](unwrap: A)
-  object Tag {
-    def apply[A, B](a: A): A @@ B = @@(a)
-  }
 
   object Tags {
     sealed trait Conjunction

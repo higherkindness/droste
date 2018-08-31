@@ -5,6 +5,7 @@ package list
 import cats.Applicative
 import cats.Traverse
 import cats.kernel.{Monoid, Eq}
+import cats.instances.list._
 import cats.syntax.applicative._
 import cats.syntax.functor._
 
@@ -57,7 +58,6 @@ object ListF {
       }
     }
 
-  implicit def basisListFEq[T, A](implicit T: Basis[ListF[A, ?], T]): Eq[T] =
+  implicit def basisListFEq[T, A](implicit T: Project[ListF[A, ?], T]): Eq[T] =
     Eq.fromUniversalEquals
-
 }

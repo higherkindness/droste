@@ -2,9 +2,9 @@ package qq.droste
 package tests
 
 import cats.kernel.{Monoid, Eq}
-import cats.kernel.laws.discipline.MonoidTests
+import cats.kernel.laws.discipline.{MonoidTests, EqTests}
 
-import org.scalacheck.{Properties, Arbitrary, Gen}
+import org.scalacheck.{Properties, Arbitrary, Gen, Cogen}
 import org.scalacheck.Prop._
 
 import qq.droste.data.list._
@@ -51,12 +51,16 @@ final class ListTests extends Properties("ListTest") {
     forAll((list: List[String]) => f(list) ?= list)
   }
 
-  implicit def arbitrary[T]: Arbitrary[Fix[ListF[Int, ?]]] =
-    Arbitrary(Gen.listOf(Gen.posNum[Int]).map(ListF.fromScalaList[Int, Fix]))
-
-  implicit def monoid: Monoid[Fix[ListF[Int, ?]]] = ListF.basisListFMonoid[Fix[ListF[Int, ?]], Int]
-
-  implicit val eq: Eq[Fix[ListF[Int, ?]]] = ListF.basisListFEq[Fix[ListF[Int, ?]], Int]
+  implicit def cogen[T](implicit T: Basis[ListF[Int, ?], T]): Cogen[T] =
+    Cogen.cogenList[Int].contramap { x =>
+      val toList: T => List[Int] = scheme.hylo[ListF[Int, ?], T, List[Int]](ListF.toScalaListAlgebra[Int], T.coalgebra)
+      toList(x)
+    }
+  implicit def arbitrary[T](implicit T: Basis[ListF[Int, ?], T]): Arbitrary[T] =
+    Arbitrary(Gen.listOf(Gen.posNum[Int]).map(scheme.ana(ListF.fromScalaListCoalgebra[Int])))
+  implicit def monoid[T](implicit T: Basis[ListF[Int, ?], T]): Monoid[T] = ListF.basisListFMonoid[T, Int]
+  implicit def eq[T](implicit T: Basis[ListF[Int, ?], T]): Eq[T] = ListF.basisListFEq[T, Int]
 
   include(MonoidTests[Fix[ListF[Int, ?]]].monoid.all)
+  include(EqTests[Fix[ListF[Int, ?]]].eqv.all) 
 }
