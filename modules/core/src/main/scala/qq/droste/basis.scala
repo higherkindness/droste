@@ -7,8 +7,14 @@ import data.CoattrF
 import data.Fix
 import data.prelude._
 import data.list._
+import util.newtypes._
 
 import cats.Eval
+import cats.{Foldable, Monad}
+import cats.kernel.{Monoid, Eq}
+import cats.free.Trampoline
+import cats.instances.function._
+
 
 trait Embed[F[_], R] {
   def algebra: Algebra[F, R]
@@ -20,6 +26,45 @@ object Embed extends FloatingBasisInstances[Embed] {
 
 trait Project[F[_], R] {
   def coalgebra: Coalgebra[F, R]
+
+  def all(r: R)(p: R => Boolean)(implicit F: Foldable[F]): Boolean =
+    foldMap[Boolean @@ Tags.Conjunction](r)(p(_).conjunction).unwrap
+
+  def any(r: R)(p: R => Boolean)(implicit F: Foldable[F]): Boolean =
+    foldMap[Boolean @@ Tags.Disjunction](r)(p(_).disjunction).unwrap
+
+  def collect[U: Monoid, B]
+    (r: R)
+    (pf: PartialFunction[R, B])
+    (implicit U: Basis[ListF[B, ?], U], F: Foldable[F])
+      : U = {
+    foldMap[U](r)(pf.lift(_).foldRight[U](U.algebra(NilF))((a, b) => U.algebra(ConsF(a, b))))
+  }
+
+  def contains
+    (r: R, c: R)
+    (implicit R: Eq[R], F: Foldable[F])
+      : Boolean =
+    any(r)(R.eqv(c, _))
+
+  def foldMap[Z: Monoid]
+    (r: R)
+    (f: R => Z)
+    (implicit F: Foldable[F])
+      : Z =
+    foldMapM[Trampoline, Z](r)(x => Trampoline.done(f(x))).run
+
+  def foldMapM[M[_], Z]
+    (r: R)
+    (f: R => M[Z])
+    (implicit M: Monad[M], Z: Monoid[Z], F: Foldable[F]): M[Z] = {
+    def loop(z0: Z, term: R): M[Z] =
+      M.flatMap(f(term)) { z1 =>
+        F.foldLeftM(coalgebra(term), Z.combine(z0, z1))(loop(_, _))
+      }
+
+    loop(Z.empty, r)
+  }
 }
 
 object Project extends FloatingBasisInstances[Project] {
