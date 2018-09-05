@@ -48,7 +48,7 @@ private[droste] trait Zoo {
   /** A variation of a catamorphism that gives you access to the input value at
     * every point in the computation.
     *
-    * A paramorphism "eats its argument and keeps it too.
+    * A paramorphism "eats its argument and keeps it too."
     *
     * This means each step has access to both the computed result
     * value as well as the original value.
