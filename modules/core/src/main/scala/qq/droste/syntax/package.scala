@@ -125,45 +125,35 @@ object EmbedSyntax {
 }
 
 sealed trait ProjectSyntax {
-  implicit def toProjectSyntaxOps[F[_], T](t: T)(implicit P: Project[F, T]): ProjectSyntax.Ops[F, T] =
+  implicit def toFoldableProjectSyntaxOps[F[_], T](t: T)(implicit PFT: Project[F, T], FF: Foldable[F]): ProjectSyntax.Ops[F, T] =
     new ProjectSyntax.Ops[F, T] {
-      def Project   = P
-      def self = t
-    }
-
-  implicit def toFoldableOps[F[_], T](t: T)(implicit P: Project[F, T], F: Foldable[F]): ProjectSyntax.FoldableOps[F, T] =
-    new ProjectSyntax.FoldableOps[F, T] {
-      def Project   = P
-      def Foldable  = F
+      def P = PFT
+      def F = FF
       def self = t
     }
 }
 
 object ProjectSyntax {
   trait Ops[F[_], T] {
-    def Project: Project[F, T]
+    implicit def F: Foldable[F]
+
+    implicit def P: Project[F, T]
+
     def self: T
 
-    def project: F[T] = Project.coalgebra(self)
-  }
+    def project: F[T] = P.coalgebra(self)
 
-  trait FoldableOps[F[_], T] extends Ops[F, T] {
-
-    import util.newtypes._
-
-    implicit def Foldable: Foldable[F]
-
-    def all(p: T ⇒ Boolean): Boolean =
+    def all(p: T => Boolean): Boolean =
       Project.all(self)(p)
 
-    def any(p: T ⇒ Boolean): Boolean =
+    def any(p: T => Boolean): Boolean =
       Project.any(self)(p)
 
     def collect[U: Monoid, B]
       (pf: PartialFunction[T, B])
       (implicit U: Basis[ListF[B, ?], U])
         : U =
-      Project.collect[U, B](self)(pf)
+      Project.collect[F, T, U, B](self)(pf)
 
     def contains
       (c: T)
