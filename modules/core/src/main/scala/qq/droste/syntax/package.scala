@@ -1,10 +1,12 @@
 package qq.droste
 package syntax
 
-import cats.Applicative
+import cats.{Applicative, Foldable, Monad}
+import cats.kernel.{Monoid, Eq}
 
-import data.AttrF
-import data.Fix
+import data.{AttrF, Fix}
+import data.list._
+
 
 object all
     extends ComposeSyntax
@@ -106,35 +108,67 @@ object UnfixSyntax {
 }
 
 sealed trait EmbedSyntax {
-  implicit def toEmbedSyntaxOps[F[_], T](t: F[T])(implicit Embed: Embed[F, T]): EmbedSyntax.Ops[F, T] =
+  implicit def toEmbedSyntaxOps[F[_], T](t: F[T])(implicit E: Embed[F, T]): EmbedSyntax.Ops[F, T] =
     new EmbedSyntax.Ops[F, T] {
-      def tc   = Embed
+      def Embed   = E
       def self = t
     }
 }
 
 object EmbedSyntax {
   trait Ops[F[_], T] {
-    def tc: Embed[F, T]
+    def Embed: Embed[F, T]
     def self: F[T]
 
-    def embed: T = tc.algebra(self)
+    def embed: T = Embed.algebra(self)
   }
 }
 
 sealed trait ProjectSyntax {
-  implicit def toProjectSyntaxOps[F[_], T](t: T)(implicit Project: Project[F, T]): ProjectSyntax.Ops[F, T] =
+  implicit def toFoldableProjectSyntaxOps[F[_], T](t: T)(implicit PFT: Project[F, T], FF: Foldable[F]): ProjectSyntax.Ops[F, T] =
     new ProjectSyntax.Ops[F, T] {
-      def tc   = Project
+      def P = PFT
+      def F = FF
       def self = t
     }
 }
 
 object ProjectSyntax {
   trait Ops[F[_], T] {
-    def tc: Project[F, T]
+    implicit def F: Foldable[F]
+
+    implicit def P: Project[F, T]
+
     def self: T
 
-    def project: F[T] = tc.coalgebra(self)
+    def project: F[T] = P.coalgebra(self)
+
+    def all(p: T => Boolean): Boolean =
+      Project.all(self)(p)
+
+    def any(p: T => Boolean): Boolean =
+      Project.any(self)(p)
+
+    def collect[U: Monoid, B]
+      (pf: PartialFunction[T, B])
+      (implicit U: Basis[ListF[B, ?], U])
+        : U =
+      Project.collect[F, T, U, B](self)(pf)
+
+    def contains
+      (c: T)
+      (implicit T: Eq[T])
+        : Boolean =
+      Project.contains(self, c)
+
+    def foldMap[Z: Monoid]
+      (f: T => Z)
+        : Z =
+      Project.foldMap(self)(f)
+
+    def foldMapM[M[_], Z]
+      (f: T => M[Z])
+      (implicit M: Monad[M], Z: Monoid[Z]): M[Z] =
+      Project.foldMapM(self)(f)
   }
 }
