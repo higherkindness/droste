@@ -15,7 +15,7 @@ package object data {
   /** A fix point function for types that adds an additional
     * attribute to each node in the resulting data structure.
     *
-    * This a cofree comonad.
+    * This is a cofree comonad.
     *
     * Implemented as an obscured alias:
     * {{{type Attr[F[_], A] = (A, F[Attr[F, A]])}}}
