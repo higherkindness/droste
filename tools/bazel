@@ -1,34 +1,13 @@
 #!/bin/bash
 
-set -eo pipefail
+if [ -z "$IS_IN_NIX" ]; then
+    echo ""
+    echo "You're running Bazel from outside of nix-shell!"
+    echo "This will incur a slight overhead on each bazel invocation"
+    echo "Consider entering a nix-shell if you'd like to avoid this overhead"
+    echo ""
 
-if [ ! -z "$BAZEL_IN_NIX" ]; then
-  exec $BAZEL_REAL "$@"
-fi
-
-function mtime_darwin() {
-  stat -f "%m" $1
-}
-function mtime_gnu() {
-  stat -c "%Y" $1
-}
-
-if mtime_darwin "$BAZEL_REAL" >/dev/null 2>&1; then
-  mtime=mtime_darwin
+    eval nix-shell --command \"bazel $@\"
 else
-  mtime=mtime_gnu
+    $BAZEL_REAL "$@"
 fi
-
-t0=$($mtime ./result) || t0=0
-
-for file in *.nix; do
-  t=$($mtime $file)
-  if [[ $t -gt $t0 ]]; then
-    echo 'The Nix environment is out of date! Rebuilding now...'
-    nix-build
-    echo 'Done!'
-    break
-  fi
-done
-
-BAZEL_IN_NIX=true exec ./result/bazel "$@"

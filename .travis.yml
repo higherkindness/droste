@@ -8,6 +8,10 @@ stages:
 jobs:
   include:
 
+    - name: "Bazel"
+      script:
+        - ./scripts/ci-jobs.sh bazel
+
     - name: "Test"
       script:
         - ./scripts/ci-jobs.sh test
