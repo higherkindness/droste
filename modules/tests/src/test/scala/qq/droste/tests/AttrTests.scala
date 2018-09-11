@@ -20,7 +20,7 @@ final class AttrTests extends Properties("Attr") {
       scheme.anaM(CoalgebraM((size: Int) =>
         (
           arbitrary[A],
-          Gen.choose(0, size).flatMap(n => if (n > 0) Some(n) else None)
+          Gen.choose(0, size).map(n => if (n > 0) Some(n) else None)
         ) mapN (AttrF(_, _))
       )).apply(maxSize)))
 
