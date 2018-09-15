@@ -12,54 +12,59 @@ package object data {
     */
   type Fix[F[_]] // = F[Fix[F]]
 
-  /** A very basic cofree comonad.
+  /** A fix point function for types that adds an additional
+    * attribute to each node in the resulting data structure.
+    *
+    * This is a cofree comonad.
     *
     * Implemented as an obscured alias:
-    * {{{type Cofree[F[_], A] = (A, F[Cofree[F, A]])}}}
+    * {{{type Attr[F[_], A] = (A, F[Attr[F, A]])}}}
     *
     * The companion object can be used to translate between
     * representations.
     */
-  type Cofree[F[_], A] // = (A, F[Cofree[F, A]])
+  type Attr[F[_], A] // = (A, F[Attr[F, A]])
 
-  type :<[F[_], A] = Cofree[F, A]
-  val  :<          = Cofree
+  type :<[F[_], A] = Attr[F, A]
+  val  :<          = Attr
 
-  /** The pattern functor for [[Cofree]].
+  /** The pattern functor for [[Attr]].
     *
-    * More commonly known as the seldom used environment
-    * comonad transformer.
+    * This is also the environment comonad transformer "EnvT".
     *
     * Implemented as an obscured alias:
-    * {{{type EnvT[E, W[_], A] = (E, W[A])}}}
+    * {{{type AttrF[F[_], A, B] = (A, F[B])}}}
     *
     * The companion object can be used to translate between
     * representations.
     */
-  type EnvT[E, W[_], A] // = (E, W[A])
+  type AttrF[F[_], A, B] // = (A, F[B])
 
-  /** The pattern functor for [[Free]].
+  /** A fix point function for types that allows for the replacements of
+    * nodes in the data structure with values of a different type.
     *
-    * The dual of [[EnvT]].
-    *
-    * Implemented as an obscured alias:
-    * {{{type CoenvT[E, W[_], A] = Either[E, W[A]]}}}
-    *
-    * The companion object can be used to translate between
-    * representations.
-    */
-  type CoenvT[E, W[_], A] // = Either[E, W[A]]
-
-  /** A very basic free monad.
+    * This is the dual of [[Attr]] and a very basic free monad.
     *
     * This implementation is not lazy and is used strictly for
     * data.
     *
     * Implemented as an obscured alias:
-    * {{{type Free[F[_], A] = Either[A, F[Free[F, A]]]}}}
+    * {{{type Coattr[F[_], A] = Either[A, F[Coattr[F, A]]]}}}
     *
     * The companion object can be used to translate between
     * representations.
     */
-  type Free[F[_], A] // = Either[A, F[Free[F, A]]]
+  type Coattr[F[_], A] // = Either[A, F[Coattr[F, A]]]
+
+  /** The pattern functor for [[Coattr]].
+    *
+    * The dual of [[AttrF]].
+    *
+    * Implemented as an obscured alias:
+    * {{{type CoattrF[F[_], A, B] = Either[A, F[B]]}}}
+    *
+    * The companion object can be used to translate between
+    * representations.
+    */
+  type CoattrF[F[_], A, B] // = Either[A, F[B]]
 }

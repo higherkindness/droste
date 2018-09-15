@@ -2,7 +2,7 @@ package qq.droste
 package implicits
 
 import cats.Functor
-import syntax.alias._
+import syntax.compose._
 
 object composedFunctor {
   implicit def drosteComposedFunctor[F[_], G[_]](

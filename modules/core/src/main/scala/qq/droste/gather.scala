@@ -3,7 +3,7 @@ package qq.droste
 import cats.Functor
 import cats.syntax.functor._
 
-import data._
+import data.Attr
 
 object Gather {
 
@@ -16,8 +16,8 @@ object Gather {
   def para[F[_]: Functor, A, B](implicit embed: Embed[F, B]): Gather[F, (B, A), A] =
     zygo(embed.algebra)
 
-  def histo[F[_], A]: Gather[F, Cofree[F, A], A] =
-    Cofree(_, _)
+  def histo[F[_], A]: Gather[F, Attr[F, A], A] =
+    Attr(_, _)
 
   def zip[F[_]: Functor, Ax, Ay, Sx, Sy](
     x: Gather[F, Sx, Ax],

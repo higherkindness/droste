@@ -15,7 +15,7 @@ final class FixTests extends Properties("Fix") {
   implicit val arbFixOption: Arbitrary[Fix[Option]] =
     Arbitrary(Gen.sized(maxSize =>
       scheme.anaM(CoalgebraM((size: Int) =>
-        Gen.choose(0, size).flatMap(n =>
+        Gen.choose(0, size).map(n =>
           if (n > 0) Some(n) else None))).apply(maxSize)))
 
   include(BasisLaws.props[Option, Fix[Option]](

@@ -1,26 +1,32 @@
 package qq.droste
 package syntax
 
-import cats.Applicative
+import cats.{Applicative, Foldable, Monad}
+import cats.kernel.{Monoid, Eq}
 
-import data.EnvT
-import data.Fix
+import data.{AttrF, Fix}
+import data.list._
+
 
 object all
-    extends AliasSyntax
+    extends ComposeSyntax
     with AttrSyntax
     with LiftSyntax
     with FixSyntax
     with UnfixSyntax
+    with EmbedSyntax
+    with ProjectSyntax
 
-object alias extends AliasSyntax
+object compose extends ComposeSyntax
 object attr extends AttrSyntax
 object lift extends LiftSyntax
 object fix extends FixSyntax
 object unfix extends UnfixSyntax
+object embed extends EmbedSyntax
+object project extends ProjectSyntax
 
-sealed trait AliasSyntax {
-  /** Compose two functors `F` and `G.
+sealed trait ComposeSyntax {
+  /** Compose two functors `F` and `G`.
     *
     * This allows you to inline what would otherwise require
     * a type alias.
@@ -55,9 +61,6 @@ sealed trait AliasSyntax {
     * }}}
     */
   type ∘[F[_], G[_]] = { type λ[α] = F[G[α]] }
-
-  type &[L, R] = (L, R)
-  type |[L, R] = Either[L, R]
 }
 
 sealed trait AttrSyntax {
@@ -66,8 +69,8 @@ sealed trait AttrSyntax {
 }
 
 object AttrSyntax {
-  final class Ops[V[_], A](val lower: V[A]) extends AnyVal {
-    implicit def attr[E, W[a] >: V[a]](ask: E): EnvT[E, W, A] = EnvT(ask, lower)
+  final class Ops[F[_], B](val lower: F[B]) extends AnyVal {
+    implicit def attr[G[a] >: F[a], A](ask: A): AttrF[G, A, B] = AttrF(ask, lower)
   }
 }
 
@@ -101,5 +104,71 @@ sealed trait UnfixSyntax {
 object UnfixSyntax {
   final class Ops[F[_]](val fix: Fix[F]) extends AnyVal {
     def unfix: F[Fix[F]] = Fix.un(fix)
+  }
+}
+
+sealed trait EmbedSyntax {
+  implicit def toEmbedSyntaxOps[F[_], T](t: F[T])(implicit E: Embed[F, T]): EmbedSyntax.Ops[F, T] =
+    new EmbedSyntax.Ops[F, T] {
+      def Embed   = E
+      def self = t
+    }
+}
+
+object EmbedSyntax {
+  trait Ops[F[_], T] {
+    def Embed: Embed[F, T]
+    def self: F[T]
+
+    def embed: T = Embed.algebra(self)
+  }
+}
+
+sealed trait ProjectSyntax {
+  implicit def toFoldableProjectSyntaxOps[F[_], T](t: T)(implicit PFT: Project[F, T], FF: Foldable[F]): ProjectSyntax.Ops[F, T] =
+    new ProjectSyntax.Ops[F, T] {
+      def P = PFT
+      def F = FF
+      def self = t
+    }
+}
+
+object ProjectSyntax {
+  trait Ops[F[_], T] {
+    implicit def F: Foldable[F]
+
+    implicit def P: Project[F, T]
+
+    def self: T
+
+    def project: F[T] = P.coalgebra(self)
+
+    def all(p: T => Boolean): Boolean =
+      Project.all(self)(p)
+
+    def any(p: T => Boolean): Boolean =
+      Project.any(self)(p)
+
+    def collect[U: Monoid, B]
+      (pf: PartialFunction[T, B])
+      (implicit U: Basis[ListF[B, ?], U])
+        : U =
+      Project.collect[F, T, U, B](self)(pf)
+
+    def contains
+      (c: T)
+      (implicit T: Eq[T])
+        : Boolean =
+      Project.contains(self, c)
+
+    def foldMap[Z: Monoid]
+      (f: T => Z)
+        : Z =
+      Project.foldMap(self)(f)
+
+    def foldMapM[M[_], Z]
+      (f: T => M[Z])
+      (implicit M: Monad[M], Z: Monoid[Z]): M[Z] =
+      Project.foldMapM(self)(f)
   }
 }
