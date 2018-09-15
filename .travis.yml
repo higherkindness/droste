@@ -8,13 +8,13 @@ stages:
 jobs:
   include:
 
-    - name: "Full Tests"
+    - name: "Test"
       script:
-        - ./scripts/ci-jobs.sh slow-test
+        - ./scripts/ci-jobs.sh test
 
-    - name: "Quick Tests"
+    - name: "Coverage"
       script:
-        - ./scripts/ci-jobs.sh quick-test
+        - ./scripts/ci-jobs.sh coverage
 
     - name: "Readme / Docs"
       script:
