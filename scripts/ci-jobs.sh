@@ -5,7 +5,7 @@ set -euxo pipefail
 
 case "$1" in
     "test")
-        sbt +test
+        sbt ';+clean;test'
         ;;
     "coverage")
         sbt coverage test coverageReport
