@@ -8,15 +8,18 @@ object ScalacOptionsPlugin extends AutoPlugin {
 
   lazy val scalac211Options = taskKey[Seq[String]]("Options for the Scala 2.11 compiler.")
   lazy val scalac212Options = taskKey[Seq[String]]("Options for the Scala 2.12 compiler.")
+  lazy val scalac213Options = taskKey[Seq[String]]("Options for the Scala 2.13 compiler.")
 
   override def projectSettings: Seq[Def.Setting[_]] = Seq(
 
-    addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.4" cross CrossVersion.binary),
+    addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.7" cross CrossVersion.binary),
 
     scalac211Options := defaultScalac211Options,
     scalac212Options := defaultScalac212Options,
+    scalac213Options := defaultScalac213Options,
 
     scalacOptions   ++= (CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, 13)) => scalac213Options.value
       case Some((2, 12)) => scalac212Options.value
       case Some((2, 11)) => scalac211Options.value
       case _             => Nil
@@ -27,6 +30,14 @@ object ScalacOptionsPlugin extends AutoPlugin {
     scalacOptions in (Compile, console) ~= (_.filterNot(scalacOptionsConsoleFilter)),
     scalacOptions in (Test,    console) ~= (_.filterNot(scalacOptionsConsoleFilter))
   )
+
+  private[this] def defaultScalac213Options: List[String] =
+    defaultScalac212Options.filterNot(Set(
+      "-Yno-adapted-args",
+      "-Ypartial-unification"
+    )) ++ List(
+      "-Ymacro-annotations"
+    )
 
   private[this] def defaultScalac212Options: List[String] = List(
     "-deprecation",                      // Emit warning and location for usages of deprecated APIs.
