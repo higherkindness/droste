@@ -4,6 +4,9 @@
 set -euxo pipefail
 
 case "$1" in
+    "bazel")
+        bazel build ...
+        ;;
     "test")
         sbt ';+clean;test'
         ;;
