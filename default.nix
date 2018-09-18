@@ -7,7 +7,7 @@ stdenv.mkDerivation rec {
   src = builtins.filterSource (path: type: false) ./.;
 
   buildInputs = [
-    sbt bazel nodejs
+    sbt bazel nodejs git
   ];
 
   shellHook =
