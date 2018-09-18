@@ -1,0 +1,20 @@
+// Masthead
+// -----------------------------------------------
+// -----------------------------------------------
+
+.jumbotron {
+    text-align: center;
+    background: $brand-secondary;
+
+    h1 {
+        font-size: 52px;
+
+        @media (max-width: 992px) {
+            font-size: ($jumbotron-heading-font-size / 1.5);
+        }
+    }
+
+    p {
+        margin-bottom: 20px;
+    }
+}

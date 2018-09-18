@@ -1,0 +1,48 @@
+// Features
+// -----------------------------------------------
+// -----------------------------------------------
+
+#site-main {
+    background: $gray-lighter;
+
+    #features {
+        padding: {
+            top: ($base-point-grid * 3);
+            /*64px*/
+            bottom: ($base-point-grid * 10);
+            /*80px*/
+        }
+
+        background: $white-color;
+
+        .feature-item {
+            margin-top: ($base-point-grid * 5);
+            margin-bottom: ($base-point-grid * 7);
+            text-align: center;
+
+            h2 {
+                margin: {
+                    top: ($base-point-grid * 3);
+                    /*24px*/
+                    bottom: ($base-point-grid * 2);
+                    /*16px*/
+                }
+
+                font-size: 1.25rem;
+            }
+
+            p {
+                margin-bottom: ($base-point-grid * 2);
+            }
+        }
+    }
+
+    a:hover {
+        text-decoration: none;
+    }
+}
+
+code,
+pre {
+    font-family: $font-family-header;
+}
