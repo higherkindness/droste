@@ -3,20 +3,13 @@ package tests
 
 import data.Mu
 import laws.BasisLaws
+import scalacheck._
 
-import org.scalacheck.Arbitrary
-import org.scalacheck.Gen
 import org.scalacheck.Properties
 
 import cats.instances.option._
 
 final class MuTests extends Properties("Mu") {
-
-  implicit val arbMuOption: Arbitrary[Mu[Option]] =
-    Arbitrary(Gen.sized(maxSize =>
-      scheme[Mu].anaM(CoalgebraM((size: Int) =>
-        Gen.choose(0, size).map(n =>
-          if (n > 0) Some(n) else None))).apply(maxSize)))
 
   include(BasisLaws.props[Option, Mu[Option]](
     "Option", "Mu[Option]"))
