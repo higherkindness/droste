@@ -2,6 +2,7 @@ package qq.droste
 package data
 
 import cats.Applicative
+import cats.Eq
 import cats.Functor
 import cats.Traverse
 
@@ -31,6 +32,8 @@ private[data] trait AttrFImplicits extends AttrFImplicits0 {
 }
 
 private[data] sealed trait AttrFImplicits0 {
+  implicit def drosteAttrFEq[F[_], A, B](implicit ev: Eq[(A, F[B])]): Eq[AttrF[F, A, B]] =
+    Eq.by(AttrF.un(_))
   implicit def drosteAttrFFunctor[F[_]: Functor, A]: Functor[AttrF[F, A, ?]] =
     new AttrFFunctor[F, A]
 }

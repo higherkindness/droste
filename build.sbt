@@ -4,6 +4,7 @@ lazy val root = (project in file("."))
   .aggregate(metaJVM, metaJS)
   .aggregate(macrosJVM, macrosJS)
   .aggregate(reftreeJVM, reftreeJS)
+  .aggregate(scalacheckJVM, scalacheckJS)
   .aggregate(lawsJVM, lawsJS)
   .aggregate(testsJVM, testsJS)
   .aggregate(athemaJVM, athemaJS)
@@ -11,7 +12,8 @@ lazy val root = (project in file("."))
 
 lazy val V = new {
   val cats       = "1.4.0"
-  val refined    = "0.9.2"
+  def refined(scalaVersion: String): String =
+    if (scalaVersion.startsWith("2.13")) "0.9.2" else "0.9.0"
   val algebra    = "1.0.0"
   val atto       = "0.6.3"
   def scalacheck(scalaVersion: String): String =
@@ -58,6 +60,14 @@ lazy val reftree = module("reftree")
 lazy val reftreeJVM = reftree.jvm
 lazy val reftreeJS  = reftree.js
 
+lazy val scalacheck = module("scalacheck")
+  .dependsOn(core)
+  .settings(libraryDependencies ++= Seq(
+    "org.scalacheck" %%% "scalacheck" % V.scalacheck(scalaVersion.value)))
+
+lazy val scalacheckJVM = scalacheck.jvm
+lazy val scalacheckJS  = scalacheck.js
+
 lazy val laws = module("laws")
   .dependsOn(core)
   .settings(libraryDependencies ++= Seq(
@@ -67,13 +77,13 @@ lazy val lawsJVM = laws.jvm
 lazy val lawsJS  = laws.js
 
 lazy val tests = module("tests")
-  .dependsOn(core, laws, macros)
+  .dependsOn(core, scalacheck, laws, macros)
   .settings(noPublishSettings)
   .settings(libraryDependencies ++= Seq(
     "org.scalacheck" %%% "scalacheck"         % V.scalacheck(scalaVersion.value),
     "org.typelevel"  %%% "cats-laws"          % V.cats,
-    "eu.timepit"     %%% "refined"            % V.refined,
-    "eu.timepit"     %%% "refined-scalacheck" % V.refined
+    "eu.timepit"     %%% "refined"            % V.refined(scalaVersion.value),
+    "eu.timepit"     %%% "refined-scalacheck" % V.refined(scalaVersion.value)
   ) ++ paradiseDep(scalaVersion.value))
 
 lazy val testsJVM = tests.jvm

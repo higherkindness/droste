@@ -62,5 +62,5 @@ final class ListTests extends Properties("ListTest") {
   implicit def eq[T](implicit T: Basis[ListF[Int, ?], T]): Eq[T] = ListF.basisListFEq[T, Int]
 
   include(MonoidTests[Fix[ListF[Int, ?]]].monoid.all)
-  include(EqTests[Fix[ListF[Int, ?]]].eqv.all) 
+  include(EqTests[Fix[ListF[Int, ?]]].eqv.all)
 }
