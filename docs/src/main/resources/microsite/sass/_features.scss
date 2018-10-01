@@ -7,17 +7,19 @@
 
     #features {
         padding: {
-            top: ($base-point-grid * 3);
-            /*64px*/
-            bottom: ($base-point-grid * 10);
+            top: ($base-point-grid * 10);
             /*80px*/
+            bottom: ($base-point-grid * 9);
+            /*72px*/
         }
 
         background: $white-color;
 
         .feature-item {
-            margin-top: ($base-point-grid * 5);
-            margin-bottom: ($base-point-grid * 7);
+            margin-top: ($base-point-grid * 3);
+            /*24px*/
+            margin-bottom: ($base-point-grid * 4);
+            /*32px*/
             text-align: center;
 
             h2 {

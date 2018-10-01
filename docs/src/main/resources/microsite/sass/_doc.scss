@@ -36,7 +36,6 @@ body {
 
         > li {
             margin-bottom: 0;
-            border-bottom: $border-light;
 
             > a {
                 font-family: $font-family-header;
@@ -45,18 +44,8 @@ body {
             }
 
             .sub_section {
-                border-top: $border-light;
-                padding: 20px 0;
-
                 li {
-                    border-left: 1px solid rgba(255, 255, 255, 0.15);
                     margin-left: 24px;
-
-                    &:before {
-                        content: "–";
-                        position: absolute;
-                        color: rgba(255, 255, 255, 0.15);
-                    }
 
                     a {
                         padding-left: 18px;
@@ -76,7 +65,6 @@ body {
 
                 &.active {
                     color: $brand-primary;
-                    border-left: 0;
                 }
 
                 &:hover {
@@ -100,7 +88,7 @@ body {
         padding: 0;
 
         p {
-            color: rgba($brand-secondary, 0.7);
+            color: rgba($text-color, 0.7);
         }
 
         h2 {

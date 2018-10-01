@@ -5,6 +5,7 @@
 // Typography
 
 @import url('https://fonts.googleapis.com/css?family=Open+Sans:400,600');
+@import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro');
 
 
 // Colors
@@ -20,11 +21,11 @@ $text-color: rgba($gray-dark, 0.7);
 $white-light: rgba(255, 255, 255, 0.2);
 
 // Typography
-$font-family-sans-serif: 'Open Sans', sans-serif;
-$font-family-header: $font-family-sans-serif;
+$font-family-sans-serif: 'Source Sans Pro', sans-serif;
+$font-family-header: 'Open Sans', sans-serif;
 
 // Jumbotron
-$jumbotron-heading-font-size: 40px;
+$jumbotron-heading-font-size: 52px;
 $jumbotron-bg: $brand-secondary;
 
 // Animations
