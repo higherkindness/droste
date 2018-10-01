@@ -1,0 +1,50 @@
+// Variables
+// -----------------------------------------------
+// -----------------------------------------------
+
+// Typography
+
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:400,600');
+
+
+// Colors
+$brand-primary: #265c60;
+$brand-secondary: #47a07a;
+$brand-tertiary: #19324B;
+$gray-dark: #213951;
+$gray: #405569;
+$gray-light: #D9DDE1;
+$gray-lighter: #F6F9FA;
+$white-color: #ffffff;
+$text-color: rgba($gray-dark, 0.7);
+$white-light: rgba(255, 255, 255, 0.2);
+
+// Typography
+$font-family-sans-serif: 'Open Sans', sans-serif;
+$font-family-header: $font-family-sans-serif;
+
+// Jumbotron
+$jumbotron-heading-font-size: 40px;
+$jumbotron-bg: $brand-secondary;
+
+// Animations
+$base-duration: 350ms;
+$base-timing: ease;
+
+// Shadow
+$base-shadow: 0 2px 0 0 rgba($brand-secondary, 0.08);
+$base-shadow-hover: 0 2px 15px 0 rgba($brand-secondary, 0.1);
+
+// Sizes
+$base-point-grid: 8px;
+$small-font: 12px;
+
+// Breakpoint
+$bp-small: 480px;
+$bp-medium: 768px;
+$bp-large: 992px;
+$bp-xlarge: 1130px;
+
+// Border
+$border-light: 1px solid $white-color;
+$border-radious-btn: 3px;

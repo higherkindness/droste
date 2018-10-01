@@ -1,0 +1,124 @@
+// Doc
+// -----------------------------------------------
+// -----------------------------------------------
+
+body {
+    &.docs {
+        background: $gray-lighter;
+
+        .kazari-id-1 {
+            margin-bottom: 40px;
+        }
+
+        .modal-kazari {
+            margin-top: 0;
+        }
+
+        .compiler-kazari {
+            &.compiler-kazari-background {
+                background: $brand-secondary !important;
+            }
+        }
+    }
+}
+
+#sidebar-wrapper {
+    background: $brand-secondary;
+
+    .sidebar-nav {
+        > .sidebar-brand {
+            a {
+                background: none;
+                padding-top: 20px;
+                padding-bottom: 20px;
+            }
+        }
+
+        > li {
+            margin-bottom: 0;
+            border-bottom: $border-light;
+
+            > a {
+                font-family: $font-family-header;
+                padding-top: 4px;
+                padding-bottom: 4px;
+            }
+
+            .sub_section {
+                border-top: $border-light;
+                padding: 20px 0;
+
+                li {
+                    border-left: 1px solid rgba(255, 255, 255, 0.15);
+                    margin-left: 24px;
+
+                    &:before {
+                        content: "–";
+                        position: absolute;
+                        color: rgba(255, 255, 255, 0.15);
+                    }
+
+                    a {
+                        padding-left: 18px;
+
+                        &:hover {
+                            background: none;
+                            color: rgba(255, 255, 255, 0.5);
+                        }
+                    }
+                }
+            }
+        }
+
+        li {
+            a {
+                color: #fff;
+
+                &.active {
+                    color: $brand-primary;
+                    border-left: 0;
+                }
+
+                &:hover {
+                    background: $white-light;
+                }
+            }
+
+            ul {
+                li {
+                    font-size: 14px;
+                    line-height: 2.1;
+                }
+            }
+        }
+    }
+}
+
+#page-content-wrapper {
+    section {
+        background: none;
+        padding: 0;
+
+        p {
+            color: rgba($brand-secondary, 0.7);
+        }
+
+        h2 {
+            font-size: 26px;
+        }
+
+        h3 {
+            font-size: 22px;
+        }
+
+        pre {
+            margin-bottom: 0;
+            border: none;
+            font-size: 18px;
+        }
+    }
+
+    .nav {
+        box-shadow: $base-shadow;
+    }
+}

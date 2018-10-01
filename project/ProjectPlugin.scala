@@ -1,3 +1,6 @@
+import com.typesafe.sbt.site.jekyll.JekyllPlugin.autoImport._
+import com.typesafe.sbt.site.SitePlugin.autoImport._
+import microsites.MicrositeKeys._
 import sbt.Keys._
 import sbt._
 import sbtcrossproject.CrossProject
@@ -33,6 +36,22 @@ object ProjectPlugin extends AutoPlugin {
       publish := ((): Unit),
       publishLocal := ((): Unit),
       publishArtifact := false)
+
+    lazy val micrositeSettings = Seq(
+      micrositeName := "Droste",
+      micrositeDescription := "A recursion library for Scala",
+      micrositeDocumentationUrl := "/docs/",
+      micrositeAuthor := "Andy Scott",
+      micrositeGithubOwner := "andyscott",
+      micrositeGithubRepo := "droste",
+      micrositeHighlightTheme := "dracula",
+      micrositeGitterChannelUrl := "andyscott/droste",
+      micrositeExternalLayoutsDirectory := (resourceDirectory in Compile).value / "microsite" / "layouts",
+      micrositeExternalIncludesDirectory := (resourceDirectory in Compile).value / "microsite" / "includes",
+      includeFilter in makeSite := "*.html" | "*.css" | "*.png" | "*.jpg" | "*.gif" | "*.js" | "*.swf" | "*.yml" | "*.md" | "*.svg" | "*.json" | "CNAME",
+      includeFilter in Jekyll := (includeFilter in makeSite).value,
+      micrositePushSiteWith := GitHub4s
+    )
 
   }
 

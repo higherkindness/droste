@@ -1,0 +1,27 @@
+// Footer
+// -----------------------------------------------
+// -----------------------------------------------
+
+#site-footer {
+    background: $brand-secondary;
+}
+
+.author {
+    img {
+        margin-right: 8px;
+    }
+
+    display: flex;
+    align-items: center;
+}
+
+
+// Responsive mode
+
+@include bp(medium) {
+    #site-footer {
+        p {
+            font-size: $small-font;
+        }
+    }
+}
