@@ -2,6 +2,7 @@ package qq.droste
 package scalacheck
 
 import data._
+import data.prelude._
 
 import org.scalacheck._
 import org.scalacheck.Arbitrary.arbitrary
@@ -37,8 +38,21 @@ object `package` {
         } yield AttrF(a, f)
       )).apply(maxSize))
 
+  def drosteGenCoattr[F[_]: Applicative: MonoidK, A: Arbitrary](
+    implicit ev: Traverse[F]
+  ): Gen[Coattr[F, A]] =
+    Gen.sized(maxSize =>
+      scheme.anaM(CoalgebraM((size: Int) =>
+        Gen.oneOf(
+          arbitrary[A].map(CoattrF.pure[F, A, Int](_)),
+          genSizedF[F](size).map(CoattrF.roll[F, A, Int](_)))
+      )).apply(maxSize))
+
   def drosteGenAttrF[F[_], A, B](implicit ev: Arbitrary[(A, F[B])]): Gen[AttrF[F, A, B]] =
     ev.arbitrary.map(AttrF.apply(_))
+
+  def drosteGenCoattrF[F[_], A, B](implicit ev: Arbitrary[Either[A, F[B]]]): Gen[CoattrF[F, A, B]] =
+    ev.arbitrary.map(CoattrF.apply(_))
 
   def drosteGenFix[F[_]: Applicative: Traverse: MonoidK]: Gen[Fix[F]] =
     Gen.sized(maxSize =>
@@ -60,6 +74,16 @@ object `package` {
     implicit ev: Traverse[AttrF[F, A, ?]]
   ): Arbitrary[Attr[F, A]] =
     Arbitrary(drosteGenAttr)
+
+  implicit def drosteArbitraryCoattr[F[_]: Applicative: MonoidK, A: Arbitrary](
+    implicit ev: Traverse[F]
+  ): Arbitrary[Coattr[F, A]] =
+    Arbitrary(drosteGenCoattr)
+
+  implicit def drosteArbitraryCoattrF[F[_], A, B](
+    implicit ev: Arbitrary[Either[A, F[B]]]
+  ): Arbitrary[CoattrF[F, A, B]] =
+    Arbitrary(drosteGenCoattrF)
 
   implicit def drosteArbitraryAttrF[F[_], A, B](
     implicit ev: Arbitrary[(A, F[B])]
