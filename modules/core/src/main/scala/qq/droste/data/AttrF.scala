@@ -17,7 +17,7 @@ object AttrF {
   def apply  [F[_], A, B](ask: A, lower: F[B]): AttrF[F, A, B] = apply((ask, lower))
   def apply  [F[_], A, B](f: (A, F[B])): AttrF[F, A, B] = macro Meta.fastCast
   def un     [F[_], A, B](f: AttrF[F, A, B]): (A, F[B]) = macro Meta.fastCast
-  def unapply[F[_], A, B](f: AttrF[F, A, B]): Option[(A, F[B])] = Some(f.tuple)
+  def unapply[F[_], A, B](f: AttrF[F, A, B]): Some[(A, F[B])] = Some(f.tuple)
 }
 
 private[data] trait AttrFImplicits extends AttrFImplicits0 {

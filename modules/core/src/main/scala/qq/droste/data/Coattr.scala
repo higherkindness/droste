@@ -15,6 +15,20 @@ object Coattr {
 
   def coalgebra[F[_], A]: Coalgebra[CoattrF[F, A, ?], Coattr[F, A]] =
     Coalgebra(a => CoattrF(Coattr.un(a)))
+
+  object Pure {
+    def unapply[F[_], A](f: Coattr[F, A]): Option[A] = un(f) match {
+      case Left(a) => Some(a)
+      case _ => None
+    }
+  }
+
+  object Roll {
+    def unapply[F[_], A](f: Coattr[F, A]): Option[F[Coattr[F, A]]] = un(f) match {
+      case Right(fa) => Some(fa)
+      case _ => None
+    }
+  }
 }
 
 trait CoattrImplicits {
