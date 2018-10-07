@@ -28,7 +28,6 @@ final class DefaultTraverseTests extends Properties("DefaultTraverse") {
   implicit def arbPair[A](implicit arbA: Arbitrary[A]): Arbitrary[Pair[A]] = Arbitrary(
     arbA.arbitrary.flatMap(a1 => arbA.arbitrary.map(a2 => Pair(a1, a2))))
 
-  // checkAll("Pair", TraverseTests[Pair].traverse[Int, Int, Int, Set[Int], Option, Option])
   include(TraverseTests[Pair].traverse[Int, Int, Int, Set[Int], Option, Option].all)
 }
 
