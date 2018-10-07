@@ -14,7 +14,7 @@ object Attr {
   def apply  [F[_], A](head: A, tail: F[Attr[F, A]]): Attr[F, A] = apply((head, tail))
   def apply  [F[_], A](f: (A, F[Attr[F, A]])): Attr[F, A] = macro Meta.fastCast
   def un     [F[_], A](f: Attr[F, A]): (A, F[Attr[F, A]]) = macro Meta.fastCast
-  def unapply[F[_], A](f: Attr[F, A]): Option[(A, F[Attr[F,A]])] = Some(f.tuple)
+  def unapply[F[_], A](f: Attr[F, A]): Some[(A, F[Attr[F,A]])] = Some(f.tuple)
 
   def algebra[F[_], A]: Algebra[AttrF[F, A, ?], Attr[F, A]] =
     Algebra(fa => Attr(AttrF.un(fa)))

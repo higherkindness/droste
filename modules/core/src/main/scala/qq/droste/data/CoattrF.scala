@@ -18,6 +18,20 @@ object CoattrF {
 
   def pure  [F[_], A, B](a: A)    : CoattrF[F, A, B] = CoattrF(Left(a))
   def roll  [F[_], A, B](fb: F[B]): CoattrF[F, A, B] = CoattrF(Right(fb))
+
+  object Pure {
+    def unapply[F[_], A, B](f: CoattrF[F, A, B]): Option[A] = un(f) match {
+      case Left(a) => Some(a)
+      case _ => None
+    }
+  }
+
+  object Roll {
+    def unapply[F[_], A, B](f: CoattrF[F, A, B]): Option[F[B]] = un(f) match {
+      case Right(fa) => Some(fa)
+      case _ => None
+    }
+  }
 }
 
 private[data] trait CoattrFImplicits extends CoenvtTImplicits0 {
