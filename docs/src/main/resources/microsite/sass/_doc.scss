@@ -34,31 +34,6 @@ body {
             }
         }
 
-        > li {
-            margin-bottom: 0;
-
-            > a {
-                font-family: $font-family-header;
-                padding-top: 4px;
-                padding-bottom: 4px;
-            }
-
-            .sub_section {
-                li {
-                    margin-left: 24px;
-
-                    a {
-                        padding-left: 18px;
-
-                        &:hover {
-                            background: none;
-                            color: rgba(255, 255, 255, 0.5);
-                        }
-                    }
-                }
-            }
-        }
-
         li {
             a {
                 color: #fff;
