@@ -10,6 +10,16 @@ lazy val root = (project in file("."))
   .aggregate(athemaJVM, athemaJS)
   .aggregate(readme)
 
+lazy val coverage = (project in file(".coverage"))
+  .settings(noPublishSettings)
+  .settings(coverageEnabled := true)
+  .aggregate(coreJVM)
+  .aggregate(metaJVM)
+  .aggregate(macrosJVM)
+  .aggregate(scalacheckJVM)
+  .aggregate(lawsJVM)
+  .aggregate(testsJVM)
+
 lazy val V = new {
   val cats       = "1.4.0"
   def refined(scalaVersion: String): String =

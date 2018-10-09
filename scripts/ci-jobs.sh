@@ -11,7 +11,7 @@ case "$1" in
         sbt ';+clean;test'
         ;;
     "coverage")
-        sbt coverage test coverageReport
+        sbt 'project coverage' test coverageReport
         bash <(curl -s https://codecov.io/bash)
         ;;
     "readme")
