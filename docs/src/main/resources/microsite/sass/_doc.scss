@@ -56,32 +56,3 @@ body {
         }
     }
 }
-
-#page-content-wrapper {
-    section {
-        background: none;
-        padding: 0;
-
-        p {
-            color: rgba($text-color, 0.7);
-        }
-
-        h2 {
-            font-size: 26px;
-        }
-
-        h3 {
-            font-size: 22px;
-        }
-
-        pre {
-            margin-bottom: 0;
-            border: none;
-            font-size: 18px;
-        }
-    }
-
-    .nav {
-        box-shadow: $base-shadow;
-    }
-}
