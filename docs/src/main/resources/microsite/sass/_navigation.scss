@@ -10,12 +10,10 @@
     @include justify-content(space-between);
     @include align-items(center);
     width: 100%;
-    background: rgba($gray, 0.5);
 
     .navigation-brand {
         font-family: $font-family-header;
         font-size: 20px;
-        letter-spacing: 9px;
     }
 
     .navigation-menu {

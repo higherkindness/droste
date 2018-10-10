@@ -38,10 +38,6 @@ body {
             a {
                 color: #fff;
 
-                &.active {
-                    color: $brand-primary;
-                }
-
                 &:hover {
                     background: $white-light;
                 }
