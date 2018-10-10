@@ -1,17 +1,3 @@
 options:
   - title: Quick Start
     url: docs/
-
-  - title: Core Concepts
-    url: docs/core/
-
-    nested_options:
-
-      - title: Data Structures
-        url: docs/core/dataStructures
-
-      - title: Type Classes
-        url: docs/core/typeClasses
-
-      - title: Recursion Schemes
-        url: docs/core/recursionSchemes

@@ -1,70 +1,183 @@
 ---
 layout: docs
-title: Quick Start Guide
+title: Quick Start
 permalink: /docs/
 ---
 
 # Quick Start
 
-**Freestyle** is a library that enables the building of large-scale modular Scala applications and libraries on top of Free monads/applicatives.
+Droste is a recursion library for Scala.
 
-## Getting Started
+**SBT installation**
 
-Freestyle is compatible with both Scala JVM and Scala.js.
+Select a tagged release version (`x.y.z`) and then add the following
+to your SBT build:
 
-This project supports Scala 2.11 and 2.12 and is based on [scalameta](http://scalameta.org/).
+```scala
+libraryDependencies += "io.higherkindness" %% "droste-core" % "x.y.z"
+```
 
-To use the project, add the following to your build.sbt:
+# Usage
 
+Droste makes it easy to assemble morphisms. For example, calculating
+Fibonacci values can be done with a histomorphism if we model natural
+numbers as a chain of `Option`. We can easily unfold with an
+anamorphism and then fold to our result with a histomorphism.
 
-[comment]: # (End Replace)
+```scala
+import qq.droste._
+import qq.droste.data._
+import cats.implicits._
 
-## Algebras
+val natCoalgebra: Coalgebra[Option, BigDecimal] =
+  Coalgebra(n => if (n > 0) Some(n - 1) else None)
 
-Freestyle's core feature is the definition of `Free` boilerplate-free algebras that support both sequential and parallel style computations and all the implicit machinery required to turn them into modular programs.
+val fibAlgebra: CVAlgebra[Option, BigDecimal] = CVAlgebra {
+  case Some(r1 :< Some(r2 :< _)) => r1 + r2
+  case Some(_ :< None)           => 1
+  case None                      => 0
+}
 
-In the example below, we will define two algebras with intermixed sequential and parallel computations.
+val fib: BigDecimal => BigDecimal = scheme.ghylo(
+  fibAlgebra.gather(Gather.histo),
+  natCoalgebra.scatter(Scatter.ana))
+```
 
+```scala
+scala> fib(0)
+res0: BigDecimal = 0
 
-Learn more about [algebras](./core/algebras) in the extended documentation.
+scala> fib(1)
+res1: BigDecimal = 1
 
-## Modules
+scala> fib(2)
+res2: BigDecimal = 1
 
-Freestyle algebras can be combined into `@module` definitions which provide aggregation and unification over the parameterization of Free programs.
+scala> fib(10)
+res3: BigDecimal = 55
 
-## Building programs
+scala> fib(100)
+res4: BigDecimal = 354224848179261915075
+```
 
-Abstract definitions are all it takes to start building programs that support sequential and parallel 
-operations that are entirely decoupled from their runtime interpretation.
+An anamorphism followed by a histomorphism is also known as a
+dynamorphism. Recursion scheme animals like dyna are available
+in the zoo:
 
-The example below combines both algebras to produce a more complex program:
+```scala
 
+val fibAlt: BigDecimal => BigDecimal =
+  scheme.zoo.dyna(fibAlgebra, natCoalgebra)
+```
 
-Freestyle automatically wires all dependencies through implicit evidences that are generated, so you don't have to worry about the boilerplate required to build Free-based programs.
+```scala
+scala> fibAlt(0)
+res5: BigDecimal = 0
 
-Once you have these abstract definitions, you can combine them in whichever way you want. Freestyle supports nested modules enabling onion-style architectures of any arbitrary depth.
+scala> fibAlt(1)
+res6: BigDecimal = 1
 
-Learn more about [modules](./core/modules) in the extended documentation.
+scala> fibAlt(2)
+res7: BigDecimal = 1
 
-## Running programs
+scala> fibAlt(10)
+res8: BigDecimal = 55
 
-In order to run programs, we need interpreters. We define interpreters by providing implementations for the operations defined in our algebras:
+scala> fibAlt(100)
+res9: BigDecimal = 354224848179261915075
+```
 
+What if we want to do two things at once? Let's calculate a
+Fibonacci value and the sum of all squares.
 
-## There is more
+```scala
+val fromNatAlgebra: Algebra[Option, BigDecimal] = Algebra {
+  case Some(n) => n + 1
+  case None    => 0
+}
 
-You may want to consider using Freestyle you have any of the following concerns:
+// note: n is the fromNatAlgebra helper value from the previous level of recursion
+val sumSquaresAlgebra: RAlgebra[BigDecimal, Option, BigDecimal] = RAlgebra {
+  case Some((n, value)) => value + (n + 1) * (n + 1)
+  case None             => 0
+}
 
-- Decoupling program declaration from runtime interpretation.
-- Automatic composition of dispair monadic/applicative style actions originating from independent ADTs.
-- Automatic onion-style architectures through composable modules without the complexity of manually aligning Coproducts and interpreters.
-- Boilerplate-free application and libraries.
+val sumSquares: BigDecimal => BigDecimal = scheme.ghylo(
+  sumSquaresAlgebra.gather(Gather.zygo(fromNatAlgebra)),
+  natCoalgebra.scatter(Scatter.ana))
+```
 
-Freestyle includes ready to go Algebras and Integrations for the most common application concerns:
+```scala
+scala> sumSquares(0)
+res11: BigDecimal = 0
 
-- Ready to use integrations to achieve parallelism through [`scala.concurrent.Future`](), [`Akka`]() Actors and [`Monix`]() Task.
-- Ready to use integrations that cover most of the commons applications concerns such as [logging](), [configuration](), [dependency injection](), [persistence](), etc.
-- Traditional effects stacks (reader, writer, state, error, option, either)
+scala> sumSquares(1)
+res12: BigDecimal = 1
 
-Learn more about how Freestyle works behind the scenes in the extended [documentation](./core/algebras) and check out the [reference application](../TODO) with examples
-of multiple algebras in use.
+scala> sumSquares(2)
+res13: BigDecimal = 5
+
+scala> sumSquares(10)
+res14: BigDecimal = 385
+
+scala> sumSquares(100)
+res15: BigDecimal = 338350
+```
+
+Now we can zip the two algebras into one so that we calculate
+both results in one pass.
+
+```scala
+val fused: BigDecimal => (BigDecimal, BigDecimal) =
+  scheme.ghylo(
+    fibAlgebra.gather(Gather.histo) zip
+    sumSquaresAlgebra.gather(Gather.zygo(fromNatAlgebra)),
+    natCoalgebra.scatter(Scatter.ana))
+```
+
+```scala
+scala> fused(0)
+res16: (BigDecimal, BigDecimal) = (0,0)
+
+scala> fused(1)
+res17: (BigDecimal, BigDecimal) = (1,1)
+
+scala> fused(2)
+res18: (BigDecimal, BigDecimal) = (1,5)
+
+scala> fused(10)
+res19: (BigDecimal, BigDecimal) = (55,385)
+
+scala> fused(100)
+res20: (BigDecimal, BigDecimal) = (354224848179261915075,338350)
+```
+
+Droste includes [athema](athema), a math expression parser/processor,
+as a more extensive example of recursion schemes.
+
+# Credits
+
+A substantial amount of Droste's code is a derivation-- or an
+alternative encoding-- of patterns pioneered by others. Droste has
+benefited from the excellent work in many other recursion libraries,
+blog posts, academic papers, etc. Notably, Droste has benefited from:
+
+- [recursion-schemes](https://github.com/ekmett/recursion-schemes)
+- [Matryoshka](https://github.com/slamdata/matryoshka)
+
+Thank you to everyone involved. Additionally, thanks to Greg Pfeil
+(@sellout) for answering my random questions over the last few years
+while I've been slowly learning (and using recursion) schemes.
+
+# Copyright and License
+
+Copyright the maintainers, 2018-present.
+
+All code is available to you under the Apache License, Version 2.0,
+available at http://www.apache.org/licenses/LICENSE-2.0.
+
+# Disclamer
+
+Please be advised that I have no idea what I am doing.
+Nevertheless, this project is already being used for real
+work with real data in real life.
