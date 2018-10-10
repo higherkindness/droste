@@ -22,4 +22,11 @@ final class MuTests extends Properties("Mu") {
       }
     )
   }
+
+  property("apply consistent with toFunctionK") = {
+    val f: Algebra[Option, Int] = Algebra(_.getOrElse(0))
+    forAll((x: Mu[Option]) =>
+      x(f) ?= x.toFunctionK(f)
+    )
+  }
 }
