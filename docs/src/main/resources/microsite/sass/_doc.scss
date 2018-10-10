@@ -1,0 +1,54 @@
+// Doc
+// -----------------------------------------------
+// -----------------------------------------------
+
+body {
+    &.docs {
+        background: $gray-lighter;
+
+        .kazari-id-1 {
+            margin-bottom: 40px;
+        }
+
+        .modal-kazari {
+            margin-top: 0;
+        }
+
+        .compiler-kazari {
+            &.compiler-kazari-background {
+                background: $brand-secondary !important;
+            }
+        }
+    }
+}
+
+#sidebar-wrapper {
+    background: $brand-secondary;
+
+    .sidebar-nav {
+        > .sidebar-brand {
+            a {
+                background: none;
+                padding-top: 20px;
+                padding-bottom: 20px;
+            }
+        }
+
+        li {
+            a {
+                color: #fff;
+
+                &:hover {
+                    background: $white-light;
+                }
+            }
+
+            ul {
+                li {
+                    font-size: 14px;
+                    line-height: 2.1;
+                }
+            }
+        }
+    }
+}

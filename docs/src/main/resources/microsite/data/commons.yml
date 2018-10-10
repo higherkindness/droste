@@ -1,0 +1,23 @@
+repoUrl: "https://github.com/andyscott/droste"
+organizationUrl: "https://github.com/higherkindness"
+organization: "io.higherkindness"
+description: "A recursion library for Scala"
+keywords: "scala, recursion-schemes, functional-programming"
+owner: "io.higherkindness"
+repo: "droste"
+
+content:
+    - title: Data Structures
+      description: Lorem ip amet, consectetur adipiscing elit. Nullam blandit odio nec button amet, consectetur adip
+      icon: /img/feature-1-icon.png
+      cta: learn more
+
+    - title: Type Classes
+      description: Lorem ip amet, consectetur adipiscing elit. Nullam blandit odio nec button amet, consectetur adip.
+      icon: /img/feature-1-icon.png
+
+    - title: Recursion Schemes
+      description: Lorem ip amet, consectetur adipiscing elit. Nullam blandit odio nec button amet, consectetur adip.
+      icon: /img/feature-1-icon.png
+
+cta: learn more

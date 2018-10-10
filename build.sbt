@@ -1,3 +1,4 @@
+
 lazy val root = (project in file("."))
   .settings(noPublishSettings)
   .aggregate(coreJVM, coreJS)
@@ -129,4 +130,20 @@ lazy val readme = (project in file("modules/readme"))
         "-Ywarn-unused:imports"))
     },
     tutTargetDirectory := (baseDirectory in LocalRootProject).value
+  )
+
+///////////////
+//// DOCS ////
+///////////////
+
+lazy val docs = (project in file("docs"))
+  .dependsOn(coreJVM)
+  .dependsOn(athemaJVM)
+  .settings(moduleName := "droste-docs")
+  .settings(micrositeSettings: _*)
+  .settings(noPublishSettings: _*)
+  .enablePlugins(MicrositesPlugin)
+  .disablePlugins(ProjectPlugin)
+  .settings(
+    scalacOptions in Tut ~= (_ filterNot Set("-Ywarn-unused-import", "-Xlint").contains)
   )

@@ -1,0 +1,66 @@
+// Navigation
+// -----------------------------------------------
+// -----------------------------------------------
+
+#navigation {
+    position: fixed;
+    padding: 40px 24px;
+    z-index: 2;
+    @include flexbox;
+    @include justify-content(space-between);
+    @include align-items(center);
+    width: 100%;
+
+    .navigation-brand {
+        font-family: $font-family-header;
+        font-size: 20px;
+    }
+
+    .navigation-menu {
+        margin: 0;
+
+        .navigation-menu-item {
+            display: inline-block;
+            line-height: 1.8;
+
+            &:first-child {
+                margin-right: 32px;
+            }
+        }
+    }
+
+    a {
+        color: #fff;
+
+        &:hover,
+        &:focus,
+        &:active {
+            text-decoration: none;
+        }
+
+        &:hover {
+            color: rgba(#fff, 0.6);
+        }
+    }
+
+    &.navigation-scroll {
+        background: rgba($brand-secondary, 0.92);
+        padding: 24px;
+    }
+
+}
+
+// Responsive mode
+@include bp(small) {
+    #navigation {
+        .navigation-menu {
+            .navigation-menu-item {
+                &:nth-child(-n+2) {
+                    margin-right: ($base-point-grid * 2);
+                }
+
+                font-size: $small-font;
+            }
+        }
+    }
+}

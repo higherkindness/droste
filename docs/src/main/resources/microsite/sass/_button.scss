@@ -1,0 +1,37 @@
+// Buttons
+// -----------------------------------------------
+// -----------------------------------------------
+.btn {
+    display: inline-block;
+    background: $brand-primary;
+    transition: background-color $base-duration $base-timing;
+    color: $white-color;
+    text-decoration: none;
+    text-transform: uppercase;
+    border-radius: $border-radious-btn;
+
+
+    &:hover {
+        background: darken($brand-primary, 10%);
+        color: $white-color;
+        text-decoration: none;
+    }
+
+    &:visited {
+        color: $white-color;
+    }
+
+    &:active {
+        background: darken($brand-primary, 20%);
+    }
+
+    &.btn-large {
+        padding: ($base-point-grid * 2) ($base-point-grid * 5);
+        font-size: 1.1rem;
+    }
+
+    &.btn-small {
+        padding: $base-point-grid ($base-point-grid * 3);
+        font-size: 1.1rem;
+    }
+}
