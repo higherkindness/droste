@@ -5,18 +5,38 @@ lazy val root = (project in file("."))
   .aggregate(metaJVM, metaJS)
   .aggregate(macrosJVM, macrosJS)
   .aggregate(reftreeJVM, reftreeJS)
+  .aggregate(scalacheckJVM, scalacheckJS)
   .aggregate(lawsJVM, lawsJS)
   .aggregate(testsJVM, testsJS)
   .aggregate(athemaJVM, athemaJS)
   .aggregate(readme)
 
+lazy val coverage = (project in file(".coverage"))
+  .settings(noPublishSettings)
+  .settings(coverageEnabled := true)
+  .aggregate(coreJVM)
+  .aggregate(metaJVM)
+  .aggregate(macrosJVM)
+  .aggregate(scalacheckJVM)
+  .aggregate(lawsJVM)
+  .aggregate(testsJVM)
+
 lazy val V = new {
-  val cats       = "1.2.0"
-  val refined    = "0.9.0"
+  val cats       = "1.4.0"
+  def refined(scalaVersion: String): String =
+    if (scalaVersion.startsWith("2.13")) "0.9.2" else "0.9.0"
   val algebra    = "1.0.0"
-  val atto       = "0.6.2"
-  val scalacheck = "1.13.5"
+  val atto       = "0.6.3"
+  def scalacheck(scalaVersion: String): String =
+    if (scalaVersion.startsWith("2.13")) "1.14.0" else "1.13.5"
 }
+
+def paradiseDep(scalaVersion: String): Seq[ModuleID] =
+  CrossVersion.partialVersion(scalaVersion) match {
+    case Some((2, minor)) if minor < 13 => Seq(
+      compilerPlugin("org.scalamacros" %% "paradise" % "2.1.0" cross CrossVersion.patch))
+    case _ => Nil
+  }
 
 lazy val meta = module("meta")
   .settings(libraryDependencies ++= Seq(
@@ -37,39 +57,45 @@ lazy val coreJS  = core.js
 
 lazy val macros = module("macros")
   .dependsOn(core)
-  .settings(libraryDependencies ++= Seq(
-    compilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.patch)
-  ))
+  .settings(libraryDependencies ++= paradiseDep(scalaVersion.value))
 
 lazy val macrosJVM = macros.jvm
 lazy val macrosJS  = macros.js
 
 lazy val reftree = module("reftree")
   .dependsOn(core)
+  .settings(noScala213Settings)
   .settings(libraryDependencies ++= Seq(
     "io.github.stanch" %%% "reftree" % "1.2.1"))
 
 lazy val reftreeJVM = reftree.jvm
 lazy val reftreeJS  = reftree.js
 
+lazy val scalacheck = module("scalacheck")
+  .dependsOn(core)
+  .settings(libraryDependencies ++= Seq(
+    "org.scalacheck" %%% "scalacheck" % V.scalacheck(scalaVersion.value)))
+
+lazy val scalacheckJVM = scalacheck.jvm
+lazy val scalacheckJS  = scalacheck.js
+
 lazy val laws = module("laws")
   .dependsOn(core)
   .settings(libraryDependencies ++= Seq(
-    "org.scalacheck" %%% "scalacheck" % V.scalacheck))
+    "org.scalacheck" %%% "scalacheck" % V.scalacheck(scalaVersion.value)))
 
 lazy val lawsJVM = laws.jvm
 lazy val lawsJS  = laws.js
 
 lazy val tests = module("tests")
-  .dependsOn(core, laws, athema, macros)
+  .dependsOn(core, scalacheck, laws, macros)
   .settings(noPublishSettings)
   .settings(libraryDependencies ++= Seq(
-    "org.scalacheck" %%% "scalacheck"         % V.scalacheck,
-    "org.typelevel"  %%% "algebra"            % V.algebra,
+    "org.scalacheck" %%% "scalacheck"         % V.scalacheck(scalaVersion.value),
     "org.typelevel"  %%% "cats-laws"          % V.cats,
-    "eu.timepit"     %%% "refined"            % V.refined,
-    "eu.timepit"     %%% "refined-scalacheck" % V.refined,
-    compilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.patch)))
+    "eu.timepit"     %%% "refined"            % V.refined(scalaVersion.value),
+    "eu.timepit"     %%% "refined-scalacheck" % V.refined(scalaVersion.value)
+  ) ++ paradiseDep(scalaVersion.value))
 
 lazy val testsJVM = tests.jvm
 lazy val testsJS  = tests.js
@@ -77,13 +103,14 @@ lazy val testsJS  = tests.js
 lazy val athema = module("athema", prefix = "")
   .dependsOn(core)
   .settings(noPublishSettings)
+  .settings(noScala213Settings)
   .settings(libraryDependencies ++=
     Seq(
       "org.typelevel" %%% "algebra" % V.algebra,
       "org.tpolecat"  %%% "atto-core" % V.atto
     ) ++
     Seq(
-      "org.scalacheck" %%% "scalacheck" % V.scalacheck
+      "org.scalacheck" %%% "scalacheck" % V.scalacheck(scalaVersion.value)
     ).map(_ % "test"))
 
 

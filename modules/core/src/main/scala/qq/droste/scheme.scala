@@ -97,6 +97,16 @@ private[droste] sealed trait SchemeConvenientPorcelain {
     )(implicit embed: EmbedP[F], ev: TraverseP[F]): A => M[PatR[F]] =
       scheme.anaM[M, PatF[F, ?], A, PatR[F]](coalgebraM)
 
+    def gana[F[_], A, S](
+      scattered: GCoalgebra.Scattered[PatF[F, ?], A, S]
+    )(implicit embed: EmbedP[F], ev: FunctorP[F]): A => PatR[F] =
+      scheme.gana[PatF[F, ?], A, S, PatR[F]](scattered.coalgebra)(scattered.scatter)
+
+    def ganaM[M[_]: Monad, F[_], A, S](
+      scattered: GCoalgebraM.Scattered[M, PatF[F, ?], A, S]
+    )(implicit embed: EmbedP[F], ev: TraverseP[F]): A => M[PatR[F]] =
+      scheme.ganaM[M, PatF[F, ?], A, S, PatR[F]](scattered)
+
     def cata[F[_], B](
       algebra: Algebra[PatF[F, ?], B]
     )(implicit project: ProjectP[F], ev: FunctorP[F]): PatR[F] => B =
@@ -106,6 +116,16 @@ private[droste] sealed trait SchemeConvenientPorcelain {
       algebraM: AlgebraM[M, PatF[F, ?], B]
     )(implicit project: ProjectP[F], ev: TraverseP[F]): PatR[F] => M[B] =
       scheme.cataM[M, PatF[F, ?], PatR[F], B](algebraM)
+
+    def gcata[F[_], S, B](
+      gathered: GAlgebra.Gathered[PatF[F, ?], S, B]
+    )(implicit project: ProjectP[F], ev: FunctorP[F]): PatR[F] => B =
+      scheme.gcata[PatF[F, ?], PatR[F], S, B](gathered.algebra)(gathered.gather)
+
+    def gcataM[M[_]: Monad, F[_], S, B](
+      gathered: GAlgebraM.Gathered[M, PatF[F, ?], S, B]
+    )(implicit project: ProjectP[F], ev: TraverseP[F]): PatR[F] => M[B] =
+      scheme.gcataM[M, PatF[F, ?], PatR[F], S, B](gathered)
 
   }
 

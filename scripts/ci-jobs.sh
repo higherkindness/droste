@@ -4,11 +4,14 @@
 set -euxo pipefail
 
 case "$1" in
-    "quick-test")
-        sbt test
+    "bazel")
+        bazel build ...
         ;;
-    "slow-test")
-        sbt coverage +test coverageReport
+    "test")
+        sbt ';+clean;test'
+        ;;
+    "coverage")
+        sbt 'project coverage' test coverageReport
         bash <(curl -s https://codecov.io/bash)
         ;;
     "readme")

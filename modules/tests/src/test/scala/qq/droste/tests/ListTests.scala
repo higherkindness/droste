@@ -1,7 +1,6 @@
 package qq.droste
 package tests
 
-import cats.kernel.{Monoid, Eq}
 import cats.kernel.laws.discipline.{MonoidTests, EqTests}
 
 import org.scalacheck.{Properties, Arbitrary, Gen, Cogen}
@@ -58,9 +57,9 @@ final class ListTests extends Properties("ListTest") {
     }
   implicit def arbitrary[T](implicit T: Basis[ListF[Int, ?], T]): Arbitrary[T] =
     Arbitrary(Gen.listOf(Gen.posNum[Int]).map(scheme.ana(ListF.fromScalaListCoalgebra[Int])))
-  implicit def monoid[T](implicit T: Basis[ListF[Int, ?], T]): Monoid[T] = ListF.basisListFMonoid[T, Int]
-  implicit def eq[T](implicit T: Basis[ListF[Int, ?], T]): Eq[T] = ListF.basisListFEq[T, Int]
+
+  import ListF._
 
   include(MonoidTests[Fix[ListF[Int, ?]]].monoid.all)
-  include(EqTests[Fix[ListF[Int, ?]]].eqv.all) 
+  include(EqTests[Fix[ListF[Int, ?]]].eqv.all)
 }

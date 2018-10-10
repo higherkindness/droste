@@ -2,6 +2,7 @@ package qq.droste
 package data
 
 import cats.Applicative
+import cats.Eq
 import cats.Functor
 import cats.Traverse
 
@@ -16,7 +17,7 @@ object AttrF {
   def apply  [F[_], A, B](ask: A, lower: F[B]): AttrF[F, A, B] = apply((ask, lower))
   def apply  [F[_], A, B](f: (A, F[B])): AttrF[F, A, B] = macro Meta.fastCast
   def un     [F[_], A, B](f: AttrF[F, A, B]): (A, F[B]) = macro Meta.fastCast
-  def unapply[F[_], A, B](f: AttrF[F, A, B]): Option[(A, F[B])] = Some(f.tuple)
+  def unapply[F[_], A, B](f: AttrF[F, A, B]): Some[(A, F[B])] = Some(f.tuple)
 }
 
 private[data] trait AttrFImplicits extends AttrFImplicits0 {
@@ -31,6 +32,8 @@ private[data] trait AttrFImplicits extends AttrFImplicits0 {
 }
 
 private[data] sealed trait AttrFImplicits0 {
+  implicit def drosteAttrFEq[F[_], A, B](implicit ev: Eq[(A, F[B])]): Eq[AttrF[F, A, B]] =
+    Eq.by(AttrF.un(_))
   implicit def drosteAttrFFunctor[F[_]: Functor, A]: Functor[AttrF[F, A, ?]] =
     new AttrFFunctor[F, A]
 }

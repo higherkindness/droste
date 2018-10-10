@@ -3,22 +3,23 @@ package tests
 
 import data.Nu
 import laws.BasisLaws
+import scalacheck._
 
-import org.scalacheck.Arbitrary
-import org.scalacheck.Gen
 import org.scalacheck.Properties
+import org.scalacheck.Prop._
 
 import cats.instances.option._
 
 final class NuTests extends Properties("Nu") {
 
-  implicit val arbNuOption: Arbitrary[Nu[Option]] =
-    Arbitrary(Gen.sized(maxSize =>
-      scheme[Nu].anaM(CoalgebraM((size: Int) =>
-        Gen.choose(0, size).flatMap(n =>
-          if (n > 0) Some(n) else None))).apply(maxSize)))
-
   include(BasisLaws.props[Option, Nu[Option]](
     "Option", "Nu[Option]"))
 
+  property("unapply") = {
+    forAll((x: Nu[Option]) =>
+      x match {
+        case Nu(y) => y ?= Nu.un(x)
+      }
+    )
+  }
 }

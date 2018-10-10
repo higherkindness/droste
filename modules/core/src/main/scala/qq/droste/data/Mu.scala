@@ -26,6 +26,8 @@ object Mu {
   def apply[F[_]: Functor](fmf: F[Mu[F]]):   Mu[F]  = algebra  [F].apply(fmf)
   def un   [F[_]: Functor](mf :   Mu[F] ): F[Mu[F]] = coalgebra[F].apply(mf)
 
+  def unapply[F[_]: Functor](mf: Mu[F]): Some[F[Mu[F]]] = Some(un(mf))
+
   private final case class Default[F[_]: Functor](fmf: F[Mu[F]]) extends Mu[F] {
     def apply[A](fold: Algebra[F, A]): Id[A] =
       fold(fmf map (mf => mf(fold)))

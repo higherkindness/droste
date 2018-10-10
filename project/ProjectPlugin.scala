@@ -6,6 +6,7 @@ import sbt._
 import sbtcrossproject.CrossProject
 import sbtcrossproject.CrossPlugin.autoImport._
 import scalajscrossproject.ScalaJSCrossPlugin.autoImport._
+import scalanativecrossproject.ScalaNativeCrossPlugin.autoImport._
 import sbtrelease.ReleasePlugin.autoImport._
 
 object ProjectPlugin extends AutoPlugin {
@@ -19,7 +20,7 @@ object ProjectPlugin extends AutoPlugin {
       modName: String,
       prefix: String = "modules/"
     ): CrossProject =
-      CrossProject(modName, file(s"$prefix$modName"))(JSPlatform, JVMPlatform)
+      CrossProject(modName, file(s"$prefix$modName"))(JSPlatform, JVMPlatform /*, NativePlatform // soon */)
         .crossType(CrossType.Pure)
         .withoutSuffixFor(JVMPlatform)
         .build()
@@ -52,6 +53,10 @@ object ProjectPlugin extends AutoPlugin {
       micrositePushSiteWith := GitHub4s
     )
 
+    lazy val noScala213Settings: Seq[Def.Setting[_]] = Seq(
+      crossScalaVersions ~= (_.filterNot(_.startsWith("2.13")))
+    )
+
   }
 
   override def projectSettings: Seq[Def.Setting[_]] = Seq(
@@ -65,7 +70,7 @@ object ProjectPlugin extends AutoPlugin {
     connectInput in run := true,
     cancelable in Global := true,
 
-    crossScalaVersions :=  List("2.11.11", "2.12.6"),
+    crossScalaVersions :=  List("2.11.12", "2.12.6", "2.13.0-M4"),
     scalaVersion       := "2.12.6"
 
   ) ++ publishSettings

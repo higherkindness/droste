@@ -1,5 +1,7 @@
 package org.scalacheck
-package droste
+// note: an obnoxious package is used so that nobody will be inclined
+// to casually import this in a downstream project
+package `!droste!DROSTE!droste!`
 
 import rng.Seed
 import Gen._

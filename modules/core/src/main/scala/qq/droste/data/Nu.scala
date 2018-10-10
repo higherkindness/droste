@@ -32,6 +32,8 @@ object Nu {
   def apply  [F[_]: Functor](fnf: F[Nu[F]]):   Nu[F]  = algebra  [F].apply(fnf)
   def un     [F[_]: Functor](nf :   Nu[F] ): F[Nu[F]] = coalgebra[F].apply(nf)
 
+  def unapply[F[_]: Functor](nf : Nu[F]): Some[F[Nu[F]]] = Some(un(nf))
+
   private final case class Default[F[_]](unfold: Coalgebra[F, F[Nu[F]]], a: F[Nu[F]]) extends Nu[F]
 
   // Arranged so that equality is done only over the value `a`. This
