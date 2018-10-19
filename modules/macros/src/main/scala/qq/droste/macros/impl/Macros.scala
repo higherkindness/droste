@@ -33,8 +33,14 @@ object Macros {
     classOrTrait.mods.hasFlag(ABSTRACT) &&
     classOrTrait.mods.hasFlag(SEALED)
 
+    /**
+      * returns wether c extends d
+      */
+    def xtends(c: ClassDef, d: ClassDef): Boolean =
+      c.impl.parents.map(_.toString).exists(_.contains(d.name.toString))
+
     val isCase: PartialFunction[Tree, ClassDef] = {
-      case c: ClassDef if c.mods.hasFlag(CASE)  => c
+      case c: ClassDef if c.mods.hasFlag(CASE) && xtends(c, clait) => c
     }
 
     val AdtCases = companion.impl.body.collect(isCase)
