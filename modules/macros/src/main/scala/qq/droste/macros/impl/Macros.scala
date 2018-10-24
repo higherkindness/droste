@@ -37,7 +37,7 @@ object Macros {
       * returns wether c extends d
       */
     def xtends(c: ClassDef, d: ClassDef): Boolean =
-      c.impl.parents.map(_.toString).exists(_.contains(d.name.toString))
+      c.impl.parents.map(_.toString).exists(_ == d.name.toString)
 
     val isCase: PartialFunction[Tree, ClassDef] = {
       case c: ClassDef if c.mods.hasFlag(CASE) && xtends(c, clait) => c
@@ -156,8 +156,8 @@ object Macros {
       * returns wether c extends d
       */
     def xtends(c: Tree, d: ClassDef): Boolean = (c collect {
-      case c: ClassDef => c.impl.parents.map(_.toString).exists(_.contains(d.name.toString))
-      case c: ModuleDef => c.impl.parents.map(_.toString).exists(_.contains(d.name.toString))
+      case c: ClassDef => c.impl.parents.map(_.toString).exists(_ == d.name.toString)
+      case c: ModuleDef => c.impl.parents.map(_.toString).exists(_ == d.name.toString)
     }).contains(true)
 
     val isCase: PartialFunction[Tree, Tree] = {
