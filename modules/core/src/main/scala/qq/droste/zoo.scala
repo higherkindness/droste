@@ -165,7 +165,7 @@ private[droste] trait Zoo {
     *
     * @group unfolds
     *
-    * @usecase def postpro[F[_], A, R](natTrans: F ~> F, coalgebra: Coalgebra[F, A]): A => R
+    * @usecase def postpro[F[_], A, R](coalgebra: Coalgebra[F, A], natTrans: F ~> F): A => R
     *   @inheritdoc
     */
   def postpro[F[_] : Functor, A, R](
@@ -176,4 +176,22 @@ private[droste] trait Zoo {
       yfb => embed.algebra.run(yfb.run),
       coalgebra.run.andThen(fa => Yoneda.apply[F, A](fa).mapK(natTrans))
     )
+
+  /** A catamorphism built from two semi-mutually recursive functions.
+    *
+    * This allows the second algebra to depend on the result of the first one.
+    *
+    * @group folds
+    *
+    * @usecase def zygo[F[_], R, A, B](algebra: Algebra[F, A], ralgebra: RAlgebra[A, F, B]): R => B
+    *   @inheritdoc
+    */
+  def zygo[F[_] : Functor, R, A, B](
+    algebra: Algebra[F, A],
+    ralgebra: RAlgebra[A, F, B]
+  )(implicit project: Project[F, R]): R => B =
+    kernel.hylo[F, R, (A, B)](
+      fab => (algebra.run(fab.map(_._1)), ralgebra.run(fab)),
+      project.coalgebra.run
+    ) andThen (_._2)
 }
