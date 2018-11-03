@@ -12,7 +12,7 @@ import cats.syntax.functor._
   * `data Nu g = forall s . Nu (s -> g s) s`
   */
 sealed abstract class Nu[F[_]] extends Serializable {
-  type A = F[Nu[F]]
+  type A
   def  unfold: Coalgebra[F, A]
   def  a     : A
 
@@ -27,18 +27,21 @@ object Nu {
     Algebra(t => MuEqA(Coalgebra[F, F[Nu[F]]](_ map coalgebra.run), t))
 
   def coalgebra[F[_]: Functor]: Coalgebra[F, Nu[F]] =
-    Coalgebra(nf => nf.unfold(nf.a) map (MuEqA(nf.unfold, _)))
+    Coalgebra(nf => nf.unfold(nf.a) map { aa => MuEqA[F](nf.unfold, aa) })
 
   def apply  [F[_]: Functor](fnf: F[Nu[F]]):   Nu[F]  = algebra  [F].apply(fnf)
   def un     [F[_]: Functor](nf :   Nu[F] ): F[Nu[F]] = coalgebra[F].apply(nf)
 
   def unapply[F[_]: Functor](nf : Nu[F]): Some[F[Nu[F]]] = Some(un(nf))
 
-  private final case class Default[F[_]](unfold: Coalgebra[F, F[Nu[F]]], a: F[Nu[F]]) extends Nu[F]
+  private final case class Default[F[_]](unfold: Coalgebra[F, F[Nu[F]]], a: F[Nu[F]]) extends Nu[F] {
+    type A = F[Nu[F]]
+  }
 
   // Arranged so that equality is done only over the value `a`. This
   // should only be used by the algebra/coalgebra methods above.
   private final case class MuEqA[F[_]](a: F[Nu[F]])(unfold0: Coalgebra[F, F[Nu[F]]]) extends Nu[F] {
+    type A = F[Nu[F]]
     val unfold = unfold0
   }
 
