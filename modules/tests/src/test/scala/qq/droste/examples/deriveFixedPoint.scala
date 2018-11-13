@@ -3,6 +3,7 @@ package examples
 
 import org.scalacheck.Properties
 import org.scalacheck.Prop._
+import cats.instances.list._
 
 import qq.droste.macros.deriveFixedPoint
 

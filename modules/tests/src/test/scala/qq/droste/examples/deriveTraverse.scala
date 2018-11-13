@@ -2,6 +2,7 @@ package qq.droste
 package examples
 
 import cats.instances.option._
+import cats.instances.list._
 
 import org.scalacheck.Properties
 import org.scalacheck.Prop._

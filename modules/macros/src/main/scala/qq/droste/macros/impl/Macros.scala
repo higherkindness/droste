@@ -37,7 +37,13 @@ object Macros {
       * returns wether c extends d
       */
     def xtends(c: ClassDef, d: ClassDef): Boolean =
-      c.impl.parents.map(_.toString).exists(_ == d.name.toString)
+      c.impl.parents
+        .collect({case a: AppliedTypeTree => a})
+        .map(_.tpt)
+        .collect({case i: Ident => i})
+        .exists { a =>
+          a.name == d.name
+        }
 
     val isCase: PartialFunction[Tree, ClassDef] = {
       case c: ClassDef if c.mods.hasFlag(CASE) && xtends(c, clait) => c
@@ -89,8 +95,6 @@ object Macros {
 
       q"""
       implicit def traverseInstance: _root_.cats.Traverse[$λ] = new _root_.qq.droste.util.DefaultTraverse[$λ] {
-        import _root_.cats.implicits._
-
         def traverse[$G[_]: _root_.cats.Applicative, $AA, $B](fa: $λ[$AA])(fn: $AA => $G[$B]): $G[$λ[$B]] = $mtch
       }
       """
@@ -156,8 +160,14 @@ object Macros {
       * returns wether c extends d
       */
     def xtends(c: Tree, d: ClassDef): Boolean = (c collect {
-      case c: ClassDef => c.impl.parents.map(_.toString).exists(_ == d.name.toString)
-      case c: ModuleDef => c.impl.parents.map(_.toString).exists(_ == d.name.toString)
+      case c: ClassDef =>
+        c.impl.parents
+          .collect({case i: Ident => i})
+          .exists(_.name == d.name)
+      case c: ModuleDef =>
+        c.impl.parents
+          .collect({case i: Ident => i})
+          .exists(_.name == d.name)
     }).contains(true)
 
     val isCase: PartialFunction[Tree, Tree] = {
@@ -250,8 +260,6 @@ object Macros {
 
       q"""
       implicit def traverseInstance[..${clait.tparams}]: _root_.cats.Traverse[λ] = new _root_.qq.droste.util.DefaultTraverse[λ] {
-        import _root_.cats.implicits._
-
         def traverse[$G[_]: _root_.cats.Applicative, $AA, $B](fa: λ[$AA])(fn: $AA => $G[$B]): $G[λ[$B]] = $mtch
       }
       """
