@@ -101,17 +101,12 @@ object Macros {
             def getTraverseInstance(tt: AppliedTypeTree): Tree = {
               @tailrec def go(ttt: AppliedTypeTree, acc: Tree): Tree = ttt match {
                 case AppliedTypeTree(a: Ident, List(tttt@AppliedTypeTree(b: Ident, _))) =>
-                  val s = if (acc == EmptyTree)
-                    q"_root_.cats.Traverse[$a]"
-                  else
-                    acc
-
-                  go(tttt, q"$s.compose[$b]")
-                case AppliedTypeTree(_, _) =>
+                  go(tttt, q"$acc.compose[$b]")
+                case AppliedTypeTree(a: Ident, _) =>
                   acc
               }
 
-              go(tt, EmptyTree)
+              go(tt, q"_root_.cats.Traverse[${tt.tpt}]")
             }
 
             q"${getTraverseInstance(T)}.traverse($t)(fn)"
