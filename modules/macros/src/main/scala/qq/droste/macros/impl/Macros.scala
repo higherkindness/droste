@@ -1,6 +1,7 @@
 package qq.droste.macros.impl
 
 import scala.reflect.macros.blackbox
+import scala.annotation.tailrec
 
 object Macros {
   def deriveTraverse(c: blackbox.Context)(annottees: c.Expr[Any]*): c.Expr[Any] = {
@@ -28,10 +29,16 @@ object Macros {
       )
     )
 
-    def isSealed(classOrTrait: ClassDef): Boolean =
+    def isAdt(classOrTrait: ClassDef): Boolean =
+      // is a trait
       classOrTrait.mods.hasFlag(TRAIT) ||
-    classOrTrait.mods.hasFlag(ABSTRACT) &&
-    classOrTrait.mods.hasFlag(SEALED)
+        // is an abstract class
+        (classOrTrait.mods.hasFlag(ABSTRACT) && classOrTrait.mods.hasFlag(SEALED))
+
+    def canDerive(classOrTrait: ClassDef): Boolean =
+      isAdt(classOrTrait) ||
+        // is a case class
+        classOrTrait.mods.hasFlag(CASE)
 
     /**
       * returns wether c extends d
@@ -49,14 +56,19 @@ object Macros {
       case c: ClassDef if c.mods.hasFlag(CASE) && xtends(c, clait) => c
     }
 
-    val AdtCases = companion.impl.body.collect(isCase)
+    val AdtCases = if (isAdt(clait))
+      // Get all the cases of the ADT
+      companion.impl.body.collect(isCase)
+    else
+      // we're annotating a case class then
+      List(clait)
 
     def getCaseClassParams(caseClass: ClassDef): List[ValDef] =
       caseClass.impl.body
         .collect({
           case v: ValDef if v.mods.hasFlag(PARAMACCESSOR) && v.mods.hasFlag(CASEACCESSOR) => v
         })
-    
+
     def traverseInstance(λ: TypeName): DefDef = {
       val G = c.freshName(TypeName("G"))
       val AA = c.freshName(TypeName("AA"))
@@ -70,11 +82,39 @@ object Macros {
         val binds = freshTerms.map(x => Bind(x, Ident(termNames.WILDCARD)))
         val args = params.zip(freshTerms).map { case (valDef, t) =>
           val RecType = origin.tparams.head.name.toString
+
           if (valDef.tpt.toString == RecType) {
             q"fn($t)"
           } else if(valDef.tpt.toString.contains(RecType)) {
-            val T = valDef.tpt.asInstanceOf[AppliedTypeTree].tpt
-            q"_root_.cats.Traverse[$T].traverse($t)(fn)"
+            val T = valDef.tpt.asInstanceOf[AppliedTypeTree]
+
+            /**
+              * Used to get the correct Traverse instance.  In case of
+              * finding nested AppliedTypeTrees, tries to compose the
+              * Traverse instances to get a suitable traverse.
+              *
+              * For example, finding List[Option[Future[Try[A]]]] will
+              * generate something like:
+              *
+              * Traverse[List].compose[Option].compose[Future].compose[Try]
+              */
+            def getTraverseInstance(tt: AppliedTypeTree): Tree = {
+              @tailrec def go(ttt: AppliedTypeTree, acc: Tree): Tree = ttt match {
+                case AppliedTypeTree(a: Ident, List(tttt@AppliedTypeTree(b: Ident, _))) =>
+                  val s = if (acc == EmptyTree)
+                    q"_root_.cats.Traverse[$a]"
+                  else
+                    acc
+
+                  go(tttt, q"$s.compose[$b]")
+                case AppliedTypeTree(_, _) =>
+                  acc
+              }
+
+              go(tt, EmptyTree)
+            }
+
+            q"${getTraverseInstance(T)}.traverse($t)(fn)"
           } else {
             q"_root_.cats.Applicative[$G].pure($t)"
           }
@@ -109,7 +149,7 @@ object Macros {
 
     val outputs =
       clait match {
-        case classOrTrait: ClassDef if isSealed(classOrTrait) =>
+        case classOrTrait: ClassDef if canDerive(classOrTrait) =>
           List(
             clait,
             ModuleDef(
@@ -124,7 +164,7 @@ object Macros {
           )
 
         case _ =>
-          sys.error("@deriveTraverse should only annotate sealed traits or sealed abstract classes")
+          sys.error("@deriveTraverse should only annotate ADTs or case classes")
       }
 
     c.Expr[Any](Block(outputs, Literal(Constant(()))))
@@ -155,6 +195,7 @@ object Macros {
       classOrTrait.mods.hasFlag(TRAIT) ||
     classOrTrait.mods.hasFlag(ABSTRACT) &&
     classOrTrait.mods.hasFlag(SEALED)
+
 
     /**
       * returns wether c extends d
