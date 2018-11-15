@@ -20,33 +20,34 @@ sealed abstract class Nu[F[_]] extends Serializable {
 }
 
 object Nu {
-  def apply[F[_]](unfold0: Coalgebra[F, F[Nu[F]]], a0: F[Nu[F]]): Nu[F] =
+  def apply[F[_], A](unfold0: Coalgebra[F, A], a0: A): Nu[F] =
     Default(unfold0, a0)
 
   def algebra[F[_]: Functor]: Algebra[F, Nu[F]] =
-    Algebra(t => MuEqA(Coalgebra[F, F[Nu[F]]](_ map coalgebra.run), t))
+    Algebra(t => NuEqA(Coalgebra[F, F[Nu[F]]](_ map coalgebra.run), t))
 
   def coalgebra[F[_]: Functor]: Coalgebra[F, Nu[F]] =
-    Coalgebra(nf => nf.unfold(nf.a) map { aa => MuEqA[F](nf.unfold, aa) })
+    Coalgebra(nf => nf.unfold(nf.a).map(NuEqA(nf.unfold, _)))
 
   def apply  [F[_]: Functor](fnf: F[Nu[F]]):   Nu[F]  = algebra  [F].apply(fnf)
   def un     [F[_]: Functor](nf :   Nu[F] ): F[Nu[F]] = coalgebra[F].apply(nf)
 
   def unapply[F[_]: Functor](nf : Nu[F]): Some[F[Nu[F]]] = Some(un(nf))
 
-  private final case class Default[F[_]](unfold: Coalgebra[F, F[Nu[F]]], a: F[Nu[F]]) extends Nu[F] {
-    type A = F[Nu[F]]
+  private final case class Default[F[_], A0](unfold: Coalgebra[F, A0], a: A0) extends Nu[F] {
+    type A = A0
   }
 
   // Arranged so that equality is done only over the value `a`. This
   // should only be used by the algebra/coalgebra methods above.
-  private final case class MuEqA[F[_]](a: F[Nu[F]])(unfold0: Coalgebra[F, F[Nu[F]]]) extends Nu[F] {
-    type A = F[Nu[F]]
+  // In reality this should be removed and we should derive an Eq for Nu
+  private final case class NuEqA[F[_], A0](a: A0)(unfold0: Coalgebra[F, A0]) extends Nu[F] {
+    type A = A0
     val unfold = unfold0
   }
 
-  private object MuEqA {
-    def apply[F[_]](unfold: Coalgebra[F, F[Nu[F]]], a: F[Nu[F]]): Nu[F] = MuEqA(a)(unfold)
+  private object NuEqA {
+    def apply[F[_], A0](unfold: Coalgebra[F, A0], a: A0): Nu[F] = NuEqA(a)(unfold)
   }
 
   implicit def drosteBasisForNu[F[_]: Functor]: Basis[F, Nu[F]] =
