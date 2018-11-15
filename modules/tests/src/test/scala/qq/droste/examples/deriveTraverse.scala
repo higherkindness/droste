@@ -2,6 +2,7 @@ package qq.droste
 package examples
 
 import cats.instances.option._
+import cats.instances.list._
 
 import org.scalacheck.Properties
 import org.scalacheck.Prop._
@@ -11,6 +12,8 @@ import qq.droste.macros.deriveTraverse
 
 @deriveTraverse sealed trait ExprDerivingTraverse[A]
 object ExprDerivingTraverse {
+  final case class Dummy()
+
   final case class Const[A](value: BigDecimal) extends ExprDerivingTraverse[A]
   final case class Add[A](x: A, y: A) extends ExprDerivingTraverse[A]
   final case class AddList[A](list: List[A]) extends ExprDerivingTraverse[A]

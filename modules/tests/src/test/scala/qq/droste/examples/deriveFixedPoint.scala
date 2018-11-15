@@ -3,11 +3,14 @@ package examples
 
 import org.scalacheck.Properties
 import org.scalacheck.Prop._
+import cats.instances.list._
 
 import qq.droste.macros.deriveFixedPoint
 
 @deriveFixedPoint sealed trait RecursiveExpr
 object RecursiveExpr {
+  final case class Dummy()
+
   final case class Const(value: BigDecimal) extends RecursiveExpr
   final case class Add(x: RecursiveExpr, y: RecursiveExpr) extends RecursiveExpr
   final case class AddList(list: List[RecursiveExpr]) extends RecursiveExpr
