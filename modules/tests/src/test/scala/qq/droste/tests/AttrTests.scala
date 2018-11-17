@@ -1,6 +1,7 @@
 package qq.droste
 package tests
 
+import prelude._
 import data.Attr
 import data.AttrF
 import data.prelude._

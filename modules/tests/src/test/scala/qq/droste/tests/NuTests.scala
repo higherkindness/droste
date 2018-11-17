@@ -1,6 +1,7 @@
 package qq.droste
 package tests
 
+import prelude._
 import data.Nu
 import laws.BasisLaws
 import scalacheck._
@@ -9,6 +10,7 @@ import org.scalacheck.Properties
 import org.scalacheck.Prop._
 
 import cats.instances.option._
+import cats.syntax.eq._
 
 final class NuTests extends Properties("Nu") {
 
@@ -18,7 +20,7 @@ final class NuTests extends Properties("Nu") {
   property("unapply") = {
     forAll((x: Nu[Option]) =>
       x match {
-        case Nu(y) => y ?= Nu.un(x)
+        case Nu(y) => y === Nu.un(x)
       }
     )
   }

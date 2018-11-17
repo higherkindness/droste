@@ -83,9 +83,14 @@ object `package` {
 
 
 object prelude {
-  implicit def drosteDelayedEq[Z, F[_]](implicit delay: Delay[Eq, F], p: Project[F, Z]): Eq[Z] = {
+  implicit def drosteDelayedEq[Z, F[_]](implicit p: Project[F, Z], delay: Delay[Eq, F]): Eq[Z] = {
     lazy val knot: Eq[Z] = Eq.instance((x, y) =>
       delay(knot).eqv(p.coalgebra(x), p.coalgebra(y)))
     knot
   }
+
+  // todo: where should this live?
+  implicit val drosteDelayEqOption: Delay[Eq, Option] = λ[Eq ~> (Eq ∘ Option)#λ](eq =>
+    Eq.instance((x, y) =>
+      x.fold(y.fold(true)(_ => false))(xx => y.fold(false)(yy => eq.eqv(xx, yy)))))
 }

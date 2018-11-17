@@ -1,6 +1,7 @@
 package qq.droste
 package tests
 
+import prelude._
 import data.Mu
 import laws.BasisLaws
 import scalacheck._
