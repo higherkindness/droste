@@ -2,6 +2,8 @@ package qq.droste
 package data
 package stream
 
+import cats.Monad
+import cats.Monoid
 import cats.syntax.applicative._
 import cats.syntax.functor._
 
@@ -14,16 +16,22 @@ object `package` {
   type Stream[A] = Nu[ListF[A, ?]]
 }
 
-object Stream {
+object Stream extends StreamInstances {
+
+  def forever[A](a: A): Stream[A] =
+    Nu(Coalgebra[ListF[A, ?], A](aa => ConsF(aa, aa)), a)
+
+  def pure[A](a: A): Stream[A] = Nu(ConsF(a, empty))
+
+  def cons[A](fa: Stream[A])(a: A): Stream[A] = Nu(ConsF(a, fa))
+
+  def empty[A]: Stream[A] = Nu(NilF: ListF[A, Nu[ListF[A, ?]]])
 
   def map[A, B](fa: Stream[A])(f: A => B): Stream[B] =
     Nu(Coalgebra(fa.unfold.run andThen (_ match {
       case ConsF(head, tail) => ConsF(f(head), tail)
       case NilF => NilF
     })), fa.a)
-
-  def flatten[A](fa: Stream[Stream[A]]): Stream[A] =
-    flatMap(fa)(identity)
 
   def flatMap[A, B](fa: Stream[A])(f: A => Stream[B]): Stream[B] = {
     type S = Either[fa.A, (Stream[B], fa.A)]
@@ -70,6 +78,12 @@ object Stream {
   def fromIterator[A](it0: => Iterator[A]): Stream[A] =
     Nu(Coalgebra((it: Iterator[A]) => if (it.hasNext) ConsF(it.next(), it) else NilF), it0)
 
+  def fromList[A](l0: List[A]): Stream[A] =
+    Nu(Coalgebra((l: List[A]) => l match {
+      case head :: tail => ConsF(head, tail)
+      case Nil => NilF
+    }), l0)
+
   def foldLeft[A, B](fa: Stream[A])(z: B)(f: (B, A) => B): B = {
     @tailrec def kernel(in: Stream[A], out: B): B = Nu.un(in) match {
       case ConsF(head, tail) => kernel(tail, f(out, head))
@@ -92,4 +106,21 @@ object Stream {
     implicit def toStreamOps[A](fa: Stream[A]): StreamOps[A] = new StreamOps[A](fa)
   }
 
+}
+
+private[stream] sealed trait StreamInstances {
+
+  implicit val drosteMonadForStream: Monad[Stream] = new Monad[Stream] {
+    def pure[A](a: A): Stream[A] = Stream.pure(a)
+    def flatMap[A, B](fa: Stream[A])(f: A => Stream[B]): Stream[B] = Stream.flatMap(fa)(f)
+    def tailRecM[A, B](a: A)(f: A => Stream[Either[A, B]]): Stream[B] = ???
+  }
+
+  implicit def drosteMonoidForStream[A]: Monoid[Stream[A]] =
+    new Monoid[Stream[A]] {
+      def empty: Stream[A] = Stream.empty
+      def combine(x: Stream[A], y: Stream[A]): Stream[A] = {
+        Stream.flatMap(Stream.cons(Stream.pure(y))(x))(identity)
+      }
+    }
 }

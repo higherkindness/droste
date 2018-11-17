@@ -1,11 +1,14 @@
 package qq.droste
 package tests
 
+import cats.instances.int._
 import cats.kernel.laws.discipline.{MonoidTests, EqTests}
 
 import org.scalacheck.{Properties, Arbitrary, Gen, Cogen}
 import org.scalacheck.Prop._
 
+import qq.droste.prelude._
+import qq.droste.data.prelude._
 import qq.droste.data.list._
 import qq.droste.data.Fix
 import qq.droste.data.Mu
