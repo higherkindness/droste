@@ -12,7 +12,9 @@ import eu.timepit.refined.scalacheck.numeric._
 
 import cats.Eval
 import cats.instances.option._
+import cats.syntax.eq._
 
+import prelude._
 import data.prelude._
 import data.Attr
 import data.Fix
@@ -86,7 +88,7 @@ class SchemePartialBasisTests extends Properties("SchemePartialBasis") {
       if (n > 0) Nu(Some(expected(n - 1)))
       else Nu(None: Option[Nu[Option]])
 
-    forAll((n: Int Refined Less[W.`100`.T]) => f(n) ?= expected(n))
+    forAll((n: Int Refined Less[W.`100`.T]) => f(n) === expected(n))
   }
 
   property("scheme[Mu].cata") = {

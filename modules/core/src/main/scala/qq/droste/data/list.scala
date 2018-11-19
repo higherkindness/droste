@@ -3,9 +3,9 @@ package data
 package list
 
 import cats.Applicative
+import cats.Eq
+import cats.Monoid
 import cats.Traverse
-import cats.kernel.{Monoid, Eq}
-import cats.instances.list._
 import cats.syntax.applicative._
 import cats.syntax.functor._
 
@@ -58,6 +58,18 @@ object ListF {
       }
     }
 
-  implicit def basisListFEq[T, A](implicit T: Project[ListF[A, ?], T]): Eq[T] =
-    Eq.fromUniversalEquals
+  import cats.~>
+  import syntax.compose._
+
+  implicit def drosteDelayEqListF[A](implicit eh: Eq[A]): Delay[Eq, ListF[A, ?]] = λ[Eq ~> (Eq ∘ ListF[A, ?])#λ](et =>
+    Eq.instance((x, y) => x match {
+      case ConsF(hx, tx) => y match {
+        case ConsF(hy, ty) => eh.eqv(hx, hy) && et.eqv(tx, ty)
+        case NilF => false
+      }
+      case NilF => y match {
+        case NilF => true
+        case _ => false
+      }
+    }))
 }

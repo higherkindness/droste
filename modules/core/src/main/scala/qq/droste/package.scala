@@ -1,7 +1,11 @@
 package qq.droste
 
+import cats.~>
+import cats.Eq
+
 import data.Attr
 import data.Coattr
+import syntax.compose._
 
 object `package` {
 
@@ -74,4 +78,19 @@ object `package` {
     def apply[M[_], F[_], G[_], A](f: F[A] => M[G[A]]): TransM[M, F, G, A] = GTransM(f)
   }
 
+  type Delay[F[_], G[_]] = F ~> (F ∘ G)#λ
+}
+
+
+object prelude {
+  implicit def drosteDelayedEq[Z, F[_]](implicit p: Project[F, Z], delay: Delay[Eq, F]): Eq[Z] = {
+    lazy val knot: Eq[Z] = Eq.instance((x, y) =>
+      delay(knot).eqv(p.coalgebra(x), p.coalgebra(y)))
+    knot
+  }
+
+  // todo: where should this live?
+  implicit val drosteDelayEqOption: Delay[Eq, Option] = λ[Eq ~> (Eq ∘ Option)#λ](eq =>
+    Eq.instance((x, y) =>
+      x.fold(y.fold(true)(_ => false))(xx => y.fold(false)(yy => eq.eqv(xx, yy)))))
 }

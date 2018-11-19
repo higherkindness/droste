@@ -10,8 +10,10 @@ import data.list._
 import util.newtypes._
 
 import cats.Eval
-import cats.{Foldable, Monad}
-import cats.kernel.{Monoid, Eq}
+import cats.Eq
+import cats.Foldable
+import cats.Monad
+import cats.Monoid
 import cats.free.Trampoline
 import cats.instances.function._
 
@@ -25,7 +27,6 @@ object Embed extends FloatingBasisInstances[Embed] {
 }
 
 trait Project[F[_], R] { self =>
-
   def coalgebra: Coalgebra[F, R]
 
   implicit val tc: Project[F, R] = self
