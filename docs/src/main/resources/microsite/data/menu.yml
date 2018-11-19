@@ -1,3 +1,6 @@
 options:
   - title: Quick Start
     url: docs/
+
+  - title: Typeclasses
+    url: docs/core/typeclasses
