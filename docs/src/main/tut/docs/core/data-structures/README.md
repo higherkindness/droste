@@ -1,7 +1,7 @@
 ---
 layout: docs
 title: Data Structures
-permalink: /docs/core/dataStructures/
+permalink: /docs/core/data-structures/
 ---
 
 # Data Structures

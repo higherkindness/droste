@@ -47,7 +47,7 @@ object Lambda {
 
 import qq.droste.syntax.project._
 
-val list: Lambda = ???
+val list: Fix[Lambda] = Fix(App(Fix("a"), Fix(Var("b"))))
 
 val allVars: List[String] = list collect {
   case Var(n) => n
@@ -57,4 +57,4 @@ val allVars: List[String] = list collect {
 
 ## Basis
 
-Basis is a typeclass that inherits from `Project` and `Embed`.
+Basis is a typeclass for types that are both an `Embed` and `Project`.
