@@ -20,8 +20,8 @@ object Gather {
     Attr(_, _)
 
   def zip[F[_]: Functor, Ax, Ay, Sx, Sy](
-    x: Gather[F, Sx, Ax],
-    y: Gather[F, Sy, Ay]
+      x: Gather[F, Sx, Ax],
+      y: Gather[F, Sy, Ay]
   ): Gather[F, (Sx, Sy), (Ax, Ay)] =
     (a, fs) => (x(a._1, fs.map(_._1)), y(a._2, fs.map(_._2)))
 

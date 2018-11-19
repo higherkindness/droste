@@ -1,7 +1,9 @@
 package qq.droste
 
 import cats.~>
-import cats.{Functor, Traverse, Monad}
+import cats.Functor
+import cats.Traverse
+import cats.Monad
 import cats.free.Yoneda
 import cats.instances.either._
 import cats.instances.tuple._
@@ -25,11 +27,9 @@ private[droste] trait Zoo {
     *   @inheritdoc
     */
   def apo[F[_]: Functor, A, R](
-    coalgebra: RCoalgebra[R, F, A]
+      coalgebra: RCoalgebra[R, F, A]
   )(implicit embed: Embed[F, R]): A => R =
-    kernel.hyloC(
-      embed.algebra.run.compose((frr: F[(R Either R)]) => frr.map(_.merge)),
-      coalgebra.run)
+    kernel.hyloC(embed.algebra.run.compose((frr: F[(R Either R)]) => frr.map(_.merge)), coalgebra.run)
 
   /** A monadic version of an apomorphism.
     *
@@ -39,11 +39,9 @@ private[droste] trait Zoo {
     *   @inheritdoc
     */
   def apoM[M[_]: Monad, F[_]: Traverse, A, R](
-    coalgebraM: RCoalgebraM[R, M, F, A]
+      coalgebraM: RCoalgebraM[R, M, F, A]
   )(implicit embed: Embed[F, R]): A => M[R] =
-    kernel.hyloMC(
-      embed.algebra.lift[M].run.compose((frr: F[(R Either R)]) => frr.map(_.merge)),
-      coalgebraM.run)
+    kernel.hyloMC(embed.algebra.lift[M].run.compose((frr: F[(R Either R)]) => frr.map(_.merge)), coalgebraM.run)
 
   /** A variation of a catamorphism that gives you access to the input value at
     * every point in the computation.
@@ -59,11 +57,9 @@ private[droste] trait Zoo {
     *   @inheritdoc
     */
   def para[F[_]: Functor, R, B](
-    algebra: RAlgebra[R, F, B]
+      algebra: RAlgebra[R, F, B]
   )(implicit project: Project[F, R]): R => B =
-    kernel.hyloC(
-      algebra.run,
-      project.coalgebra.run.andThen(_.map(r => (r, r))))
+    kernel.hyloC(algebra.run, project.coalgebra.run.andThen(_.map(r => (r, r))))
 
   /** A monadic version of a paramorphism.
     *
@@ -73,11 +69,9 @@ private[droste] trait Zoo {
     *   @inheritdoc
     */
   def paraM[M[_]: Monad, F[_]: Traverse, R, B](
-    algebraM: RAlgebraM[R, M, F, B]
+      algebraM: RAlgebraM[R, M, F, B]
   )(implicit project: Project[F, R]): R => M[B] =
-    kernel.hyloMC(
-      algebraM.run,
-      project.coalgebra.lift[M].run.andThen(_.map(_.map(r => (r, r)))))
+    kernel.hyloMC(algebraM.run, project.coalgebra.lift[M].run.andThen(_.map(_.map(r => (r, r)))))
 
   /** Histomorphism
     *
@@ -87,7 +81,7 @@ private[droste] trait Zoo {
     *   @inheritdoc
     */
   def histo[F[_]: Functor, R, B](
-    algebra: CVAlgebra[F, B]
+      algebra: CVAlgebra[F, B]
   )(implicit project: Project[F, R]): R => B =
     kernel.hylo[F, R, Attr[F, B]](
       fb => Attr(algebra(fb), fb),
@@ -102,7 +96,7 @@ private[droste] trait Zoo {
     *   @inheritdoc
     */
   def futu[F[_]: Functor, A, R](
-    coalgebra: CVCoalgebra[F, A]
+      coalgebra: CVCoalgebra[F, A]
   )(implicit embed: Embed[F, R]): A => R =
     kernel.hylo[F, Coattr[F, A], R](
       embed.algebra.run,
@@ -117,8 +111,8 @@ private[droste] trait Zoo {
     *   @inheritdoc
     */
   def chrono[F[_]: Functor, A, B](
-    algebra: CVAlgebra[F, B],
-    coalgebra: CVCoalgebra[F, A]
+      algebra: CVAlgebra[F, B],
+      coalgebra: CVCoalgebra[F, A]
   ): A => B =
     kernel.hylo[F, Coattr[F, A], Attr[F, B]](
       fb => Attr(algebra(fb), fb),
@@ -133,8 +127,8 @@ private[droste] trait Zoo {
     *   @inheritdoc
     */
   def dyna[F[_]: Functor, A, B](
-    algebra: CVAlgebra[F, B],
-    coalgebra: Coalgebra[F, A]
+      algebra: CVAlgebra[F, B],
+      coalgebra: Coalgebra[F, A]
   ): A => B =
     kernel.hylo[F, A, Attr[F, B]](
       fb => Attr(algebra(fb), fb),
@@ -150,9 +144,9 @@ private[droste] trait Zoo {
     * @usecase def prepro[F[_], R, B](natTrans: F ~> F, algebra: Algebra[F, B]): R => B
     *   @inheritdoc
     */
-  def prepro[F[_] : Functor, R, B](
-    natTrans: F ~> F,
-    algebra: Algebra[F, B]
+  def prepro[F[_]: Functor, R, B](
+      natTrans: F ~> F,
+      algebra: Algebra[F, B]
   )(implicit project: Project[F, R]): R => B =
     kernel.hylo[Yoneda[F, ?], R, B](
       yfb => algebra.run(yfb.mapK(natTrans).run),
@@ -168,9 +162,9 @@ private[droste] trait Zoo {
     * @usecase def postpro[F[_], A, R](coalgebra: Coalgebra[F, A], natTrans: F ~> F): A => R
     *   @inheritdoc
     */
-  def postpro[F[_] : Functor, A, R](
-    coalgebra: Coalgebra[F, A],
-    natTrans: F ~> F
+  def postpro[F[_]: Functor, A, R](
+      coalgebra: Coalgebra[F, A],
+      natTrans: F ~> F
   )(implicit embed: Embed[F, R]): A => R =
     kernel.hylo[Yoneda[F, ?], A, R](
       yfb => embed.algebra.run(yfb.run),
@@ -186,9 +180,9 @@ private[droste] trait Zoo {
     * @usecase def zygo[F[_], R, A, B](algebra: Algebra[F, A], ralgebra: RAlgebra[A, F, B]): R => B
     *   @inheritdoc
     */
-  def zygo[F[_] : Functor, R, A, B](
-    algebra: Algebra[F, A],
-    ralgebra: RAlgebra[A, F, B]
+  def zygo[F[_]: Functor, R, A, B](
+      algebra: Algebra[F, A],
+      ralgebra: RAlgebra[A, F, B]
   )(implicit project: Project[F, R]): R => B =
     kernel.hylo[F, R, (A, B)](
       fab => (algebra.run(fab.map(_._1)), ralgebra.run(fab)),

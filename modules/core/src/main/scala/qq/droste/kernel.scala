@@ -39,8 +39,8 @@ object kernel {
     *   @inheritdoc
     */
   def hylo[F[_]: Functor, A, B](
-    algebra  : F[B] => B,
-    coalgebra: A    => F[A]
+      algebra: F[B] => B,
+      coalgebra: A => F[A]
   ): A => B =
     new (A => B) {
       def apply(a: A): B = algebra(coalgebra(a).map(this))
@@ -57,8 +57,8 @@ object kernel {
     *   @inheritdoc
     */
   @inline def hyloC[F[_]: Functor, G[_]: Functor, A, B](
-    algebra  : F[G[B]] => B,
-    coalgebra: A       => F[G[A]]
+      algebra: F[G[B]] => B,
+      coalgebra: A => F[G[A]]
   ): A => B = hylo[(F ∘ G)#λ, A, B](algebra, coalgebra)
 
   /** Build a monadic hylomorphism
@@ -87,12 +87,10 @@ object kernel {
     *   @inheritdoc
     */
   def hyloM[M[_]: Monad, F[_]: Traverse, A, B](
-    algebra  : F[B] => M[B],
-    coalgebra: A => M[F[A]]
+      algebra: F[B] => M[B],
+      coalgebra: A => M[F[A]]
   ): A => M[B] =
-    hyloC[M, F, A, M[B]](
-      _.flatMap(_.sequence.flatMap(algebra)),
-      coalgebra)
+    hyloC[M, F, A, M[B]](_.flatMap(_.sequence.flatMap(algebra)), coalgebra)
 
   /** Convenience to build a monadic hylomorphism for the composed functor `F[G[_]]`.
     *
@@ -102,8 +100,8 @@ object kernel {
     *   @inheritdoc
     */
   def hyloMC[M[_]: Monad, F[_]: Traverse, G[_]: Traverse, A, B](
-    algebra  : F[G[B]] => M[B],
-    coalgebra: A => M[F[G[A]]]
+      algebra: F[G[B]] => M[B],
+      coalgebra: A => M[F[G[A]]]
   ): A => M[B] =
     hyloM[M, (F ∘ G)#λ, A, B](algebra, coalgebra)
 

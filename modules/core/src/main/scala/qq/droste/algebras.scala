@@ -46,21 +46,17 @@ object GAlgebra extends GAlgebraInstances {
     new GAlgebra(run)
 
   def zip[F[_]: Functor, Sx, Sy, Ax, Ay](
-    x: GAlgebra[F, Sx, Ax],
-    y: GAlgebra[F, Sy, Ay]
+      x: GAlgebra[F, Sx, Ax],
+      y: GAlgebra[F, Sy, Ay]
   ): GAlgebra[F, (Sx, Sy), (Ax, Ay)] =
-    GAlgebra(fz => (
-      x(fz.map(v => v._1)),
-      y(fz.map(v => v._2))))
+    GAlgebra(fz => (x(fz.map(v => v._1)), y(fz.map(v => v._2))))
 
   final case class Gathered[F[_], S, A](
-    algebra: GAlgebra[F, S, A],
-    gather: Gather[F, S, A]
+      algebra: GAlgebra[F, S, A],
+      gather: Gather[F, S, A]
   ) {
     def zip[B, T](that: Gathered[F, T, B])(implicit ev: Functor[F]): Gathered[F, (S, T), (A, B)] =
-      Gathered(
-        GAlgebra.zip(algebra, that.algebra),
-        Gather.zip(gather, that.gather))
+      Gathered(GAlgebra.zip(algebra, that.algebra), Gather.zip(gather, that.gather))
   }
 }
 
@@ -69,7 +65,8 @@ final class GAlgebraM[M[_], F[_], S, A](val run: F[S] => M[A]) extends AnyVal {
     run(fs)
 
   def zip[T, B](that: GAlgebraM[M, F, T, B])(
-    implicit M: Semigroupal[M], F: Functor[F]
+      implicit M: Semigroupal[M],
+      F: Functor[F]
   ): GAlgebraM[M, F, (S, T), (A, B)] =
     GAlgebraM.zip(this, that)
 
@@ -82,22 +79,20 @@ object GAlgebraM {
     new GAlgebraM(run)
 
   def zip[M[_]: Semigroupal, F[_]: Functor, Sx, Sy, Ax, Ay](
-    x: GAlgebraM[M, F, Sx, Ax],
-    y: GAlgebraM[M, F, Sy, Ay]
+      x: GAlgebraM[M, F, Sx, Ax],
+      y: GAlgebraM[M, F, Sy, Ay]
   ): GAlgebraM[M, F, (Sx, Sy), (Ax, Ay)] =
-    GAlgebraM(fz =>
-      x(fz.map(v => v._1)) product y(fz.map(v => v._2)))
+    GAlgebraM(fz => x(fz.map(v => v._1)) product y(fz.map(v => v._2)))
 
   final case class Gathered[M[_], F[_], S, A](
-    algebra: GAlgebraM[M, F, S, A],
-    gather: Gather[F, S, A]
+      algebra: GAlgebraM[M, F, S, A],
+      gather: Gather[F, S, A]
   ) {
     def zip[B, T](that: Gathered[M, F, T, B])(
-      implicit M: Semigroupal[M], F: Functor[F]
+        implicit M: Semigroupal[M],
+        F: Functor[F]
     ): Gathered[M, F, (S, T), (A, B)] =
-      Gathered(
-        GAlgebraM.zip(algebra, that.algebra),
-        Gather.zip(gather, that.gather))
+      Gathered(GAlgebraM.zip(algebra, that.algebra), Gather.zip(gather, that.gather))
   }
 }
 
@@ -126,8 +121,8 @@ object GCoalgebra extends GCoalgebraInstances {
     new GCoalgebra(run)
 
   final case class Scattered[F[_], A, S](
-    coalgebra: GCoalgebra[F, A, S],
-    scatter: Scatter[F, A, S]
+      coalgebra: GCoalgebra[F, A, S],
+      scatter: Scatter[F, A, S]
   )
 }
 
@@ -144,8 +139,8 @@ object GCoalgebraM {
     new GCoalgebraM(run)
 
   final case class Scattered[M[_], F[_], A, S](
-    coalgebra: GCoalgebraM[M, F, A, S],
-    scatter: Scatter[F, A, S]
+      coalgebra: GCoalgebraM[M, F, A, S],
+      scatter: Scatter[F, A, S]
   )
 }
 

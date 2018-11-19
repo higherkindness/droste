@@ -21,8 +21,7 @@ import data.Fix
 object stratagem {
 
   def attributeCata[F[_]: Functor, A](algebra: Algebra[F, A]): Fix[F] => Attr[F, A] =
-    scheme.cata(Trans((fa: F[Attr[F, A]]) =>
-      AttrF(algebra(fa.map(_.head)), fa)).algebra)
+    scheme.cata(Trans((fa: F[Attr[F, A]]) => AttrF(algebra(fa.map(_.head)), fa)).algebra)
 
   /** An algebra for listing all possible partial structures */
   def allPartials[F[_]: Traverse, A]: Algebra[AttrF[F, A, ?], List[Coattr[F, A]]] =
@@ -41,9 +40,7 @@ object stratagem {
     * fold.
     */
   def partials[F[_]: Traverse, A](app: Applicative[List]): Algebra[AttrF[F, A, ?], List[Coattr[F, A]]] =
-    Algebra(envt =>
-      Coattr.pure[F, A](envt.ask) :: Traverse[F].sequence(envt.lower)(app).map(Coattr.roll))
-
+    Algebra(envt => Coattr.pure[F, A](envt.ask) :: Traverse[F].sequence(envt.lower)(app).map(Coattr.roll))
 
   private lazy val listPerimeterApplicative: Applicative[List] = new Applicative[List] {
     def pure[A](x: A): List[A] = List(x)
@@ -75,15 +72,16 @@ object stratagem {
      */
     def ap[A, B](ff: List[A => B])(fa: List[A]): List[B] =
       ff match {
-        case Nil => Nil
+        case Nil         => Nil
         case head :: Nil => fa.map(head)
-        case head :: tail => fa match {
-          case Nil => Nil
-          case a :: Nil => head(a) :: Nil
-          case _ =>
-            val last = fa.last
-            fa.map(head) ::: tail.map(f => f(last))
-        }
+        case head :: tail =>
+          fa match {
+            case Nil      => Nil
+            case a :: Nil => head(a) :: Nil
+            case _ =>
+              val last = fa.last
+              fa.map(head) ::: tail.map(f => f(last))
+          }
       }
 
   }

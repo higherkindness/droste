@@ -17,11 +17,7 @@ import implicits.composedFunctor._
   * @groupname unfolds Unfolds
   * @groupname exotic  Exotic
   */
-object scheme
-    extends SchemeHyloPorcelain
-    with SchemeConvenientPorcelain
-    with SchemeGeneralizedPorcelain
-{
+object scheme extends SchemeHyloPorcelain with SchemeConvenientPorcelain with SchemeGeneralizedPorcelain {
 
   /** A petting zoo for wild and exotic animals we keep separate from
     * the regulars in [[scheme]]. For their safety and yours.
@@ -41,32 +37,24 @@ private[droste] sealed trait SchemeConvenientPorcelain {
   // learning recursion schemes, so it's nice to have them here
 
   def ana[F[_]: Functor, A, R](
-    coalgebra: Coalgebra[F, A]
+      coalgebra: Coalgebra[F, A]
   )(implicit embed: Embed[F, R]): A => R =
-    kernel.hylo(
-      embed.algebra.run,
-      coalgebra.run)
+    kernel.hylo(embed.algebra.run, coalgebra.run)
 
   def anaM[M[_]: Monad, F[_]: Traverse, A, R](
-    coalgebraM: CoalgebraM[M, F, A]
+      coalgebraM: CoalgebraM[M, F, A]
   )(implicit embed: Embed[F, R]): A => M[R] =
-    kernel.hyloM(
-      embed.algebra.lift[M].run,
-      coalgebraM.run)
+    kernel.hyloM(embed.algebra.lift[M].run, coalgebraM.run)
 
   def cata[F[_]: Functor, R, B](
-    algebra: Algebra[F, B]
+      algebra: Algebra[F, B]
   )(implicit project: Project[F, R]): R => B =
-    kernel.hylo(
-      algebra.run,
-      project.coalgebra.run)
+    kernel.hylo(algebra.run, project.coalgebra.run)
 
   def cataM[M[_]: Monad, F[_]: Traverse, R, B](
-    algebraM: AlgebraM[M, F, B]
+      algebraM: AlgebraM[M, F, B]
   )(implicit project: Project[F, R]): R => M[B] =
-    kernel.hyloM(
-      algebraM.run,
-      project.coalgebra.lift[M].run)
+    kernel.hyloM(algebraM.run, project.coalgebra.lift[M].run)
 
   /** Convenience to specify the base constructor "shape" (such as `Fix`
     * or `Cofree[?[_], Int]`) for recursion.
@@ -78,9 +66,10 @@ private[droste] sealed trait SchemeConvenientPorcelain {
     * @usecase def apply[Shape]: SchemePartialBasis[Shape, Shape]
     *   @inheritdoc
     */
-  def apply[PatR[_[_]]](implicit ev: Basis.Solve[PatR]): SchemePartialBasis[PatR, ev.PatF] = new SchemePartialBasis[PatR, ev.PatF]
+  def apply[PatR[_[_]]](implicit ev: Basis.Solve[PatR]): SchemePartialBasis[PatR, ev.PatF] =
+    new SchemePartialBasis[PatR, ev.PatF]
 
-  final class SchemePartialBasis[PatR[_[_]], PatF[_[_], _]] private[droste]() {
+  final class SchemePartialBasis[PatR[_[_]], PatF[_[_], _]] private[droste] () {
 
     type EmbedP[F[_]]    = Embed[PatF[F, ?], PatR[F]]
     type ProjectP[F[_]]  = Project[PatF[F, ?], PatR[F]]
@@ -88,42 +77,42 @@ private[droste] sealed trait SchemeConvenientPorcelain {
     type TraverseP[F[_]] = Traverse[PatF[F, ?]]
 
     def ana[F[_], A](
-      coalgebra: Coalgebra[PatF[F, ?], A]
+        coalgebra: Coalgebra[PatF[F, ?], A]
     )(implicit embed: EmbedP[F], ev: FunctorP[F]): A => PatR[F] =
       scheme.ana[PatF[F, ?], A, PatR[F]](coalgebra)
 
     def anaM[M[_]: Monad, F[_], A](
-      coalgebraM: CoalgebraM[M, PatF[F, ?], A]
+        coalgebraM: CoalgebraM[M, PatF[F, ?], A]
     )(implicit embed: EmbedP[F], ev: TraverseP[F]): A => M[PatR[F]] =
       scheme.anaM[M, PatF[F, ?], A, PatR[F]](coalgebraM)
 
     def gana[F[_], A, S](
-      scattered: GCoalgebra.Scattered[PatF[F, ?], A, S]
+        scattered: GCoalgebra.Scattered[PatF[F, ?], A, S]
     )(implicit embed: EmbedP[F], ev: FunctorP[F]): A => PatR[F] =
       scheme.gana[PatF[F, ?], A, S, PatR[F]](scattered.coalgebra)(scattered.scatter)
 
     def ganaM[M[_]: Monad, F[_], A, S](
-      scattered: GCoalgebraM.Scattered[M, PatF[F, ?], A, S]
+        scattered: GCoalgebraM.Scattered[M, PatF[F, ?], A, S]
     )(implicit embed: EmbedP[F], ev: TraverseP[F]): A => M[PatR[F]] =
       scheme.ganaM[M, PatF[F, ?], A, S, PatR[F]](scattered)
 
     def cata[F[_], B](
-      algebra: Algebra[PatF[F, ?], B]
+        algebra: Algebra[PatF[F, ?], B]
     )(implicit project: ProjectP[F], ev: FunctorP[F]): PatR[F] => B =
       scheme.cata[PatF[F, ?], PatR[F], B](algebra)
 
     def cataM[M[_]: Monad, F[_], B](
-      algebraM: AlgebraM[M, PatF[F, ?], B]
+        algebraM: AlgebraM[M, PatF[F, ?], B]
     )(implicit project: ProjectP[F], ev: TraverseP[F]): PatR[F] => M[B] =
       scheme.cataM[M, PatF[F, ?], PatR[F], B](algebraM)
 
     def gcata[F[_], S, B](
-      gathered: GAlgebra.Gathered[PatF[F, ?], S, B]
+        gathered: GAlgebra.Gathered[PatF[F, ?], S, B]
     )(implicit project: ProjectP[F], ev: FunctorP[F]): PatR[F] => B =
       scheme.gcata[PatF[F, ?], PatR[F], S, B](gathered.algebra)(gathered.gather)
 
     def gcataM[M[_]: Monad, F[_], S, B](
-      gathered: GAlgebraM.Gathered[M, PatF[F, ?], S, B]
+        gathered: GAlgebraM.Gathered[M, PatF[F, ?], S, B]
     )(implicit project: ProjectP[F], ev: TraverseP[F]): PatR[F] => M[B] =
       scheme.gcataM[M, PatF[F, ?], PatR[F], S, B](gathered)
 
@@ -134,38 +123,34 @@ private[droste] sealed trait SchemeConvenientPorcelain {
 private[droste] sealed trait SchemeGeneralizedPorcelain extends SchemeGeneralizedPlumbing {
 
   def ghylo[F[_]: Functor, A, SA, SB, B](
-    gathered : GAlgebra.Gathered   [F, SB, B],
-    scattered: GCoalgebra.Scattered[F, A, SA]
+      gathered: GAlgebra.Gathered[F, SB, B],
+      scattered: GCoalgebra.Scattered[F, A, SA]
   ): A => B =
-    ghylo(
-      gathered.algebra, scattered.coalgebra)(
-      gathered.gather, scattered.scatter)
+    ghylo(gathered.algebra, scattered.coalgebra)(gathered.gather, scattered.scatter)
 
   def ghyloM[M[_]: Monad, F[_]: Traverse, A, SA, SB, B](
-    gathered : GAlgebraM.Gathered   [M, F, SB, B],
-    scattered: GCoalgebraM.Scattered[M, F, A, SA]
+      gathered: GAlgebraM.Gathered[M, F, SB, B],
+      scattered: GCoalgebraM.Scattered[M, F, A, SA]
   ): A => M[B] =
-    ghyloM(
-      gathered.algebra, scattered.coalgebra)(
-      gathered.gather, scattered.scatter)
+    ghyloM(gathered.algebra, scattered.coalgebra)(gathered.gather, scattered.scatter)
 
   def gcata[F[_]: Functor, R, S, B](
-    gathered: GAlgebra.Gathered[F, S, B]
+      gathered: GAlgebra.Gathered[F, S, B]
   )(implicit project: Project[F, R]): R => B =
     gcata(gathered.algebra)(gathered.gather)
 
   def gcataM[M[_]: Monad, F[_]: Traverse, R, S, B](
-    gathered: GAlgebraM.Gathered[M, F, S, B]
+      gathered: GAlgebraM.Gathered[M, F, S, B]
   )(implicit project: Project[F, R]): R => M[B] =
     gcataM(gathered.algebra)(gathered.gather)
 
   def gana[F[_]: Functor, A, S, R](
-    scattered: GCoalgebra.Scattered[F, A, S]
+      scattered: GCoalgebra.Scattered[F, A, S]
   )(implicit embed: Embed[F, R]): A => R =
     gana(scattered.coalgebra)(scattered.scatter)
 
   def ganaM[M[_]: Monad, F[_]: Traverse, A, S, R](
-    scattered: GCoalgebraM.Scattered[M, F, A, S]
+      scattered: GCoalgebraM.Scattered[M, F, A, S]
   )(implicit embed: Embed[F, R]): A => M[R] =
     ganaM(scattered.coalgebra)(scattered.scatter)
 
@@ -173,68 +158,61 @@ private[droste] sealed trait SchemeGeneralizedPorcelain extends SchemeGeneralize
 
 private[droste] sealed trait SchemeGeneralizedPlumbing {
 
-  def ghylo[F[_]: Functor, A, SA, SB, B](
-    algebra  : GAlgebra  [F, SB, B],
-    coalgebra: GCoalgebra[F, A, SA])(
-    gather   : Gather    [F, SB, B],
-    scatter  : Scatter   [F, A, SA]
+  def ghylo[F[_]: Functor, A, SA, SB, B](algebra: GAlgebra[F, SB, B], coalgebra: GCoalgebra[F, A, SA])(
+      gather: Gather[F, SB, B],
+      scatter: Scatter[F, A, SA]
   ): A => B =
-    a => algebra(coalgebra(a).map(
-      kernel.hylo[F, SA, SB](
-        fb => gather(algebra(fb), fb),
-        sa => scatter(sa).fold(coalgebra.run, identity))))
+    a =>
+      algebra(
+        coalgebra(a).map(
+          kernel.hylo[F, SA, SB](fb => gather(algebra(fb), fb), sa => scatter(sa).fold(coalgebra.run, identity))))
 
   def ghyloM[M[_]: Monad, F[_]: Traverse, A, SA, SB, B](
-    algebra  : GAlgebraM  [M, F, SB, B],
-    coalgebra: GCoalgebraM[M, F, A, SA])(
-    gather   : Gather     [   F, SB, B],
-    scatter  : Scatter    [   F, A, SA]
+      algebra: GAlgebraM[M, F, SB, B],
+      coalgebra: GCoalgebraM[M, F, A, SA])(
+      gather: Gather[F, SB, B],
+      scatter: Scatter[F, A, SA]
   ): A => M[B] =
-    a => coalgebra(a).flatMap(fsa =>
-      fsa
-        .traverse(kernel.hyloM[M, F, SA, SB](
-          fb => algebra(fb).map(gather(_, fb)),
-          sa => scatter(sa).fold(coalgebra.run, _.pure[M])))
-        .flatMap(algebra.run))
+    a =>
+      coalgebra(a).flatMap(
+        fsa =>
+          fsa
+            .traverse(
+              kernel.hyloM[M, F, SA, SB](
+                fb => algebra(fb).map(gather(_, fb)),
+                sa => scatter(sa).fold(coalgebra.run, _.pure[M])))
+            .flatMap(algebra.run))
 
-  def gcata[F[_]: Functor, R, S, B](
-    galgebra: GAlgebra[F, S, B])(
-    gather  : Gather  [F, S, B]
+  def gcata[F[_]: Functor, R, S, B](galgebra: GAlgebra[F, S, B])(
+      gather: Gather[F, S, B]
   )(implicit project: Project[F, R]): R => B =
-    r => galgebra(project.coalgebra(r).map(
-      kernel.hylo[F, R, S](
-        fb => gather(galgebra(fb), fb),
-        project.coalgebra.run)))
+    r => galgebra(project.coalgebra(r).map(kernel.hylo[F, R, S](fb => gather(galgebra(fb), fb), project.coalgebra.run)))
 
-  def gcataM[M[_]: Monad, F[_]: Traverse, R, S, B](
-    algebra  : GAlgebraM  [M, F, S, B])(
-    gather   : Gather     [   F, S, B]
+  def gcataM[M[_]: Monad, F[_]: Traverse, R, S, B](algebra: GAlgebraM[M, F, S, B])(
+      gather: Gather[F, S, B]
   )(implicit project: Project[F, R]): R => M[B] =
-    r => project.coalgebra(r)
-      .traverse(
-        kernel.hyloM[M, F, R, S](
-          fb => algebra(fb).map(gather(_, fb)),
-          project.coalgebra.lift[M].run))
-      .flatMap(algebra.run)
+    r =>
+      project
+        .coalgebra(r)
+        .traverse(kernel.hyloM[M, F, R, S](fb => algebra(fb).map(gather(_, fb)), project.coalgebra.lift[M].run))
+        .flatMap(algebra.run)
 
-  def gana[F[_]: Functor, A, S, R](
-    coalgebra: GCoalgebra[F, A, S])(
-    scatter  : Scatter   [F, A, S]
+  def gana[F[_]: Functor, A, S, R](coalgebra: GCoalgebra[F, A, S])(
+      scatter: Scatter[F, A, S]
   )(implicit embed: Embed[F, R]): A => R =
-    a => embed.algebra(coalgebra(a).map(
-      kernel.hylo[F, S, R](
-        embed.algebra.run,
-        s => scatter(s).fold(coalgebra.run, identity))))
+    a =>
+      embed.algebra(
+        coalgebra(a).map(kernel.hylo[F, S, R](embed.algebra.run, s => scatter(s).fold(coalgebra.run, identity))))
 
-  def ganaM[M[_]: Monad, F[_]: Traverse, A, S, R](
-    coalgebra: GCoalgebraM[M, F, A, S])(
-    scatter  : Scatter    [   F, A, S]
+  def ganaM[M[_]: Monad, F[_]: Traverse, A, S, R](coalgebra: GCoalgebraM[M, F, A, S])(
+      scatter: Scatter[F, A, S]
   )(implicit embed: Embed[F, R]): A => M[R] =
-    a => coalgebra(a)
-      .flatMap(_.traverse(kernel.hyloM[M, F, S, R](
-        embed.algebra.lift[M].run,
-        sa => scatter(sa).fold(coalgebra.run, _.pure[M]))))
-      .map(embed.algebra.run)
+    a =>
+      coalgebra(a)
+        .flatMap(
+          _.traverse(
+            kernel.hyloM[M, F, S, R](embed.algebra.lift[M].run, sa => scatter(sa).fold(coalgebra.run, _.pure[M]))))
+        .map(embed.algebra.run)
 
 }
 
@@ -261,8 +239,8 @@ private[droste] sealed trait SchemeHyloPorcelain {
     *   @inheritdoc
     */
   def hylo[F[_]: Functor, A, B](
-    algebra  : Algebra[F, B],
-    coalgebra: Coalgebra[F, A]
+      algebra: Algebra[F, B],
+      coalgebra: Coalgebra[F, A]
   ): A => B =
     kernel.hylo(algebra.run, coalgebra.run)
 
@@ -292,10 +270,9 @@ private[droste] sealed trait SchemeHyloPorcelain {
     *   @inheritdoc
     */
   def hyloM[M[_]: Monad, F[_]: Traverse, A, B](
-    algebra  : AlgebraM[M, F, B],
-    coalgebra: CoalgebraM[M, F, A]
+      algebra: AlgebraM[M, F, B],
+      coalgebra: CoalgebraM[M, F, A]
   ): A => M[B] =
     kernel.hyloM(algebra.run, coalgebra.run)
-
 
 }

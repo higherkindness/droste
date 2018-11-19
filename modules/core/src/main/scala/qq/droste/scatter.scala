@@ -9,7 +9,7 @@ object Scatter {
     Left(_)
 
   def gapo[F[_]: Functor, A, B](coalgebra: Coalgebra[F, B]): Scatter[F, A, Either[B, A]] = {
-    case Left(b) => Right(coalgebra(b).map(Left(_)))
+    case Left(b)  => Right(coalgebra(b).map(Left(_)))
     case Right(a) => Left(a)
   }
 

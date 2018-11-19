@@ -16,16 +16,18 @@ object Compat {
   def gen_tailRecM[A, B](a0: A)(fn: A => Gen[Either[A, B]]): Gen[B] = {
     @tailrec
     def tailRecMR(a: A, seed: Seed, labs: Set[String])(fn: (A, Seed) => R[Either[A, B]]): R[B] = {
-      val re = fn(a, seed)
+      val re       = fn(a, seed)
       val nextLabs = labs | re.labels
       re.retrieve match {
-        case None => r(None, re.seed).copy(l = nextLabs)
+        case None           => r(None, re.seed).copy(l = nextLabs)
         case Some(Right(b)) => r(Some(b), re.seed).copy(l = nextLabs)
-        case Some(Left(a)) => tailRecMR(a, re.seed, nextLabs)(fn)
+        case Some(Left(a))  => tailRecMR(a, re.seed, nextLabs)(fn)
       }
     }
     gen[B] { (p: P, seed: Seed) =>
-      tailRecMR(a0, seed, Set.empty) { (a, seed) => fn(a).doApply(p, seed) }
+      tailRecMR(a0, seed, Set.empty) { (a, seed) =>
+        fn(a).doApply(p, seed)
+      }
     }
   }
 }

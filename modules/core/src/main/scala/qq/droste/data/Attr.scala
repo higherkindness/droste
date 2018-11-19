@@ -11,10 +11,10 @@ import meta.Meta
 import prelude._
 
 object Attr {
-  def apply  [F[_], A](head: A, tail: F[Attr[F, A]]): Attr[F, A] = apply((head, tail))
-  def apply  [F[_], A](f: (A, F[Attr[F, A]])): Attr[F, A] = macro Meta.fastCast
-  def un     [F[_], A](f: Attr[F, A]): (A, F[Attr[F, A]]) = macro Meta.fastCast
-  def unapply[F[_], A](f: Attr[F, A]): Some[(A, F[Attr[F,A]])] = Some(f.tuple)
+  def apply[F[_], A](head: A, tail: F[Attr[F, A]]): Attr[F, A] = apply((head, tail))
+  def apply[F[_], A](f: (A, F[Attr[F, A]])): Attr[F, A] = macro Meta.fastCast
+  def un[F[_], A](f: Attr[F, A]): (A, F[Attr[F, A]]) = macro Meta.fastCast
+  def unapply[F[_], A](f: Attr[F, A]): Some[(A, F[Attr[F, A]])] = Some(f.tuple)
 
   def algebra[F[_], A]: Algebra[AttrF[F, A, ?], Attr[F, A]] =
     Algebra(fa => Attr(AttrF.un(fa)))
@@ -36,8 +36,8 @@ object Attr {
 private[data] trait AttrImplicits {
   implicit final class AttrOps[F[_], A](attr: Attr[F, A]) {
     def tuple: (A, F[Attr[F, A]]) = Attr.un(attr)
-    def head: A = tuple._1
-    def tail: F[Attr[F, A]] = tuple._2
+    def head: A                   = tuple._1
+    def tail: F[Attr[F, A]]       = tuple._2
 
     def toCats(implicit ev: Functor[F]): cats.free.Cofree[F, A] =
       cats.free.Cofree(head, Eval.later(tail.map(_.toCats)))

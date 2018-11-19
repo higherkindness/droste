@@ -17,18 +17,18 @@ object ExprParser {
     } yield result
 
   private sealed trait Token
-  private sealed trait TParen extends Token
-  private case object TParenL extends TParen
-  private case object TParenR extends TParen
+  private sealed trait TParen                  extends Token
+  private case object TParenL                  extends TParen
+  private case object TParenR                  extends TParen
   private case class TConst(value: BigDecimal) extends Token
-  private case class TVar(name: String) extends Token
-  private case object TAdd extends Token
-  private case object TSub extends Token
-  private case object TProd extends Token
-  private case object TDiv extends Token
+  private case class TVar(name: String)        extends Token
+  private case object TAdd                     extends Token
+  private case object TSub                     extends Token
+  private case object TProd                    extends Token
+  private case object TDiv                     extends Token
 
   // aliases for F, S, and A for StateT
-  private type FF[a] = Either[String, a]
+  private type FF[a]  = Either[String, a]
   private type Output = List[Expr.Fixed[BigDecimal]]
   private final case class SS(ops: List[(Int, Token)], output: Output)
   private type AA = Either[List[Token], Expr.Fixed[BigDecimal]]
@@ -51,8 +51,7 @@ object ExprParser {
           s0 <- StateT.get[FF, SS]
           _  <- s0.ops.map(_._2).traverse(enqueue)
           s1 <- StateT.get[FF, SS]
-        }
-        yield s1.output.head.asRight
+        } yield s1.output.head.asRight
     }
   }
 
@@ -68,32 +67,29 @@ object ExprParser {
   private def shunt(op: Token, p: Int): StateT[FF, SS, List[Token]] =
     StateT { s =>
       val (oops, ops) = s.ops.span(_._1 >= p)
-        (SS((p, op) :: ops, s.output), oops.map(_._2)).asRight
+      (SS((p, op) :: ops, s.output), oops.map(_._2)).asRight
     }
-
 
   private def enqueue(op: Token): StateT[FF, SS, Unit] = {
     val focused = op match {
-      case TConst(c) => nullary(Fix(Const(c)))
-      case TVar(n)   => nullary(Fix(Var(n)))
-      case TAdd      => binary(Add(_, _))
-      case TSub      => binary(Sub(_, _))
-      case TProd     => binary(Prod(_, _))
-      case TDiv      => binary(Div(_, _))
-      case TParenL |
-          TParenR    => StateT.liftF[FF, Output, Unit](
-                         "unexpected token during enqueue".asLeft)
+      case TConst(c)         => nullary(Fix(Const(c)))
+      case TVar(n)           => nullary(Fix(Var(n)))
+      case TAdd              => binary(Add(_, _))
+      case TSub              => binary(Sub(_, _))
+      case TProd             => binary(Prod(_, _))
+      case TDiv              => binary(Div(_, _))
+      case TParenL | TParenR => StateT.liftF[FF, Output, Unit]("unexpected token during enqueue".asLeft)
     }
     focused.transformS(_.output, (s, o) => s.copy(output = o))
   }
 
   private def binary(
-    f: (Expr.Fixed[BigDecimal], Expr.Fixed[BigDecimal]) => Expr.Fixed[BigDecimal]
+      f: (Expr.Fixed[BigDecimal], Expr.Fixed[BigDecimal]) => Expr.Fixed[BigDecimal]
   ): StateT[FF, Output, Unit] =
     StateT.modifyF { output0 =>
-      val y = output0.head
-      val tail = output0.tail
-      val x = tail.head
+      val y       = output0.head
+      val tail    = output0.tail
+      val x       = tail.head
       val output1 = tail.tail
       (f(x, y) :: output1).asRight
     }
@@ -103,14 +99,14 @@ object ExprParser {
 
   private val token: Parser[Token] =
     Atto.token(
-      Atto.char('+').as(TAdd: Token)        |
-      Atto.char('-').as(TSub: Token)        |
-      Atto.char('*').as(TProd: Token)       |
-      Atto.char('/').as(TDiv: Token)        |
-      Atto.char('(').as(TParenL: Token)     |
-      Atto.char(')').as(TParenR: Token)     |
-      Atto.bigDecimal.map(TConst(_): Token) |
-      identifier.map(TVar(_): Token)
+      Atto.char('+').as(TAdd: Token) |
+        Atto.char('-').as(TSub: Token) |
+        Atto.char('*').as(TProd: Token) |
+        Atto.char('/').as(TDiv: Token) |
+        Atto.char('(').as(TParenL: Token) |
+        Atto.char(')').as(TParenR: Token) |
+        Atto.bigDecimal.map(TConst(_): Token) |
+        identifier.map(TVar(_): Token)
     )
 
   private val identifier: Parser[String] =

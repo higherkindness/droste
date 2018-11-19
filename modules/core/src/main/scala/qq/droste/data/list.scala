@@ -13,12 +13,12 @@ import util.DefaultTraverse
 
 sealed trait ListF[+A, +B]
 final case class ConsF[A, B](head: A, tail: B) extends ListF[A, B]
-case object NilF extends ListF[Nothing, Nothing]
+case object NilF                               extends ListF[Nothing, Nothing]
 
 object ListF {
 
   def toScalaList[A, PatR[_[_]]](list: PatR[ListF[A, ?]])(
-    implicit ev: Project[ListF[A, ?], PatR[ListF[A, ?]]]
+      implicit ev: Project[ListF[A, ?], PatR[ListF[A, ?]]]
   ): List[A] =
     scheme.cata(toScalaListAlgebra[A]).apply(list)
 
@@ -28,7 +28,7 @@ object ListF {
   }
 
   def fromScalaList[A, PatR[_[_]]](list: List[A])(
-    implicit ev: Embed[ListF[A, ?], PatR[ListF[A, ?]]]
+      implicit ev: Embed[ListF[A, ?], PatR[ListF[A, ?]]]
   ): PatR[ListF[A, ?]] =
     scheme.ana(fromScalaListCoalgebra[A]).apply(list)
 
@@ -46,30 +46,35 @@ object ListF {
         }
     }
 
-  implicit def basisListFMonoid[T, A](implicit T: Basis[ListF[A, ?], T])
-      : Monoid[T] =
+  implicit def basisListFMonoid[T, A](implicit T: Basis[ListF[A, ?], T]): Monoid[T] =
     new Monoid[T] {
       def empty = T.algebra(NilF)
       def combine(f1: T, f2: T): T = {
-        scheme.cata(Algebra[ListF[A, ?], T] {
-          case NilF => f2
-          case cons   => T.algebra(cons)
-        }).apply(f1)
+        scheme
+          .cata(Algebra[ListF[A, ?], T] {
+            case NilF => f2
+            case cons => T.algebra(cons)
+          })
+          .apply(f1)
       }
     }
 
   import cats.~>
   import syntax.compose._
 
-  implicit def drosteDelayEqListF[A](implicit eh: Eq[A]): Delay[Eq, ListF[A, ?]] = λ[Eq ~> (Eq ∘ ListF[A, ?])#λ](et =>
-    Eq.instance((x, y) => x match {
-      case ConsF(hx, tx) => y match {
-        case ConsF(hy, ty) => eh.eqv(hx, hy) && et.eqv(tx, ty)
-        case NilF => false
-      }
-      case NilF => y match {
-        case NilF => true
-        case _ => false
-      }
-    }))
+  implicit def drosteDelayEqListF[A](implicit eh: Eq[A]): Delay[Eq, ListF[A, ?]] =
+    λ[Eq ~> (Eq ∘ ListF[A, ?])#λ](et =>
+      Eq.instance((x, y) =>
+        x match {
+          case ConsF(hx, tx) =>
+            y match {
+              case ConsF(hy, ty) => eh.eqv(hx, hy) && et.eqv(tx, ty)
+              case NilF          => false
+            }
+          case NilF =>
+            y match {
+              case NilF => true
+              case _    => false
+            }
+      }))
 }
