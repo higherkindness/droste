@@ -7,6 +7,8 @@ import scalacheck._
 import org.scalacheck.Properties
 import org.scalacheck.Prop._
 
+import cats.implicits._
+
 final class CoattrFTests extends Properties("CoattrF") {
 
   property("unapply") = {

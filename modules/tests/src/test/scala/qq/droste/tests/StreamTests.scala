@@ -45,7 +45,7 @@ final class StreamTests extends Properties("StreamTests") {
     Cogen.cogenList[Int].contramap(_.toList)
 
   implicit val arbitraryIntStream: Arbitrary[Stream[Int]] =
-    Arbitrary(Gen.listOf(Gen.posNum[Int]).map(Stream.fromList))
+    Arbitrary(Gen.resize(50, Gen.listOf(Gen.posNum[Int])).map(Stream.fromList))
 
   include(EqTests[Stream[Int]].eqv.all)
   include(MonoidTests[Stream[Int]].monoid.all)

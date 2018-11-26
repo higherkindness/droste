@@ -7,7 +7,7 @@ import scalacheck._
 import org.scalacheck.Properties
 import org.scalacheck.Prop._
 
-import cats.instances.option._
+import cats.implicits._
 
 final class CoattrTests extends Properties("Coattr") {
 
