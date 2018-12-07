@@ -80,10 +80,16 @@ object Stream extends StreamInstances {
     )
 
   def fromJavaIterator[A](it0: => JavaIterator[A]): Stream[A] =
-    Nu(Coalgebra((it: JavaIterator[A]) => if (it.hasNext) ConsF(it.next(), it) else NilF), it0)
+    Nu(
+      Coalgebra((it: JavaIterator[A]) =>
+        if (it.hasNext) ConsF(it.next(), it) else NilF),
+      it0)
 
   def fromIterator[A](it0: => Iterator[A]): Stream[A] =
-    Nu(Coalgebra((it: Iterator[A]) => if (it.hasNext) ConsF(it.next(), it) else NilF), it0)
+    Nu(
+      Coalgebra(
+        (it: Iterator[A]) => if (it.hasNext) ConsF(it.next(), it) else NilF),
+      it0)
 
   def fromList[A](l0: List[A]): Stream[A] =
     Nu(
@@ -113,7 +119,8 @@ object Stream extends StreamInstances {
   }
 
   object implicits {
-    implicit def toStreamOps[A](fa: Stream[A]): StreamOps[A] = new StreamOps[A](fa)
+    implicit def toStreamOps[A](fa: Stream[A]): StreamOps[A] =
+      new StreamOps[A](fa)
   }
 
 }
@@ -121,8 +128,9 @@ object Stream extends StreamInstances {
 private[stream] sealed trait StreamInstances {
 
   implicit val drosteMonadForStream: Monad[Stream] = new Monad[Stream] {
-    def pure[A](a: A): Stream[A]                                      = Stream.pure(a)
-    def flatMap[A, B](fa: Stream[A])(f: A => Stream[B]): Stream[B]    = Stream.flatMap(fa)(f)
+    def pure[A](a: A): Stream[A] = Stream.pure(a)
+    def flatMap[A, B](fa: Stream[A])(f: A => Stream[B]): Stream[B] =
+      Stream.flatMap(fa)(f)
     def tailRecM[A, B](a: A)(f: A => Stream[Either[A, B]]): Stream[B] = ???
   }
 

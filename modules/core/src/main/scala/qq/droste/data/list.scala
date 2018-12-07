@@ -39,14 +39,16 @@ object ListF {
 
   implicit def drosteTraverseForListF[A]: Traverse[ListF[A, ?]] =
     new DefaultTraverse[ListF[A, ?]] {
-      def traverse[F[_]: Applicative, B, C](fb: ListF[A, B])(f: B => F[C]): F[ListF[A, C]] =
+      def traverse[F[_]: Applicative, B, C](fb: ListF[A, B])(
+          f: B => F[C]): F[ListF[A, C]] =
         fb match {
           case ConsF(head, tail) => f(tail).map(ConsF(head, _))
           case NilF              => (NilF: ListF[A, C]).pure[F]
         }
     }
 
-  implicit def basisListFMonoid[T, A](implicit T: Basis[ListF[A, ?], T]): Monoid[T] =
+  implicit def basisListFMonoid[T, A](
+      implicit T: Basis[ListF[A, ?], T]): Monoid[T] =
     new Monoid[T] {
       def empty = T.algebra(NilF)
       def combine(f1: T, f2: T): T = {
@@ -62,7 +64,8 @@ object ListF {
   import cats.~>
   import syntax.compose._
 
-  implicit def drosteDelayEqListF[A](implicit eh: Eq[A]): Delay[Eq, ListF[A, ?]] =
+  implicit def drosteDelayEqListF[A](
+      implicit eh: Eq[A]): Delay[Eq, ListF[A, ?]] =
     λ[Eq ~> (Eq ∘ ListF[A, ?])#λ](et =>
       Eq.instance((x, y) =>
         x match {

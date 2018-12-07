@@ -43,11 +43,15 @@ object `package` {
   def drosteGenCoattr[F[_]: Applicative: MonoidK, A: Arbitrary](
       implicit ev: Traverse[F]
   ): Gen[Coattr[F, A]] =
-    Gen.sized(maxSize =>
-      scheme
-        .anaM(CoalgebraM((size: Int) =>
-          Gen.oneOf(arbitrary[A].map(CoattrF.pure[F, A, Int](_)), genSizedF[F](size).map(CoattrF.roll[F, A, Int](_)))))
-        .apply(maxSize))
+    Gen.sized(
+      maxSize =>
+        scheme
+          .anaM(
+            CoalgebraM((size: Int) =>
+              Gen.oneOf(
+                arbitrary[A].map(CoattrF.pure[F, A, Int](_)),
+                genSizedF[F](size).map(CoattrF.roll[F, A, Int](_)))))
+          .apply(maxSize))
 
   def drosteGenAttrF[F[_], A, B](implicit ev: Arbitrary[(A, F[B])]): Gen[AttrF[F, A, B]] =
     ev.arbitrary.map(AttrF.apply(_))

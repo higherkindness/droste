@@ -11,7 +11,8 @@ import meta.Meta
 import prelude._
 
 object Attr {
-  def apply[F[_], A](head: A, tail: F[Attr[F, A]]): Attr[F, A] = apply((head, tail))
+  def apply[F[_], A](head: A, tail: F[Attr[F, A]]): Attr[F, A] =
+    apply((head, tail))
   def apply[F[_], A](f: (A, F[Attr[F, A]])): Attr[F, A] = macro Meta.fastCast
   def un[F[_], A](f: Attr[F, A]): (A, F[Attr[F, A]]) = macro Meta.fastCast
   def unapply[F[_], A](f: Attr[F, A]): Some[(A, F[Attr[F, A]])] = Some(f.tuple)
@@ -29,7 +30,8 @@ object Attr {
     ana(a)(coalgebra, identity)
 
   /** An inlined anamorphism to `Attr` with a fused map */
-  def ana[F[_]: Functor, A, C](a: A)(coalgebra: A => F[A], f: A => C): Attr[F, C] =
+  def ana[F[_]: Functor, A, C](
+      a: A)(coalgebra: A => F[A], f: A => C): Attr[F, C] =
     Attr(f(a), coalgebra(a).map(ana(_)(coalgebra, f)))
 }
 
@@ -50,11 +52,13 @@ private[data] trait AttrImplicits {
     new AttrComonad[F]
 }
 
-private[data] final class AttrComonad[F[_]: Functor] extends Comonad[Attr[F, ?]] {
+private[data] final class AttrComonad[F[_]: Functor]
+    extends Comonad[Attr[F, ?]] {
   def coflatMap[A, B](fa: Attr[F, A])(f: Attr[F, A] => B): Attr[F, B] =
     Attr.ana(fa)(_.tail, f)
 
   def extract[A](fa: Attr[F, A]): A = fa.head
 
-  def map[A, B](fa: Attr[F, A])(f: A => B): Attr[F, B] = Attr(f(fa.head), fa.tail.map(_.map(f)))
+  def map[A, B](fa: Attr[F, A])(f: A => B): Attr[F, B] =
+    Attr(f(fa.head), fa.tail.map(_.map(f)))
 }

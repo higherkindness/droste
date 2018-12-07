@@ -72,19 +72,22 @@ object ExprParser {
 
   private def enqueue(op: Token): StateT[FF, SS, Unit] = {
     val focused = op match {
-      case TConst(c)         => nullary(Fix(Const(c)))
-      case TVar(n)           => nullary(Fix(Var(n)))
-      case TAdd              => binary(Add(_, _))
-      case TSub              => binary(Sub(_, _))
-      case TProd             => binary(Prod(_, _))
-      case TDiv              => binary(Div(_, _))
-      case TParenL | TParenR => StateT.liftF[FF, Output, Unit]("unexpected token during enqueue".asLeft)
+      case TConst(c) => nullary(Fix(Const(c)))
+      case TVar(n)   => nullary(Fix(Var(n)))
+      case TAdd      => binary(Add(_, _))
+      case TSub      => binary(Sub(_, _))
+      case TProd     => binary(Prod(_, _))
+      case TDiv      => binary(Div(_, _))
+      case TParenL | TParenR =>
+        StateT.liftF[FF, Output, Unit]("unexpected token during enqueue".asLeft)
     }
     focused.transformS(_.output, (s, o) => s.copy(output = o))
   }
 
   private def binary(
-      f: (Expr.Fixed[BigDecimal], Expr.Fixed[BigDecimal]) => Expr.Fixed[BigDecimal]
+      f: (
+          Expr.Fixed[BigDecimal],
+          Expr.Fixed[BigDecimal]) => Expr.Fixed[BigDecimal]
   ): StateT[FF, Output, Unit] =
     StateT.modifyF { output0 =>
       val y       = output0.head

@@ -36,7 +36,8 @@ trait Project[F[_], R] { self =>
   def any(r: R)(p: R => Boolean)(implicit F: Foldable[F]): Boolean =
     Project.any[F, R](r)(p)
 
-  def collect[U: Monoid, B](r: R)(pf: PartialFunction[R, B])(implicit U: Basis[ListF[B, ?], U], F: Foldable[F]): U =
+  def collect[U: Monoid, B](r: R)(
+      pf: PartialFunction[R, B])(implicit U: Basis[ListF[B, ?], U], F: Foldable[F]): U =
     Project.collect[F, R, U, B](r)(pf)
 
   def contains(r: R, c: R)(implicit R: Eq[R], F: Foldable[F]): Boolean =
@@ -45,7 +46,8 @@ trait Project[F[_], R] { self =>
   def foldMap[Z: Monoid](r: R)(f: R => Z)(implicit F: Foldable[F]): Z =
     Project.foldMap[F, R, Z](r)(f)
 
-  def foldMapM[M[_], Z](r: R)(f: R => M[Z])(implicit M: Monad[M], Z: Monoid[Z], F: Foldable[F]): M[Z] =
+  def foldMapM[M[_], Z](r: R)(
+      f: R => M[Z])(implicit M: Monad[M], Z: Monoid[Z], F: Foldable[F]): M[Z] =
     Project.foldMapM[F, M, R, Z](r)(f)
 
 }
@@ -59,8 +61,10 @@ object Project extends FloatingBasisInstances[Project] {
   def any[F[_], R](r: R)(p: R => Boolean)(implicit P: Project[F, R], F: Foldable[F]): Boolean =
     foldMap[F, R, Boolean @@ Tags.Disjunction](r)(p(_).disjunction).unwrap
 
-  def collect[F[_], R, U: Monoid, B](r: R)(
-      pf: PartialFunction[R, B])(implicit P: Project[F, R], U: Basis[ListF[B, ?], U], F: Foldable[F]): U =
+  def collect[F[_], R, U: Monoid, B](r: R)(pf: PartialFunction[R, B])(
+      implicit P: Project[F, R],
+      U: Basis[ListF[B, ?], U],
+      F: Foldable[F]): U =
     foldMap[F, R, U](r)(pf.lift(_).foldRight[U](U.algebra(NilF))((a, b) => U.algebra(ConsF(a, b))))
 
   def contains[F[_], R](r: R, c: R)(implicit P: Project[F, R], R: Eq[R], F: Foldable[F]): Boolean =
@@ -84,7 +88,8 @@ sealed trait Basis[F[_], R] extends Embed[F, R] with Project[F, R]
 
 object Basis extends FloatingBasisInstances[Basis] {
   def apply[F[_], R](implicit ev: Basis[F, R]): Basis[F, R] = ev
-  final case class Default[F[_], R](algebra: Algebra[F, R], coalgebra: Coalgebra[F, R]) extends Basis[F, R]
+  final case class Default[F[_], R](algebra: Algebra[F, R], coalgebra: Coalgebra[F, R])
+      extends Basis[F, R]
 
   sealed trait Solve[PR[_[_]]] {
     type PatF[F[_], A]
@@ -98,7 +103,8 @@ object Basis extends FloatingBasisInstances[Basis] {
   }
 }
 
-private[droste] sealed trait FloatingBasisInstances[H[F[_], A] >: Basis[F, A]] extends FloatingBasisInstances0[H] {
+private[droste] sealed trait FloatingBasisInstances[H[F[_], A] >: Basis[F, A]]
+    extends FloatingBasisInstances0[H] {
   implicit def drosteBasisForListF[A]: H[ListF[A, ?], List[A]] =
     Basis.Default[ListF[A, ?], List[A]](ListF.toScalaListAlgebra, ListF.fromScalaListCoalgebra)
 
@@ -122,7 +128,8 @@ private[droste] sealed trait FloatingBasisInstances0[H[F[_], A] >: Basis[F, A]] 
 private[droste] sealed trait FloatingBasisSolveInstances {
   import Basis.Solve
 
-  implicit val drosteSolveFix: Solve.Aux[Fix, λ[(F[_], α) => F[α]]]                              = null
-  implicit def drosteSolveAttr[A]: Solve.Aux[Attr[?[_], A], AttrF[?[_], A, ?]]                   = null
-  implicit def drosteSolveCatsCofree[A]: Solve.Aux[cats.free.Cofree[?[_], A], AttrF[?[_], A, ?]] = null
+  implicit val drosteSolveFix: Solve.Aux[Fix, λ[(F[_], α) => F[α]]]            = null
+  implicit def drosteSolveAttr[A]: Solve.Aux[Attr[?[_], A], AttrF[?[_], A, ?]] = null
+  implicit def drosteSolveCatsCofree[A]: Solve.Aux[cats.free.Cofree[?[_], A], AttrF[?[_], A, ?]] =
+    null
 }

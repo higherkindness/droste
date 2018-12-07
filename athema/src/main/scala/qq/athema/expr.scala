@@ -33,31 +33,37 @@ object Neg {
 }
 
 object Add {
-  def apply[V](x: Expr.Fixed[V], y: Expr.Fixed[V]): Expr.Fixed[V] = Fix(Add(x, y))
+  def apply[V](x: Expr.Fixed[V], y: Expr.Fixed[V]): Expr.Fixed[V] =
+    Fix(Add(x, y))
 }
 
 object Sub {
-  def apply[V](x: Expr.Fixed[V], y: Expr.Fixed[V]): Expr.Fixed[V] = Fix(Sub(x, y))
+  def apply[V](x: Expr.Fixed[V], y: Expr.Fixed[V]): Expr.Fixed[V] =
+    Fix(Sub(x, y))
 }
 
 object Prod {
-  def apply[V](x: Expr.Fixed[V], y: Expr.Fixed[V]): Expr.Fixed[V] = Fix(Prod(x, y))
+  def apply[V](x: Expr.Fixed[V], y: Expr.Fixed[V]): Expr.Fixed[V] =
+    Fix(Prod(x, y))
 }
 
 object Div {
-  def apply[V](x: Expr.Fixed[V], y: Expr.Fixed[V]): Expr.Fixed[V] = Fix(Div(x, y))
+  def apply[V](x: Expr.Fixed[V], y: Expr.Fixed[V]): Expr.Fixed[V] =
+    Fix(Div(x, y))
 }
 
 private[athema] sealed trait ExprInstances {
-  implicit def traverseExpr[V]: Traverse[Expr[V, ?]] = new DefaultTraverse[Expr[V, ?]] {
-    def traverse[G[_]: Applicative, A, B](fa: Expr[V, A])(f: A => G[B]): G[Expr[V, B]] = fa match {
-      case v: Var[_, B @unchecked]   => (v: Expr[V, B]).pure[G]
-      case c: Const[_, B @unchecked] => (c: Expr[V, B]).pure[G]
-      case e: Neg[V, A]              => f(e.x) map (Neg(_))
-      case e: Add[V, A]              => (f(e.x), f(e.y)) mapN (Add(_, _))
-      case e: Sub[V, A]              => (f(e.x), f(e.y)) mapN (Sub(_, _))
-      case e: Prod[V, A]             => (f(e.x), f(e.y)) mapN (Prod(_, _))
-      case e: Div[V, A]              => (f(e.x), f(e.y)) mapN (Div(_, _))
+  implicit def traverseExpr[V]: Traverse[Expr[V, ?]] =
+    new DefaultTraverse[Expr[V, ?]] {
+      def traverse[G[_]: Applicative, A, B](fa: Expr[V, A])(
+          f: A => G[B]): G[Expr[V, B]] = fa match {
+        case v: Var[_, B @unchecked]   => (v: Expr[V, B]).pure[G]
+        case c: Const[_, B @unchecked] => (c: Expr[V, B]).pure[G]
+        case e: Neg[V, A]              => f(e.x) map (Neg(_))
+        case e: Add[V, A]              => (f(e.x), f(e.y)) mapN (Add(_, _))
+        case e: Sub[V, A]              => (f(e.x), f(e.y)) mapN (Sub(_, _))
+        case e: Prod[V, A]             => (f(e.x), f(e.y)) mapN (Prod(_, _))
+        case e: Div[V, A]              => (f(e.x), f(e.y)) mapN (Div(_, _))
+      }
     }
-  }
 }

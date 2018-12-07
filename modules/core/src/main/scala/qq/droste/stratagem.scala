@@ -39,8 +39,10 @@ object stratagem {
     * This is useful for snapshotting the intermediate data structures during a
     * fold.
     */
-  def partials[F[_]: Traverse, A](app: Applicative[List]): Algebra[AttrF[F, A, ?], List[Coattr[F, A]]] =
-    Algebra(envt => Coattr.pure[F, A](envt.ask) :: Traverse[F].sequence(envt.lower)(app).map(Coattr.roll))
+  def partials[F[_]: Traverse, A](
+      app: Applicative[List]): Algebra[AttrF[F, A, ?], List[Coattr[F, A]]] =
+    Algebra(
+      envt => Coattr.pure[F, A](envt.ask) :: Traverse[F].sequence(envt.lower)(app).map(Coattr.roll))
 
   private lazy val listPerimeterApplicative: Applicative[List] = new Applicative[List] {
     def pure[A](x: A): List[A] = List(x)

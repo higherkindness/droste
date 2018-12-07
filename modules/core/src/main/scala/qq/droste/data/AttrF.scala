@@ -33,7 +33,9 @@ private[data] trait AttrFImplicits extends AttrFImplicits0 {
 
 private[data] sealed trait AttrFImplicits0 {
 
-  implicit def drosteAttrFDelayEq[F[_], A](implicit eqa: Eq[A], deqf: Delay[Eq, F]): Delay[Eq, AttrF[F, A, ?]] =
+  implicit def drosteAttrFDelayEq[F[_], A](
+      implicit eqa: Eq[A],
+      deqf: Delay[Eq, F]): Delay[Eq, AttrF[F, A, ?]] =
     new Delay[Eq, AttrF[F, A, ?]] {
       def apply[B](eqb: Eq[B]): Eq[AttrF[F, A, B]] = Eq.instance { (x, y) =>
         val xx = AttrF.un(x)

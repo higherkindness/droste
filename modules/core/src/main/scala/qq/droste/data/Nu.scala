@@ -34,12 +34,15 @@ object Nu {
 
   def unapply[F[_]: Functor](nf: Nu[F]): Some[F[Nu[F]]] = Some(un(nf))
 
-  private final class Default[F[_], A0](val unfold: Coalgebra[F, A0], val a: A0) extends Nu[F] {
+  private final class Default[F[_], A0](val unfold: Coalgebra[F, A0], val a: A0)
+      extends Nu[F] {
     type A = A0
   }
 
   implicit def drosteBasisForNu[F[_]: Functor]: Basis[F, Nu[F]] =
     Basis.Default[F, Nu[F]](Nu.algebra, Nu.coalgebra)
 
-  implicit val drosteBasisSolveForNu: Basis.Solve.Aux[Nu, λ[(F[_], α) => F[α]]] = null
+  implicit val drosteBasisSolveForNu: Basis.Solve.Aux[
+    Nu,
+    λ[(F[_], α) => F[α]]] = null
 }

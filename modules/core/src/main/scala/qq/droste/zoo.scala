@@ -29,7 +29,9 @@ private[droste] trait Zoo {
   def apo[F[_]: Functor, A, R](
       coalgebra: RCoalgebra[R, F, A]
   )(implicit embed: Embed[F, R]): A => R =
-    kernel.hyloC(embed.algebra.run.compose((frr: F[(R Either R)]) => frr.map(_.merge)), coalgebra.run)
+    kernel.hyloC(
+      embed.algebra.run.compose((frr: F[(R Either R)]) => frr.map(_.merge)),
+      coalgebra.run)
 
   /** A monadic version of an apomorphism.
     *
@@ -41,7 +43,9 @@ private[droste] trait Zoo {
   def apoM[M[_]: Monad, F[_]: Traverse, A, R](
       coalgebraM: RCoalgebraM[R, M, F, A]
   )(implicit embed: Embed[F, R]): A => M[R] =
-    kernel.hyloMC(embed.algebra.lift[M].run.compose((frr: F[(R Either R)]) => frr.map(_.merge)), coalgebraM.run)
+    kernel.hyloMC(
+      embed.algebra.lift[M].run.compose((frr: F[(R Either R)]) => frr.map(_.merge)),
+      coalgebraM.run)
 
   /** A variation of a catamorphism that gives you access to the input value at
     * every point in the computation.

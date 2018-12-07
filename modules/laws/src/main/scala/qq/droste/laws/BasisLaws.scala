@@ -37,7 +37,8 @@ object BasisLaws {
       val basis = ev
     }
 
-    property("algebra compose coalgebra identity") = forAll((r: R) => laws.algebraComposeCoalgebraIdentity(r))
+    property("algebra compose coalgebra identity") = forAll(
+      (r: R) => laws.algebraComposeCoalgebraIdentity(r))
   }
 
 }

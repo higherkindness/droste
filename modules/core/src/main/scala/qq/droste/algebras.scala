@@ -173,7 +173,9 @@ private[droste] class GCoalgebraArrow[F[_]: Monad] extends Arrow[GCoalgebra[F, ?
     GCoalgebra(a => f(a).pure[F])
   def compose[A, B, C](f: GCoalgebra[F, B, C], g: GCoalgebra[F, A, B]): GCoalgebra[F, A, C] =
     f compose g
-  override def andThen[A, B, C](f: GCoalgebra[F, A, B], g: GCoalgebra[F, B, C]): GCoalgebra[F, A, C] =
+  override def andThen[A, B, C](
+      f: GCoalgebra[F, A, B],
+      g: GCoalgebra[F, B, C]): GCoalgebra[F, A, C] =
     f andThen g
   def first[A, B, C](fa: GCoalgebra[F, A, B]): GCoalgebra[F, (A, C), (B, C)] =
     GCoalgebra(ac => fa.run(ac._1).fproduct(_ => ac._2))

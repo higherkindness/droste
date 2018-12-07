@@ -73,7 +73,9 @@ object prelude {
         case ref: RefTree.Ref => ref.children.toList
         case other            => List(other.toField.withName("value"))
       }
-      RefTree.Ref(fa.lower, evA.refTree(fa.ask).toField.withName("attr") :: children)
+      RefTree.Ref(
+        fa.lower,
+        evA.refTree(fa.ask).toField.withName("attr") :: children)
     }
 
   private def freeToRefTreeAlgebra[F[_] <: AnyRef, A](

@@ -175,7 +175,9 @@ object Macros {
     import Flag._
     val inputs = annottees.map(_.tree).toList
 
-    require(inputs.length == 2, "@deriveFixedPoint should annotate a sealed [trait|abstract class] with companion")
+    require(
+      inputs.length == 2,
+      "@deriveFixedPoint should annotate a sealed [trait|abstract class] with companion")
 
     val clait: ClassDef      = inputs.collect({ case c: ClassDef  => c }).head
     val companion: ModuleDef = inputs.collect({ case c: ModuleDef => c }).head
@@ -397,7 +399,8 @@ object Macros {
           )
 
         case _ =>
-          sys.error("@deriveFixedPoint should only annotate sealed traits or sealed abstract classes")
+          sys.error(
+            "@deriveFixedPoint should only annotate sealed traits or sealed abstract classes")
       }
 
     c.Expr[Any](Block(outputs, Literal(Constant(()))))

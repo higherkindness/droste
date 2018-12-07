@@ -74,7 +74,8 @@ sealed trait AttrSyntax {
 
 object AttrSyntax {
   final class Ops[F[_], B](val lower: F[B]) extends AnyVal {
-    implicit def attr[G[a] >: F[a], A](ask: A): AttrF[G, A, B] = AttrF(ask, lower)
+    implicit def attr[G[a] >: F[a], A](ask: A): AttrF[G, A, B] =
+      AttrF(ask, lower)
   }
 }
 
@@ -112,7 +113,8 @@ object UnfixSyntax {
 }
 
 sealed trait EmbedSyntax {
-  implicit def toEmbedSyntaxOps[F[_], T](t: F[T])(implicit E: Embed[F, T]): EmbedSyntax.Ops[F, T] =
+  implicit def toEmbedSyntaxOps[F[_], T](t: F[T])(
+      implicit E: Embed[F, T]): EmbedSyntax.Ops[F, T] =
     new EmbedSyntax.Ops[F, T] {
       def Embed = E
       def self  = t
@@ -129,8 +131,9 @@ object EmbedSyntax {
 }
 
 sealed trait ProjectSyntax {
-  implicit def toFoldableProjectSyntaxOps[F[_], T](
-      t: T)(implicit PFT: Project[F, T], FF: Foldable[F]): ProjectSyntax.Ops[F, T] =
+  implicit def toFoldableProjectSyntaxOps[F[_], T](t: T)(
+      implicit PFT: Project[F, T],
+      FF: Foldable[F]): ProjectSyntax.Ops[F, T] =
     new ProjectSyntax.Ops[F, T] {
       def P    = PFT
       def F    = FF
@@ -154,7 +157,8 @@ object ProjectSyntax {
     def any(p: T => Boolean): Boolean =
       Project.any(self)(p)
 
-    def collect[U: Monoid, B](pf: PartialFunction[T, B])(implicit U: Basis[ListF[B, ?], U]): U =
+    def collect[U: Monoid, B](pf: PartialFunction[T, B])(
+        implicit U: Basis[ListF[B, ?], U]): U =
       Project.collect[F, T, U, B](self)(pf)
 
     def contains(c: T)(implicit T: Eq[T]): Boolean =
@@ -163,7 +167,8 @@ object ProjectSyntax {
     def foldMap[Z: Monoid](f: T => Z): Z =
       Project.foldMap(self)(f)
 
-    def foldMapM[M[_], Z](f: T => M[Z])(implicit M: Monad[M], Z: Monoid[Z]): M[Z] =
+    def foldMapM[M[_], Z](
+        f: T => M[Z])(implicit M: Monad[M], Z: Monoid[Z]): M[Z] =
       Project.foldMapM(self)(f)
   }
 }

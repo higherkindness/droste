@@ -56,7 +56,8 @@ object `package` {
   }
 
   object RCoalgebraM {
-    def apply[R, M[_], F[_], A](f: A => M[F[Either[R, A]]]): RCoalgebraM[R, M, F, A] = GCoalgebraM(f)
+    def apply[R, M[_], F[_], A](f: A => M[F[Either[R, A]]]): RCoalgebraM[R, M, F, A] =
+      GCoalgebraM(f)
   }
 
   object CVAlgebra {
@@ -89,5 +90,6 @@ object prelude {
 
   // todo: where should this live?
   implicit val drosteDelayEqOption: Delay[Eq, Option] = λ[Eq ~> (Eq ∘ Option)#λ](eq =>
-    Eq.instance((x, y) => x.fold(y.fold(true)(_ => false))(xx => y.fold(false)(yy => eq.eqv(xx, yy)))))
+    Eq.instance((x, y) =>
+      x.fold(y.fold(true)(_ => false))(xx => y.fold(false)(yy => eq.eqv(xx, yy)))))
 }
