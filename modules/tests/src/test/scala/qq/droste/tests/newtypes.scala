@@ -22,7 +22,7 @@ final class NewtypesTests extends Properties("newtypes") {
 
   implicit val disjunctionEq: Eq[Boolean @@ Tags.Disjunction] =
     Eq.by(_.unwrap)
-    
+
   include(MonoidTests[Boolean @@ Tags.Conjunction].monoid.all, "conjunction.")
   include(MonoidTests[Boolean @@ Tags.Disjunction].monoid.all, "disjunction.")
 }

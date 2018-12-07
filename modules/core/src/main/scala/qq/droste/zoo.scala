@@ -44,7 +44,10 @@ private[droste] trait Zoo {
       coalgebraM: RCoalgebraM[R, M, F, A]
   )(implicit embed: Embed[F, R]): A => M[R] =
     kernel.hyloMC(
-      embed.algebra.lift[M].run.compose((frr: F[(R Either R)]) => frr.map(_.merge)),
+      embed.algebra
+        .lift[M]
+        .run
+        .compose((frr: F[(R Either R)]) => frr.map(_.merge)),
       coalgebraM.run)
 
   /** A variation of a catamorphism that gives you access to the input value at
@@ -75,7 +78,9 @@ private[droste] trait Zoo {
   def paraM[M[_]: Monad, F[_]: Traverse, R, B](
       algebraM: RAlgebraM[R, M, F, B]
   )(implicit project: Project[F, R]): R => M[B] =
-    kernel.hyloMC(algebraM.run, project.coalgebra.lift[M].run.andThen(_.map(_.map(r => (r, r)))))
+    kernel.hyloMC(
+      algebraM.run,
+      project.coalgebra.lift[M].run.andThen(_.map(_.map(r => (r, r)))))
 
   /** Histomorphism
     *

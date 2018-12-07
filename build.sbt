@@ -1,4 +1,3 @@
-
 lazy val root = (project in file("."))
   .settings(noPublishSettings)
   .aggregate(coreJVM, coreJS)
@@ -43,7 +42,9 @@ lazy val V = new {
 def paradiseDep(scalaVersion: String): Seq[ModuleID] =
   CrossVersion.partialVersion(scalaVersion) match {
     case Some((2, minor)) if minor < 13 =>
-      Seq(compilerPlugin("org.scalamacros" %% "paradise" % "2.1.0" cross CrossVersion.patch))
+      Seq(
+        compilerPlugin(
+          "org.scalamacros" %% "paradise" % "2.1.0" cross CrossVersion.patch))
     case _ => Nil
   }
 
@@ -59,7 +60,9 @@ lazy val metaJS  = meta.js
 lazy val core = module("core")
   .dependsOn(meta)
   .settings(
-    libraryDependencies ++= Seq("org.typelevel" %%% "cats-core" % V.cats, "org.typelevel" %%% "cats-free" % V.cats))
+    libraryDependencies ++= Seq(
+      "org.typelevel" %%% "cats-core" % V.cats,
+      "org.typelevel" %%% "cats-free" % V.cats))
 
 lazy val coreJVM = core.jvm
 lazy val coreJS  = core.js
@@ -74,21 +77,24 @@ lazy val macrosJS  = macros.js
 lazy val reftree = module("reftree")
   .dependsOn(core)
   .settings(noScala213Settings)
-  .settings(libraryDependencies ++= Seq("io.github.stanch" %%% "reftree" % "1.2.1"))
+  .settings(
+    libraryDependencies ++= Seq("io.github.stanch" %%% "reftree" % "1.2.1"))
 
 lazy val reftreeJVM = reftree.jvm
 lazy val reftreeJS  = reftree.js
 
 lazy val scalacheck = module("scalacheck")
   .dependsOn(core)
-  .settings(libraryDependencies ++= Seq("org.scalacheck" %%% "scalacheck" % V.scalacheck(scalaVersion.value)))
+  .settings(libraryDependencies ++= Seq(
+    "org.scalacheck" %%% "scalacheck" % V.scalacheck(scalaVersion.value)))
 
 lazy val scalacheckJVM = scalacheck.jvm
 lazy val scalacheckJS  = scalacheck.js
 
 lazy val laws = module("laws")
   .dependsOn(core)
-  .settings(libraryDependencies ++= Seq("org.scalacheck" %%% "scalacheck" % V.scalacheck(scalaVersion.value)))
+  .settings(libraryDependencies ++= Seq(
+    "org.scalacheck" %%% "scalacheck" % V.scalacheck(scalaVersion.value)))
 
 lazy val lawsJVM = laws.jvm
 lazy val lawsJS  = laws.js
@@ -130,7 +136,8 @@ lazy val readme = (project in file("modules/readme"))
   .settings(noPublishSettings)
   .settings(
     scalacOptions in Tut ~= {
-      _.filterNot(Set("-Ywarn-unused-import", "-Yno-predef", "-Ywarn-unused:imports"))
+      _.filterNot(
+        Set("-Ywarn-unused-import", "-Yno-predef", "-Ywarn-unused:imports"))
     },
     tutTargetDirectory := (baseDirectory in LocalRootProject).value
   )

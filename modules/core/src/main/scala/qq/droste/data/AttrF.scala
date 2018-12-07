@@ -14,7 +14,8 @@ import data.prelude._
 import util.DefaultTraverse
 
 object AttrF {
-  def apply[F[_], A, B](ask: A, lower: F[B]): AttrF[F, A, B] = apply((ask, lower))
+  def apply[F[_], A, B](ask: A, lower: F[B]): AttrF[F, A, B] =
+    apply((ask, lower))
   def apply[F[_], A, B](f: (A, F[B])): AttrF[F, A, B] = macro Meta.fastCast
   def un[F[_], A, B](f: AttrF[F, A, B]): (A, F[B]) = macro Meta.fastCast
   def unapply[F[_], A, B](f: AttrF[F, A, B]): Some[(A, F[B])] = Some(f.tuple)
@@ -27,7 +28,8 @@ private[data] trait AttrFImplicits extends AttrFImplicits0 {
     def lower: F[B]      = tuple._2
   }
 
-  implicit def drosteAttrFTraverse[F[_]: Traverse, A]: Traverse[AttrF[F, A, ?]] =
+  implicit def drosteAttrFTraverse[F[_]: Traverse, A]: Traverse[
+    AttrF[F, A, ?]] =
     new AttrFTraverse[F, A]
 }
 
@@ -45,14 +47,16 @@ private[data] sealed trait AttrFImplicits0 {
       }
     }
 
-  implicit def drosteAttrFEq[F[_], A, B](implicit ev: Eq[(A, F[B])]): Eq[AttrF[F, A, B]] =
+  implicit def drosteAttrFEq[F[_], A, B](
+      implicit ev: Eq[(A, F[B])]): Eq[AttrF[F, A, B]] =
     Eq.by(AttrF.un(_))
 
   implicit def drosteAttrFFunctor[F[_]: Functor, A]: Functor[AttrF[F, A, ?]] =
     new AttrFFunctor[F, A]
 }
 
-private[data] sealed class AttrFFunctor[F[_]: Functor, A] extends Functor[AttrF[F, A, ?]] {
+private[data] sealed class AttrFFunctor[F[_]: Functor, A]
+    extends Functor[AttrF[F, A, ?]] {
   def map[B, C](fb: AttrF[F, A, B])(f: B => C): AttrF[F, A, C] =
     AttrF(fb.ask, fb.lower.map(f))
 }
@@ -60,6 +64,7 @@ private[data] sealed class AttrFFunctor[F[_]: Functor, A] extends Functor[AttrF[
 private[data] final class AttrFTraverse[F[_]: Traverse, A]
     extends AttrFFunctor[F, A]
     with DefaultTraverse[AttrF[F, A, ?]] {
-  def traverse[G[_]: Applicative, B, C](fb: AttrF[F, A, B])(f: B => G[C]): G[AttrF[F, A, C]] =
+  def traverse[G[_]: Applicative, B, C](fb: AttrF[F, A, B])(
+      f: B => G[C]): G[AttrF[F, A, C]] =
     fb.lower.traverse(f).map(AttrF(fb.ask, _))
 }

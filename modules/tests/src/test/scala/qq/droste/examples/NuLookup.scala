@@ -18,27 +18,27 @@ final class NuLookup extends Properties("NuLookup") {
   import NuLookup._
 
   val lookup: Map[String, Result[String]] = Map(
-    "a" -> Ref("b"),
-    "b" -> Ref("c"),
-    "this" -> Ref("is"),
-    "is" -> Ref("broken"),
-    "c" -> Ref("d"),
-    "d" -> Value("d-value"),
-    "work it" -> Ref("harder"),
-    "harder" -> Ref("make it"),
-    "make it" -> Ref("better"),
-    "better" -> Ref("do it"),
-    "do it" -> Ref("faster"),
-    "faster" -> Ref("makes us"),
-    "makes us" -> Ref("more than"),
-    "more than" -> Ref("ever"),
-    "ever" -> Ref("hour after"),
+    "a"          -> Ref("b"),
+    "b"          -> Ref("c"),
+    "this"       -> Ref("is"),
+    "is"         -> Ref("broken"),
+    "c"          -> Ref("d"),
+    "d"          -> Value("d-value"),
+    "work it"    -> Ref("harder"),
+    "harder"     -> Ref("make it"),
+    "make it"    -> Ref("better"),
+    "better"     -> Ref("do it"),
+    "do it"      -> Ref("faster"),
+    "faster"     -> Ref("makes us"),
+    "makes us"   -> Ref("more than"),
+    "more than"  -> Ref("ever"),
+    "ever"       -> Ref("hour after"),
     "hour after" -> Ref("hour"),
-    "hour" -> Ref("work is"),
-    "work is" -> Ref("never"),
-    "never" -> Value("over"),
-    "loop a" -> Ref("loop b"),
-    "loop b" -> Ref("loop a")
+    "hour"       -> Ref("work is"),
+    "work is"    -> Ref("never"),
+    "never"      -> Value("over"),
+    "loop a"     -> Ref("loop b"),
+    "loop b"     -> Ref("loop a")
   )
 
   def catchAll[A](f: => A): Either[Throwable, A] =
@@ -53,7 +53,8 @@ final class NuLookup extends Properties("NuLookup") {
     // Note that we return our result in _one_ level of Option,
     // meaning that everything is unfolded to Nu when f is invoked
     val f: String => Option[Nu[Result]] =
-      scheme.anaM[Option, Result, String, Nu[Result]](CoalgebraM(lookup.get(_: String)))
+      scheme.anaM[Option, Result, String, Nu[Result]](
+        CoalgebraM(lookup.get(_: String)))
 
     @tailrec def unroll(nu: Nu[Result]): String = {
       Nu.un(nu) match {
@@ -75,16 +76,18 @@ final class NuLookup extends Properties("NuLookup") {
 
 object NuLookup {
   sealed trait Result[A]
-  final case class Ref[A](next: A) extends Result[A]
+  final case class Ref[A](next: A)         extends Result[A]
   final case class Value[A](value: String) extends Result[A]
 
   object Result {
-    implicit val resultTraverse: Traverse[Result] = new DefaultTraverse[Result] {
-      def traverse[G[_]: Applicative, A, B](fa: Result[A])(f: A => G[B]): G[Result[B]] =
-        fa match {
-          case Ref(next) => f(next).map(Ref(_))
-          case v: Value[B @unchecked] => (v: Result[B]).pure[G]
-        }
-    }
+    implicit val resultTraverse: Traverse[Result] =
+      new DefaultTraverse[Result] {
+        def traverse[G[_]: Applicative, A, B](fa: Result[A])(
+            f: A => G[B]): G[Result[B]] =
+          fa match {
+            case Ref(next)              => f(next).map(Ref(_))
+            case v: Value[B @unchecked] => (v: Result[B]).pure[G]
+          }
+      }
   }
 }

@@ -40,7 +40,8 @@ object `package` {
   }
 
   object CoalgebraM {
-    def apply[M[_], F[_], A](f: A => M[F[A]]): CoalgebraM[M, F, A] = GCoalgebraM(f)
+    def apply[M[_], F[_], A](f: A => M[F[A]]): CoalgebraM[M, F, A] =
+      GCoalgebraM(f)
   }
 
   object RAlgebra {
@@ -48,15 +49,18 @@ object `package` {
   }
 
   object RCoalgebra {
-    def apply[R, F[_], A](f: A => F[Either[R, A]]): RCoalgebra[R, F, A] = GCoalgebra(f)
+    def apply[R, F[_], A](f: A => F[Either[R, A]]): RCoalgebra[R, F, A] =
+      GCoalgebra(f)
   }
 
   object RAlgebraM {
-    def apply[R, M[_], F[_], A](f: F[(R, A)] => M[A]): RAlgebraM[R, M, F, A] = GAlgebraM(f)
+    def apply[R, M[_], F[_], A](f: F[(R, A)] => M[A]): RAlgebraM[R, M, F, A] =
+      GAlgebraM(f)
   }
 
   object RCoalgebraM {
-    def apply[R, M[_], F[_], A](f: A => M[F[Either[R, A]]]): RCoalgebraM[R, M, F, A] =
+    def apply[R, M[_], F[_], A](
+        f: A => M[F[Either[R, A]]]): RCoalgebraM[R, M, F, A] =
       GCoalgebraM(f)
   }
 
@@ -65,7 +69,8 @@ object `package` {
   }
 
   object CVCoalgebra {
-    def apply[F[_], A](f: A => F[Coattr[F, A]]): CVCoalgebra[F, A] = GCoalgebra(f)
+    def apply[F[_], A](f: A => F[Coattr[F, A]]): CVCoalgebra[F, A] =
+      GCoalgebra(f)
   }
 
   type Trans[F[_], G[_], A]        = GTrans[F, G, A, A]
@@ -76,20 +81,26 @@ object `package` {
   }
 
   object TransM {
-    def apply[M[_], F[_], G[_], A](f: F[A] => M[G[A]]): TransM[M, F, G, A] = GTransM(f)
+    def apply[M[_], F[_], G[_], A](f: F[A] => M[G[A]]): TransM[M, F, G, A] =
+      GTransM(f)
   }
 
   type Delay[F[_], G[_]] = F ~> (F ∘ G)#λ
 }
 
 object prelude {
-  implicit def drosteDelayedEq[Z, F[_]](implicit p: Project[F, Z], delay: Delay[Eq, F]): Eq[Z] = {
-    lazy val knot: Eq[Z] = Eq.instance((x, y) => delay(knot).eqv(p.coalgebra(x), p.coalgebra(y)))
+  implicit def drosteDelayedEq[Z, F[_]](
+      implicit p: Project[F, Z],
+      delay: Delay[Eq, F]): Eq[Z] = {
+    lazy val knot: Eq[Z] =
+      Eq.instance((x, y) => delay(knot).eqv(p.coalgebra(x), p.coalgebra(y)))
     knot
   }
 
   // todo: where should this live?
-  implicit val drosteDelayEqOption: Delay[Eq, Option] = λ[Eq ~> (Eq ∘ Option)#λ](eq =>
-    Eq.instance((x, y) =>
-      x.fold(y.fold(true)(_ => false))(xx => y.fold(false)(yy => eq.eqv(xx, yy)))))
+  implicit val drosteDelayEqOption: Delay[Eq, Option] =
+    λ[Eq ~> (Eq ∘ Option)#λ](eq =>
+      Eq.instance((x, y) =>
+        x.fold(y.fold(true)(_ => false))(xx =>
+          y.fold(false)(yy => eq.eqv(xx, yy)))))
 }

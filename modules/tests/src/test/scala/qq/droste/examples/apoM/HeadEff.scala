@@ -8,7 +8,8 @@ import cats.syntax.functor._
 import cats.instances.option._
 
 import qq.droste.data.list._
-import qq.droste.{RCoalgebraM, scheme}
+import qq.droste.RCoalgebraM
+import qq.droste.scheme
 
 final class HeadEff extends Properties("HeadEff") {
 
@@ -31,10 +32,11 @@ final class HeadEff extends Properties("HeadEff") {
 object HeadEff {
 
   // map the list head using an effectful function
-  def mapHeadM[M[_], A](f: A => M[A])(implicit M: Monad[M]): List[A] => M[List[A]] =
+  def mapHeadM[M[_], A](f: A => M[A])(
+      implicit M: Monad[M]): List[A] => M[List[A]] =
     scheme.zoo.apoM(
       RCoalgebraM[List[A], M, ListF[A, ?], List[A]] {
-        case Nil => M.pure(NilF)
+        case Nil    => M.pure(NilF)
         case h :: t => f(h).map(ConsF(_, Left(t)))
       }
     )

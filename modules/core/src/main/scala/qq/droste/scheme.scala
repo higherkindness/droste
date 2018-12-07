@@ -69,7 +69,8 @@ private[droste] sealed trait SchemeConvenientPorcelain {
     * @usecase def apply[Shape]: SchemePartialBasis[Shape, Shape]
     *   @inheritdoc
     */
-  def apply[PatR[_[_]]](implicit ev: Basis.Solve[PatR]): SchemePartialBasis[PatR, ev.PatF] =
+  def apply[PatR[_[_]]](
+      implicit ev: Basis.Solve[PatR]): SchemePartialBasis[PatR, ev.PatF] =
     new SchemePartialBasis[PatR, ev.PatF]
 
   final class SchemePartialBasis[PatR[_[_]], PatF[_[_], _]] private[droste] () {
@@ -92,7 +93,8 @@ private[droste] sealed trait SchemeConvenientPorcelain {
     def gana[F[_], A, S](
         scattered: GCoalgebra.Scattered[PatF[F, ?], A, S]
     )(implicit embed: EmbedP[F], ev: FunctorP[F]): A => PatR[F] =
-      scheme.gana[PatF[F, ?], A, S, PatR[F]](scattered.coalgebra)(scattered.scatter)
+      scheme.gana[PatF[F, ?], A, S, PatR[F]](scattered.coalgebra)(
+        scattered.scatter)
 
     def ganaM[M[_]: Monad, F[_], A, S](
         scattered: GCoalgebraM.Scattered[M, PatF[F, ?], A, S]
@@ -123,19 +125,24 @@ private[droste] sealed trait SchemeConvenientPorcelain {
 
 }
 
-private[droste] sealed trait SchemeGeneralizedPorcelain extends SchemeGeneralizedPlumbing {
+private[droste] sealed trait SchemeGeneralizedPorcelain
+    extends SchemeGeneralizedPlumbing {
 
   def ghylo[F[_]: Functor, A, SA, SB, B](
       gathered: GAlgebra.Gathered[F, SB, B],
       scattered: GCoalgebra.Scattered[F, A, SA]
   ): A => B =
-    ghylo(gathered.algebra, scattered.coalgebra)(gathered.gather, scattered.scatter)
+    ghylo(gathered.algebra, scattered.coalgebra)(
+      gathered.gather,
+      scattered.scatter)
 
   def ghyloM[M[_]: Monad, F[_]: Traverse, A, SA, SB, B](
       gathered: GAlgebraM.Gathered[M, F, SB, B],
       scattered: GCoalgebraM.Scattered[M, F, A, SA]
   ): A => M[B] =
-    ghyloM(gathered.algebra, scattered.coalgebra)(gathered.gather, scattered.scatter)
+    ghyloM(gathered.algebra, scattered.coalgebra)(
+      gathered.gather,
+      scattered.scatter)
 
   def gcata[F[_]: Functor, R, S, B](
       gathered: GAlgebra.Gathered[F, S, B]
@@ -197,16 +204,23 @@ private[droste] sealed trait SchemeGeneralizedPlumbing {
       galgebra(
         project
           .coalgebra(r)
-          .map(kernel.hylo[F, R, S](fb => gather(galgebra(fb), fb), project.coalgebra.run)))
+          .map(
+            kernel.hylo[F, R, S](
+              fb => gather(galgebra(fb), fb),
+              project.coalgebra.run)))
 
-  def gcataM[M[_]: Monad, F[_]: Traverse, R, S, B](algebra: GAlgebraM[M, F, S, B])(
+  def gcataM[M[_]: Monad, F[_]: Traverse, R, S, B](
+      algebra: GAlgebraM[M, F, S, B])(
       gather: Gather[F, S, B]
   )(implicit project: Project[F, R]): R => M[B] =
     r =>
       project
         .coalgebra(r)
-        .traverse(kernel
-          .hyloM[M, F, R, S](fb => algebra(fb).map(gather(_, fb)), project.coalgebra.lift[M].run))
+        .traverse(
+          kernel
+            .hyloM[M, F, R, S](
+              fb => algebra(fb).map(gather(_, fb)),
+              project.coalgebra.lift[M].run))
         .flatMap(algebra.run)
 
   def gana[F[_]: Functor, A, S, R](coalgebra: GCoalgebra[F, A, S])(
@@ -215,9 +229,12 @@ private[droste] sealed trait SchemeGeneralizedPlumbing {
     a =>
       embed.algebra(
         coalgebra(a).map(
-          kernel.hylo[F, S, R](embed.algebra.run, s => scatter(s).fold(coalgebra.run, identity))))
+          kernel.hylo[F, S, R](
+            embed.algebra.run,
+            s => scatter(s).fold(coalgebra.run, identity))))
 
-  def ganaM[M[_]: Monad, F[_]: Traverse, A, S, R](coalgebra: GCoalgebraM[M, F, A, S])(
+  def ganaM[M[_]: Monad, F[_]: Traverse, A, S, R](
+      coalgebra: GCoalgebraM[M, F, A, S])(
       scatter: Scatter[F, A, S]
   )(implicit embed: Embed[F, R]): A => M[R] =
     a =>

@@ -55,7 +55,7 @@ final class MakeChange extends Properties("MakeChange") {
     solve(toNat(5)) ?= Set(
       Penny :: Penny :: Penny :: Penny :: Penny :: Nil,
       Nickle :: Nil
-     )
+    )
 
   property("6 cent solutions") =
     solve(toNat(6)) ?= Set(
@@ -116,31 +116,33 @@ final class MakeChange extends Properties("MakeChange") {
 object MakeChange {
 
   sealed abstract class Coin(val value: Int)
-  case object Penny extends Coin(1)
-  case object Nickle extends Coin(5)
-  case object Dime extends Coin(10)
-  case object Quarter extends Coin(25)
+  case object Penny      extends Coin(1)
+  case object Nickle     extends Coin(5)
+  case object Dime       extends Coin(10)
+  case object Quarter    extends Coin(25)
   case object HalfDollar extends Coin(50)
-  case object Dollar extends Coin(100)
+  case object Dollar     extends Coin(100)
 
   object Coin {
     implicit val coinOrdering: Ordering[Coin] = Ordering.by(_.value)
   }
 
-  val allCoins: List[Coin] = List(Penny, Nickle, Dime, Quarter, HalfDollar, Dollar)
+  val allCoins: List[Coin] =
+    List(Penny, Nickle, Dime, Quarter, HalfDollar, Dollar)
 
   sealed trait Nat[+A]
   object Nat {
     implicit val traverseForNat: Traverse[Nat] =
       new DefaultTraverse[Nat] {
-        def traverse[G[_]: Applicative, A, B](fa: Nat[A])(f: A => G[B]): G[Nat[B]] =
+        def traverse[G[_]: Applicative, A, B](fa: Nat[A])(
+            f: A => G[B]): G[Nat[B]] =
           fa match {
-            case Zero => (Zero: Nat[B]).pure[G]
+            case Zero    => (Zero: Nat[B]).pure[G]
             case Next(a) => f(a).map(Next(_))
           }
       }
   }
-  case object Zero extends Nat[Nothing]
+  case object Zero               extends Nat[Nothing]
   final case class Next[A](a: A) extends Nat[A]
 
   val toNatCoalgebra: Coalgebra[Nat, Int] =
@@ -157,10 +159,11 @@ object MakeChange {
 
   def lookup(cache: Attr[Nat, Set[List[Coin]]], n: Int): Set[List[Coin]] =
     if (n == 0) cache.head
-    else cache.tail match {
-      case Next(inner) => lookup(inner, n - 1)
-      case Zero => Set.empty
-    }
+    else
+      cache.tail match {
+        case Next(inner) => lookup(inner, n - 1)
+        case Zero        => Set.empty
+      }
 
   val makeChangeAlgebra: CVAlgebra[Nat, Set[List[Coin]]] = CVAlgebra {
     case Next(attr) =>
@@ -169,7 +172,7 @@ object MakeChange {
         .takeWhile(_.value <= given)
         .map(coin => coin -> (given - coin.value))
       val (zeros, toProcess) = validCoins.span(_._2 == 0)
-      val zeroSolutions = zeros.map(_._1 :: Nil).toSet
+      val zeroSolutions      = zeros.map(_._1 :: Nil).toSet
       val chainSolutions = toProcess
         .map(tp => lookup(attr, tp._1.value - 1).map(ps => tp._1 :: ps))
         .flatten

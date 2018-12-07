@@ -24,17 +24,17 @@ import data.list._
 import syntax.attr._
 
 class SchemePartialBasisTests extends Properties("SchemePartialBasis") {
-  val sumListFIntAlgebra: Algebra[ListF[Int, ?], Int]  = Algebra {
+  val sumListFIntAlgebra: Algebra[ListF[Int, ?], Int] = Algebra {
     case ConsF(x, y) => x + y
-    case NilF => 0
+    case NilF        => 0
   }
 
   def sumListInt(l: List[Int]): Int = l.foldLeft(0)(_ + _)
 
   property("scheme[Fix].ana") = {
 
-    val f = scheme[Fix].ana(
-      Coalgebra((n: Int) => if (n > 0) Some(n - 1) else None))
+    val f =
+      scheme[Fix].ana(Coalgebra((n: Int) => if (n > 0) Some(n - 1) else None))
 
     def expected(n: Int): Fix[Option] =
       if (n > 0) Fix(Some(expected(n - 1)))
@@ -45,8 +45,8 @@ class SchemePartialBasisTests extends Properties("SchemePartialBasis") {
 
   property("scheme[Attr[?[_], Int]].ana") = {
 
-    val f = scheme[Attr[?[_], Int]].ana(
-      Coalgebra((n: Int) => (if (n > 0) Some(n - 1) else None) attr n))
+    val f = scheme[Attr[?[_], Int]].ana(Coalgebra((n: Int) =>
+      (if (n > 0) Some(n - 1) else None) attr n))
 
     def expected(n: Int): Attr[Option, Int] =
       if (n > 0) Attr(n, Some(expected(n - 1)))
@@ -57,20 +57,22 @@ class SchemePartialBasisTests extends Properties("SchemePartialBasis") {
 
   property("scheme[cats.free.Cofree[?[_], Int]].ana") = {
 
-    val f = scheme[cats.free.Cofree[?[_], Int]].ana(
-      Coalgebra((n: Int) => (if (n > 0) Some(n - 1) else None) attr n))
+    val f = scheme[cats.free.Cofree[?[_], Int]].ana(Coalgebra((n: Int) =>
+      (if (n > 0) Some(n - 1) else None) attr n))
 
     def expected(n: Int): cats.free.Cofree[Option, Int] =
       if (n > 0) cats.free.Cofree(n, Eval.now(Some(expected(n - 1))))
-      else cats.free.Cofree(n, Eval.now(None: Option[cats.free.Cofree[Option, Int]]))
+      else
+        cats.free
+          .Cofree(n, Eval.now(None: Option[cats.free.Cofree[Option, Int]]))
 
     forAll((n: Int Refined Less[W.`100`.T]) => f(n) ?= expected(n))
   }
 
   property("scheme[Mu].ana") = {
 
-    val f = scheme[Mu].ana(
-      Coalgebra((n: Int) => if (n > 0) Some(n - 1) else None))
+    val f =
+      scheme[Mu].ana(Coalgebra((n: Int) => if (n > 0) Some(n - 1) else None))
 
     def expected(n: Int): Mu[Option] =
       if (n > 0) Mu(Some(expected(n - 1)))
@@ -81,8 +83,8 @@ class SchemePartialBasisTests extends Properties("SchemePartialBasis") {
 
   property("scheme[Nu].ana") = {
 
-    val f = scheme[Nu].ana(
-      Coalgebra((n: Int) => if (n > 0) Some(n - 1) else None))
+    val f =
+      scheme[Nu].ana(Coalgebra((n: Int) => if (n > 0) Some(n - 1) else None))
 
     def expected(n: Int): Nu[Option] =
       if (n > 0) Nu(Some(expected(n - 1)))
@@ -95,27 +97,30 @@ class SchemePartialBasisTests extends Properties("SchemePartialBasis") {
 
     val f = scheme[Mu].cata(sumListFIntAlgebra)
 
-    forAll((l: List[Int]) => f(ListF.fromScalaList[Int, Mu](l)) ?= sumListInt(l))
+    forAll(
+      (l: List[Int]) => f(ListF.fromScalaList[Int, Mu](l)) ?= sumListInt(l))
   }
 
   property("scheme[Mu].gcata") = {
 
     val f = scheme[Mu].gcata(sumListFIntAlgebra.gather(Gather.cata))
 
-    forAll((l: List[Int]) => f(ListF.fromScalaList[Int, Mu](l)) ?= sumListInt(l))
+    forAll(
+      (l: List[Int]) => f(ListF.fromScalaList[Int, Mu](l)) ?= sumListInt(l))
   }
 
   property("scheme[Mu].gcataM") = {
 
     val f = scheme[Mu].gcataM(sumListFIntAlgebra.lift[Eval].gather(Gather.cata))
 
-    forAll((l: List[Int]) => f(ListF.fromScalaList[Int, Mu](l)).value ?= sumListInt(l))
+    forAll((l: List[Int]) =>
+      f(ListF.fromScalaList[Int, Mu](l)).value ?= sumListInt(l))
   }
 
   property("scheme[Mu].gana") = {
 
-    val f = scheme[Mu].gana(
-      Coalgebra((n: Int) => if (n > 0) Some(n - 1) else None).scatter(Scatter.ana))
+    val f = scheme[Mu].gana(Coalgebra((n: Int) =>
+      if (n > 0) Some(n - 1) else None).scatter(Scatter.ana))
 
     def expected(n: Int): Mu[Option] =
       if (n > 0) Mu(Some(expected(n - 1)))
@@ -126,8 +131,8 @@ class SchemePartialBasisTests extends Properties("SchemePartialBasis") {
 
   property("scheme[Mu].ganaM") = {
 
-    val f = scheme[Mu].ganaM(
-      Coalgebra((n: Int) => if (n > 0) Some(n - 1) else None).lift[Eval].scatter(Scatter.ana))
+    val f = scheme[Mu].ganaM(Coalgebra((n: Int) =>
+      if (n > 0) Some(n - 1) else None).lift[Eval].scatter(Scatter.ana))
 
     def expected(n: Int): Mu[Option] =
       if (n > 0) Mu(Some(expected(n - 1)))

@@ -14,9 +14,8 @@ final class CoattrFTests extends Properties("CoattrF") {
   property("unapply") = {
     forAll((x: CoattrF[Option, Int, Long]) =>
       x match {
-        case CoattrF.Pure(i) => CoattrF.un(x).left.toOption ?= Some(i)
+        case CoattrF.Pure(i)  => CoattrF.un(x).left.toOption ?= Some(i)
         case CoattrF.Roll(fi) => CoattrF.un(x).toOption ?= Some(fi)
-      }
-    )
+    })
   }
 }
