@@ -15,7 +15,7 @@ case "$1" in
         bash <(curl -s https://codecov.io/bash)
         ;;
     "readme")
-        sbt tut
+        sbt 'project readme' tut
         git diff --exit-code -- *.md
         ;;
     *)
