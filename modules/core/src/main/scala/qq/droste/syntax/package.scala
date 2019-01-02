@@ -125,8 +125,14 @@ object EmbedSyntax {
 }
 
 sealed trait ProjectSyntax {
-  implicit def toFoldableProjectSyntaxOps[F[_], T](t: T)(implicit PFT: Project[F, T], FF: Foldable[F]): ProjectSyntax.Ops[F, T] =
-    new ProjectSyntax.Ops[F, T] {
+  implicit def toProjectSyntaxOps[F[_], T](t: T)(implicit PFT: Project[F, T]): ProjectSyntax.ProjectOps[F, T] =
+    new ProjectSyntax.ProjectOps[F, T] {
+      def P = PFT
+      def self = t
+    }
+
+  implicit def toFoldableProjectSyntaxOps[F[_], T](t: T)(implicit PFT: Project[F, T], FF: Foldable[F]): ProjectSyntax.ProjectFoldableOps[F, T] =
+    new ProjectSyntax.ProjectFoldableOps[F, T] {
       def P = PFT
       def F = FF
       def self = t
@@ -134,14 +140,19 @@ sealed trait ProjectSyntax {
 }
 
 object ProjectSyntax {
-  trait Ops[F[_], T] {
-    implicit def F: Foldable[F]
+  trait ProjectOps[F[_], T] {
 
     implicit def P: Project[F, T]
 
     def self: T
 
     def project: F[T] = P.coalgebra(self)
+
+  }
+
+  trait ProjectFoldableOps[F[_], T] extends ProjectOps[F, T] {
+
+    implicit def F: Foldable[F]
 
     def all(p: T => Boolean): Boolean =
       Project.all(self)(p)
