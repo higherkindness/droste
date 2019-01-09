@@ -1,4 +1,4 @@
-![Droste cocoa tins](droste.jpg)
+<img align="right" src="logos/droste_cocoa.png" height="200px" style="padding-left: 20px"/>
 
 # Droste
 
@@ -151,6 +151,8 @@ res20: (BigDecimal, BigDecimal) = (354224848179261915075,338350)
 Droste includes [athema](athema), a math expression parser/processor,
 as a more extensive example of recursion schemes.
 
+<img align="right" src="logos/droste_psychedelic_1.png" height="85px" style="padding-left: 5px"/>
+
 # Credits
 
 A substantial amount of Droste's code is a derivation-- or an
@@ -165,12 +167,16 @@ Thank you to everyone involved. Additionally, thanks to Greg Pfeil
 (@sellout) for answering my random questions over the last few years
 while I've been slowly learning (and using recursion) schemes.
 
+<img align="right" src="logos/droste_psychedelic_2.png" height="85px" style="padding-left: 5px"/>
+
 # Copyright and License
 
 Copyright the maintainers, 2018-present.
 
 All code is available to you under the Apache License, Version 2.0,
 available at http://www.apache.org/licenses/LICENSE-2.0.
+
+Logos provided by the very excellent [@impurepics](https://twitter.com/impurepics).
 
 # Disclamer
 
