@@ -12,9 +12,10 @@ object `package` {
       scheme.cata(mapAlgebra(f)).apply(fa)
   }
 
-  private def mapAlgebra[A, B](f: A => B): Algebra[Expr[A, ?], Expr.Fixed[B]] = Algebra {
-    case Const(c)             => Fix(Const(f(c)))
-    case other: Expr.Fixed[B] => other
-  }
+  private def mapAlgebra[A, B](f: A => B): Algebra[Expr[A, ?], Expr.Fixed[B]] =
+    Algebra {
+      case Const(c)             => Fix(Const(f(c)))
+      case other: Expr.Fixed[B] => other
+    }
 
 }

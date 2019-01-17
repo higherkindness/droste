@@ -13,14 +13,12 @@ import cats.instances.option._
 
 final class FixTests extends Properties("Fix") {
 
-  include(BasisLaws.props[Option, Fix[Option]](
-    "Option", "Fix[Option]"))
+  include(BasisLaws.props[Option, Fix[Option]]("Option", "Fix[Option]"))
 
   property("unapply") = {
     forAll((x: Fix[Option]) =>
       x match {
         case Fix(y) => y ?= Fix.un(x)
-      }
-    )
+    })
   }
 }

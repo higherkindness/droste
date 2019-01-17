@@ -10,11 +10,11 @@ class Meta(val c: blackbox.Context) {
   @tailrec private def unroll(f: Tree): Tree = {
     val ff = f match {
       case Typed(u, _) => u
-      case _ => f
+      case _           => f
     }
     val fff = ff match {
       case TypeApply(Select(u, TermName("asInstanceOf")), _) => u
-      case _ => ff
+      case _                                                 => ff
     }
 
     if (fff != f) unroll(fff) else f

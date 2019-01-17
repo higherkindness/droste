@@ -13,8 +13,8 @@ import cats.syntax.functor._
   */
 sealed abstract class Nu[F[_]] extends Serializable {
   type A
-  def  unfold: Coalgebra[F, A]
-  def  a     : A
+  def unfold: Coalgebra[F, A]
+  def a: A
 
   override final def toString: String = s"Nu($unfold, $a)"
 }
@@ -29,17 +29,20 @@ object Nu {
   def coalgebra[F[_]: Functor]: Coalgebra[F, Nu[F]] =
     Coalgebra(nf => nf.unfold(nf.a).map(Nu(nf.unfold, _)))
 
-  def apply  [F[_]: Functor](fnf: F[Nu[F]]):   Nu[F]  = algebra  [F].apply(fnf)
-  def un     [F[_]: Functor](nf :   Nu[F] ): F[Nu[F]] = coalgebra[F].apply(nf)
+  def apply[F[_]: Functor](fnf: F[Nu[F]]): Nu[F] = algebra[F].apply(fnf)
+  def un[F[_]: Functor](nf: Nu[F]): F[Nu[F]]     = coalgebra[F].apply(nf)
 
-  def unapply[F[_]: Functor](nf : Nu[F]): Some[F[Nu[F]]] = Some(un(nf))
+  def unapply[F[_]: Functor](nf: Nu[F]): Some[F[Nu[F]]] = Some(un(nf))
 
-  private final class Default[F[_], A0](val unfold: Coalgebra[F, A0], val a: A0) extends Nu[F] {
+  private final class Default[F[_], A0](val unfold: Coalgebra[F, A0], val a: A0)
+      extends Nu[F] {
     type A = A0
   }
 
   implicit def drosteBasisForNu[F[_]: Functor]: Basis[F, Nu[F]] =
     Basis.Default[F, Nu[F]](Nu.algebra, Nu.coalgebra)
 
-  implicit val drosteBasisSolveForNu: Basis.Solve.Aux[Nu, λ[(F[_], α) => F[α]]] = null
+  implicit val drosteBasisSolveForNu: Basis.Solve.Aux[
+    Nu,
+    λ[(F[_], α) => F[α]]] = null
 }

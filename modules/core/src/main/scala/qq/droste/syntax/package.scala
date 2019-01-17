@@ -1,12 +1,15 @@
 package qq.droste
 package syntax
 
-import cats.{Applicative, Foldable, Monad}
-import cats.kernel.{Monoid, Eq}
+import cats.Applicative
+import cats.Foldable
+import cats.Monad
+import cats.kernel.Monoid
+import cats.kernel.Eq
 
-import data.{AttrF, Fix}
+import data.AttrF
+import data.Fix
 import data.list._
-
 
 object all
     extends ComposeSyntax
@@ -18,14 +21,15 @@ object all
     with ProjectSyntax
 
 object compose extends ComposeSyntax
-object attr extends AttrSyntax
-object lift extends LiftSyntax
-object fix extends FixSyntax
-object unfix extends UnfixSyntax
-object embed extends EmbedSyntax
+object attr    extends AttrSyntax
+object lift    extends LiftSyntax
+object fix     extends FixSyntax
+object unfix   extends UnfixSyntax
+object embed   extends EmbedSyntax
 object project extends ProjectSyntax
 
 sealed trait ComposeSyntax {
+
   /** Compose two functors `F` and `G`.
     *
     * This allows you to inline what would otherwise require
@@ -70,7 +74,8 @@ sealed trait AttrSyntax {
 
 object AttrSyntax {
   final class Ops[F[_], B](val lower: F[B]) extends AnyVal {
-    implicit def attr[G[a] >: F[a], A](ask: A): AttrF[G, A, B] = AttrF(ask, lower)
+    implicit def attr[G[a] >: F[a], A](ask: A): AttrF[G, A, B] =
+      AttrF(ask, lower)
   }
 }
 
@@ -108,10 +113,11 @@ object UnfixSyntax {
 }
 
 sealed trait EmbedSyntax {
-  implicit def toEmbedSyntaxOps[F[_], T](t: F[T])(implicit E: Embed[F, T]): EmbedSyntax.Ops[F, T] =
+  implicit def toEmbedSyntaxOps[F[_], T](t: F[T])(
+      implicit E: Embed[F, T]): EmbedSyntax.Ops[F, T] =
     new EmbedSyntax.Ops[F, T] {
-      def Embed   = E
-      def self = t
+      def Embed = E
+      def self  = t
     }
 }
 
@@ -125,16 +131,19 @@ object EmbedSyntax {
 }
 
 sealed trait ProjectSyntax {
-  implicit def toProjectSyntaxOps[F[_], T](t: T)(implicit PFT: Project[F, T]): ProjectSyntax.ProjectOps[F, T] =
+  implicit def toProjectSyntaxOps[F[_], T](t: T)(
+      implicit PFT: Project[F, T]): ProjectSyntax.ProjectOps[F, T] =
     new ProjectSyntax.ProjectOps[F, T] {
-      def P = PFT
+      def P    = PFT
       def self = t
     }
 
-  implicit def toFoldableProjectSyntaxOps[F[_], T](t: T)(implicit PFT: Project[F, T], FF: Foldable[F]): ProjectSyntax.ProjectFoldableOps[F, T] =
+  implicit def toFoldableProjectSyntaxOps[F[_], T](t: T)(
+      implicit PFT: Project[F, T],
+      FF: Foldable[F]): ProjectSyntax.ProjectFoldableOps[F, T] =
     new ProjectSyntax.ProjectFoldableOps[F, T] {
-      def P = PFT
-      def F = FF
+      def P    = PFT
+      def F    = FF
       def self = t
     }
 }
@@ -160,26 +169,18 @@ object ProjectSyntax {
     def any(p: T => Boolean): Boolean =
       Project.any(self)(p)
 
-    def collect[U: Monoid, B]
-      (pf: PartialFunction[T, B])
-      (implicit U: Basis[ListF[B, ?], U])
-        : U =
+    def collect[U: Monoid, B](pf: PartialFunction[T, B])(
+        implicit U: Basis[ListF[B, ?], U]): U =
       Project.collect[F, T, U, B](self)(pf)
 
-    def contains
-      (c: T)
-      (implicit T: Eq[T])
-        : Boolean =
+    def contains(c: T)(implicit T: Eq[T]): Boolean =
       Project.contains(self, c)
 
-    def foldMap[Z: Monoid]
-      (f: T => Z)
-        : Z =
+    def foldMap[Z: Monoid](f: T => Z): Z =
       Project.foldMap(self)(f)
 
-    def foldMapM[M[_], Z]
-      (f: T => M[Z])
-      (implicit M: Monad[M], Z: Monoid[Z]): M[Z] =
+    def foldMapM[M[_], Z](
+        f: T => M[Z])(implicit M: Monad[M], Z: Monoid[Z]): M[Z] =
       Project.foldMapM(self)(f)
   }
 }

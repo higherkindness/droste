@@ -10,6 +10,9 @@ case "$1" in
     "test")
         sbt ';+clean;test'
         ;;
+    "format")
+        ./scalafmt --test
+        ;;
     "coverage")
         sbt 'project coverage' test coverageReport
         bash <(curl -s https://codecov.io/bash)

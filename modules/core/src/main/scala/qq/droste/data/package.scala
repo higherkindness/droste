@@ -26,7 +26,7 @@ package object data {
   type Attr[F[_], A] // = (A, F[Attr[F, A]])
 
   type :<[F[_], A] = Attr[F, A]
-  val  :<          = Attr
+  val :< = Attr
 
   /** The pattern functor for [[Attr]].
     *

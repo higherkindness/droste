@@ -20,25 +20,25 @@ trait BasisLaws[F[_], R] {
 object BasisLaws {
 
   def props[F[_], R](nameF: String, nameR: String)(
-    implicit
+      implicit
       ev: Basis[F, R],
-    arbR: Arbitrary[R],
-     deq: Delay[Eq, F]
+      arbR: Arbitrary[R],
+      deq: Delay[Eq, F]
   ): Props[F, R] =
     new Props[F, R](s"Basis[$nameF, $nameR]")
 
   class Props[F[_], R](name: String)(
-    implicit
+      implicit
       ev: Basis[F, R],
-    arbR: Arbitrary[R],
-     deq: Delay[Eq, F]
+      arbR: Arbitrary[R],
+      deq: Delay[Eq, F]
   ) extends Properties(name) {
     val laws: BasisLaws[F, R] = new BasisLaws[F, R] {
       val basis = ev
     }
 
-    property("algebra compose coalgebra identity") =
-      forAll((r: R) => laws.algebraComposeCoalgebraIdentity(r))
+    property("algebra compose coalgebra identity") = forAll(
+      (r: R) => laws.algebraComposeCoalgebraIdentity(r))
   }
 
 }

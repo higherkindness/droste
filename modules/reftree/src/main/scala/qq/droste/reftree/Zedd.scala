@@ -12,12 +12,12 @@ import cats.data.State
   * same level of the structure.
   */
 private[reftree] final case class Zedd(
-  level: Int,
-  counters: Map[Int, Int]
+    level: Int,
+    counters: Map[Int, Int]
 ) {
 
   def down: Zedd = copy(level = level + 1)
-  def up  : Zedd = copy(level = level - 1)
+  def up: Zedd   = copy(level = level - 1)
 
   def next: (Zedd, Int) = {
     val nn = counters.get(level).fold(0)(_ + 1)
@@ -35,11 +35,12 @@ private[reftree] object Zedd {
     CoalgebraM(a => State(s => (s.down, project.coalgebra(a))))
 
   def up[F[_]](algebra: Algebra[F, RefTree]): AlgebraM[M, F, RefTree] =
-    AlgebraM(fa => State { s =>
-      val (ss, i) = s.next
-      ss.up -> (algebra(fa) match {
-        case ref: RefTree.Ref => ref.copy(id = s"${ref.name}-${s.level}-$i")
-        case other => other
-      })
+    AlgebraM(fa =>
+      State { s =>
+        val (ss, i) = s.next
+        ss.up -> (algebra(fa) match {
+          case ref: RefTree.Ref => ref.copy(id = s"${ref.name}-${s.level}-$i")
+          case other            => other
+        })
     })
 }

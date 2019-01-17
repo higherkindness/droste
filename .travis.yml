@@ -15,6 +15,10 @@ jobs:
       script:
         - ./scripts/ci-jobs.sh bazel
 
+    - name: "Format"
+      script:
+        - ./scripts/ci-jobs.sh format
+
     - name: "Test"
       script:
         - ./scripts/ci-jobs.sh test

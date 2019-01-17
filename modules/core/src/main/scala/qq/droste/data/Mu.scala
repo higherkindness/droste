@@ -16,7 +16,8 @@ import cats.syntax.functor._
 sealed abstract class Mu[F[_]] extends Serializable {
   def apply[A](fold: Algebra[F, A]): A
 
-  def toFunctionK: Algebra[F, ?] ~> Id = λ[Algebra[F, ?] ~> Id](Mu.this.apply(_))
+  def toFunctionK: Algebra[F, ?] ~> Id =
+    λ[Algebra[F, ?] ~> Id](Mu.this.apply(_))
 }
 
 object Mu {
@@ -24,11 +25,10 @@ object Mu {
     Algebra(fmf => Default(fmf))
 
   def coalgebra[F[_]: Functor]: Coalgebra[F, Mu[F]] =
-    Coalgebra[F, Mu[F]](mf =>
-      mf[F[Mu[F]]](Algebra(_ map algebra.run)))
+    Coalgebra[F, Mu[F]](mf => mf[F[Mu[F]]](Algebra(_ map algebra.run)))
 
-  def apply[F[_]: Functor](fmf: F[Mu[F]]):   Mu[F]  = algebra  [F].apply(fmf)
-  def un   [F[_]: Functor](mf :   Mu[F] ): F[Mu[F]] = coalgebra[F].apply(mf)
+  def apply[F[_]: Functor](fmf: F[Mu[F]]): Mu[F] = algebra[F].apply(fmf)
+  def un[F[_]: Functor](mf: Mu[F]): F[Mu[F]]     = coalgebra[F].apply(mf)
 
   def unapply[F[_]: Functor](mf: Mu[F]): Some[F[Mu[F]]] = Some(un(mf))
 
@@ -42,5 +42,7 @@ object Mu {
   implicit def drosteBasisForMu[F[_]: Functor]: Basis[F, Mu[F]] =
     Basis.Default[F, Mu[F]](Mu.algebra, Mu.coalgebra)
 
-  implicit val drosteBasisSolveForMu: Basis.Solve.Aux[Mu, λ[(F[_], α) => F[α]]] = null
+  implicit val drosteBasisSolveForMu: Basis.Solve.Aux[
+    Mu,
+    λ[(F[_], α) => F[α]]] = null
 }

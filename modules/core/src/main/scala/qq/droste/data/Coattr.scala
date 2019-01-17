@@ -4,10 +4,12 @@ package data
 import meta.Meta
 
 object Coattr {
-  def apply[F[_], A](f: Either[A, F[Coattr[F, A]]]): Coattr[F, A] = macro Meta.fastCast
-  def un   [F[_], A](f: Coattr[F, A]): Either[A, F[Coattr[F, A]]] = macro Meta.fastCast
+  def apply[F[_], A](f: Either[A, F[Coattr[F, A]]]): Coattr[F, A] =
+    macro Meta.fastCast
+  def un[F[_], A](f: Coattr[F, A]): Either[A, F[Coattr[F, A]]] =
+    macro Meta.fastCast
 
-  def pure[F[_], A](a: A): Coattr[F, A] = apply(Left(a))
+  def pure[F[_], A](a: A): Coattr[F, A]                = apply(Left(a))
   def roll[F[_], A](fa: F[Coattr[F, A]]): Coattr[F, A] = apply(Right(fa))
 
   def algebra[F[_], A]: Algebra[CoattrF[F, A, ?], Coattr[F, A]] =
@@ -19,15 +21,16 @@ object Coattr {
   object Pure {
     def unapply[F[_], A](f: Coattr[F, A]): Option[A] = un(f) match {
       case Left(a) => Some(a)
-      case _ => None
+      case _       => None
     }
   }
 
   object Roll {
-    def unapply[F[_], A](f: Coattr[F, A]): Option[F[Coattr[F, A]]] = un(f) match {
-      case Right(fa) => Some(fa)
-      case _ => None
-    }
+    def unapply[F[_], A](f: Coattr[F, A]): Option[F[Coattr[F, A]]] =
+      un(f) match {
+        case Right(fa) => Some(fa)
+        case _         => None
+      }
   }
 }
 

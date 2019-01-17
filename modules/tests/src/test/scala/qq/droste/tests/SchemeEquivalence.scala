@@ -19,7 +19,7 @@ final class SchemeEquivalence extends Properties("SchemeEquivalence") {
     type B
 
     final object implicits {
-      implicit def implicitFunctorF: Functor[F] = functorF
+      implicit def implicitFunctorF: Functor[F]     = functorF
       implicit def implicitProjectFR: Project[F, R] = projectFR
       implicit def implicitArbitraryR: Arbitrary[R] = arbitraryR
     }
@@ -33,27 +33,28 @@ final class SchemeEquivalence extends Properties("SchemeEquivalence") {
 
   object AlgebraFamily {
     case class Default[FF[_], RR, BB](
-      genR: Gen[RR],
-      cvalgebra: CVAlgebra[FF, BB]
+        genR: Gen[RR],
+        cvalgebra: CVAlgebra[FF, BB]
     )(
-      implicit
+        implicit
         val functorF: Functor[FF],
         val projectFR: Project[FF, RR]
     ) extends AlgebraFamily {
       type F[A] = FF[A]
-      type R = RR
-      type B = BB
+      type R    = RR
+      type B    = BB
 
       val arbitraryR = Arbitrary(genR)
     }
   }
 
   implicit val arbitraryAlgebraFamily: Arbitrary[AlgebraFamily] =
-    Arbitrary(Gen.const(AlgebraFamily.Default(
-      Gen.choose(0, 50).map(MakeChange.toNat),
-      MakeChange.makeChangeAlgebra
-    )))
-
+    Arbitrary(
+      Gen.const(
+        AlgebraFamily.Default(
+          Gen.choose(0, 50).map(MakeChange.toNat),
+          MakeChange.makeChangeAlgebra
+        )))
 
   property("histo") = {
 
