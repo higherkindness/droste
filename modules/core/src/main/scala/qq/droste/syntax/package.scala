@@ -131,16 +131,19 @@ object EmbedSyntax {
 }
 
 sealed trait ProjectSyntax {
-  implicit def toProjectSyntaxOps[F[_], T](t: T)(implicit PFT: Project[F, T]): ProjectSyntax.ProjectOps[F, T] =
+  implicit def toProjectSyntaxOps[F[_], T](t: T)(
+      implicit PFT: Project[F, T]): ProjectSyntax.ProjectOps[F, T] =
     new ProjectSyntax.ProjectOps[F, T] {
-      def P = PFT
+      def P    = PFT
       def self = t
     }
 
-  implicit def toFoldableProjectSyntaxOps[F[_], T](t: T)(implicit PFT: Project[F, T], FF: Foldable[F]): ProjectSyntax.ProjectFoldableOps[F, T] =
+  implicit def toFoldableProjectSyntaxOps[F[_], T](t: T)(
+      implicit PFT: Project[F, T],
+      FF: Foldable[F]): ProjectSyntax.ProjectFoldableOps[F, T] =
     new ProjectSyntax.ProjectFoldableOps[F, T] {
-      def P = PFT
-      def F = FF
+      def P    = PFT
+      def F    = FF
       def self = t
     }
 }
