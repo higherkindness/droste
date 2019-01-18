@@ -91,6 +91,7 @@ very useful when you need to add an annotation, or attribute, to the
 values in your pattern functor.
 
 `Attr` can be used for:
-* doing type inference in an AST, in which the annotation would be the
+* doing [type inference](https://brianmckenna.org/blog/type_annotation_cofree) in an AST, in which the annotation would be the
   type.
-* annotating an AST with positions in the source file.
+* [annotating an AST with positions in the source file](https://github.com/haskell-nix/hnix/blob/master/src/Nix/Expr/Types/Annotated.hs).
+
