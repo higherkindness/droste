@@ -1,7 +1,7 @@
 ---
 layout: docs
-title: Data Structures
-permalink: /docs/core/data-types/
+title: fixpoint types
+permalink: /docs/core/fixpoint-types/
 ---
 
 # Fixpoint types
