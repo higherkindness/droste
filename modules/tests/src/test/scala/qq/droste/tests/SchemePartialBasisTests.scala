@@ -13,11 +13,11 @@ import eu.timepit.refined.scalacheck.numeric._
 import cats.Eval
 import cats.instances.option._
 import cats.syntax.eq._
-
 import prelude._
 import data.prelude._
 import data.Attr
 import data.CoattrF
+import data.Coattr
 import data.Fix
 import data.Mu
 import data.Nu
@@ -82,7 +82,7 @@ class SchemePartialBasisTests extends Properties("SchemePartialBasis") {
       else
         cats.free.Free.pure(n)
 
-    forAll((n: Int Refined Less[W.`100`.T]) => f(n) ?= expected(n))
+    forAll((n: Int Refined Less[W.`100`.T]) => Coattr.fromCats(f(n)) ?= Coattr.fromCats(expected(n)))
   }
 
   property("scheme[Mu].ana") = {
