@@ -17,6 +17,7 @@ import cats.syntax.eq._
 import prelude._
 import data.prelude._
 import data.Attr
+import data.CoattrF
 import data.Fix
 import data.Mu
 import data.Nu
@@ -65,6 +66,21 @@ class SchemePartialBasisTests extends Properties("SchemePartialBasis") {
       else
         cats.free
           .Cofree(n, Eval.now(None: Option[cats.free.Cofree[Option, Int]]))
+
+    forAll((n: Int Refined Less[W.`100`.T]) => f(n) ?= expected(n))
+  }
+
+  property("scheme[cats.free.Free[?[_], Int]].ana") = {
+
+    val f = scheme[cats.free.Free[?[_], Int]].ana(Coalgebra((n: Int) =>
+      if (n > 0) CoattrF.roll[Option, Int, Int](Some(n - 1))
+      else CoattrF.pure[Option, Int, Int](n)))
+
+    def expected(n: Int): cats.free.Free[Option, Int] =
+      if (n > 0)
+        cats.free.Free.roll(Some(expected(n - 1)))
+      else
+        cats.free.Free.pure(n)
 
     forAll((n: Int Refined Less[W.`100`.T]) => f(n) ?= expected(n))
   }

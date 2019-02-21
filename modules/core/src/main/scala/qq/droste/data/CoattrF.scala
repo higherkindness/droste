@@ -2,6 +2,7 @@ package qq.droste
 package data
 
 import cats.Applicative
+import cats.Eq
 import cats.Functor
 import cats.Traverse
 
@@ -42,6 +43,24 @@ private[data] trait CoattrFImplicits extends CoenvtTImplicits0 {
 }
 
 private[data] sealed trait CoenvtTImplicits0 {
+
+  implicit def drosteCoattrFDelayEq[F[_], A](
+      implicit eqa: Eq[A],
+      deqf: Delay[Eq, F]): Delay[Eq, CoattrF[F, A, ?]] =
+    new Delay[Eq, CoattrF[F, A, ?]] {
+      def apply[B](eqb: Eq[B]): Eq[CoattrF[F, A, B]] = Eq.instance { (x, y) =>
+        (CoattrF.un(x), CoattrF.un(y)) match {
+          case (Left(xx), Left(yy)) => eqa.eqv(xx, yy)
+          case (Right(xx), Right(yy)) => deqf(eqb).eqv(xx, yy)
+          case _ => false
+        }
+      }
+    }
+
+  implicit def drosteCoattrFEq[F[_], A, B](
+      implicit ev: Eq[Either[A, F[B]]]): Eq[CoattrF[F, A, B]] =
+    Eq.by(CoattrF.un(_))
+
   implicit def drosteCoattrFFunctor[F[_]: Functor, A]: Functor[
     CoattrF[F, A, ?]] =
     new CoattrFFunctor[F, A]
