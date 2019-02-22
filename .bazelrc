@@ -1,0 +1,16 @@
+common --announce_rc
+common --color=auto
+
+build --experimental_strict_action_env
+build --worker_max_instances=4
+build --worker_sandboxing
+build --verbose_failures
+
+test  --test_output=all
+
+common:v0.22 --config=noop
+common:v0.23 --config=noop
+common:v0.24 --config=noop
+
+# pick something trivial as a "noop"
+common:noop --logging=3

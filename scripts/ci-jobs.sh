@@ -1,11 +1,11 @@
 #! /usr/bin/env nix-shell
-#! nix-shell ../default.nix --pure -i bash
+#! nix-shell ../default.nix -i bash
 
 set -euxo pipefail
 
 case "$1" in
     "bazel")
-        bazel build ...
+        ./tools/bazel build ...
         ;;
     "test")
         sbt ';+clean;test'
