@@ -50,9 +50,9 @@ private[data] sealed trait CoenvtTImplicits0 {
     new Delay[Eq, CoattrF[F, A, ?]] {
       def apply[B](eqb: Eq[B]): Eq[CoattrF[F, A, B]] = Eq.instance { (x, y) =>
         (CoattrF.un(x), CoattrF.un(y)) match {
-          case (Left(xx), Left(yy)) => eqa.eqv(xx, yy)
+          case (Left(xx), Left(yy))   => eqa.eqv(xx, yy)
           case (Right(xx), Right(yy)) => deqf(eqb).eqv(xx, yy)
-          case _ => false
+          case _                      => false
         }
       }
     }

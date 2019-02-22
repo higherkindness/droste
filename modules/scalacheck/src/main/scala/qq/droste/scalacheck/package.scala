@@ -81,7 +81,6 @@ object `package` {
     Gen.sized(maxSize =>
       scheme[Nu].anaM(CoalgebraM(genSizedF[F])).apply(maxSize))
 
-
   implicit def drosteArbitraryCofree[F[_]: Applicative: MonoidK, A: Arbitrary](
       implicit ev: Traverse[AttrF[F, A, ?]]
   ): Arbitrary[cats.free.Cofree[F, A]] =
@@ -91,7 +90,6 @@ object `package` {
       implicit ev: Traverse[AttrF[F, A, ?]]
   ): Arbitrary[Attr[F, A]] =
     Arbitrary(drosteGenAttr)
-
 
   implicit def drosteArbitraryFree[F[_]: Applicative: MonoidK, A: Arbitrary](
       implicit ev: Traverse[F]

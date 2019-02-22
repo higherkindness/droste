@@ -13,11 +13,11 @@ import scalacheck._
 
 import org.scalacheck.Properties
 
-
 final class FreeTests extends Properties("Free") {
 
-  include(BasisLaws.props[CoattrF[Option, Int, ?], Free[Option, Int]](
-    "CoattrF[Option, Int, ?]",
-    "Free[Option, Int]"))
+  include(
+    BasisLaws.props[CoattrF[Option, Int, ?], Free[Option, Int]](
+      "CoattrF[Option, Int, ?]",
+      "Free[Option, Int]"))
 
 }
