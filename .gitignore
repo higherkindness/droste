@@ -33,3 +33,4 @@ secring.asc
 result
 bazel-*
 !*.nix
+.bazel_cache
