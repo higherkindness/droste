@@ -57,7 +57,7 @@ if ! [ -f "$bazel" ]; then
         cd "$tmp_dir"
         (>&2 echo "downloading installer from")
         (>&2 echo "$url")
-        curl -o installer.sh -L "$url"
+        curl -L "$url" > installer.sh
         generated_sha=$(shasum -a 256 installer.sh | awk '{print $1}')
         if [ "$generated_sha" != "$sha" ]; then
             echo "Sha 256 does not match, expected: $sha"
