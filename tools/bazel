@@ -52,12 +52,13 @@ if ! [ -f "$bazel" ]; then
     installer_name="bazel-$bazel_version-installer-$platform-x86_64.sh"
     url="$remote_source/$bazel_version/$installer_name"
     (
-        tmp_dir=$(mktemp -d)
+        tmp_dir=installer_dir
+        mkdir -p "$tmp_dir"
         trap 'rm -rf $tmp_dir' EXIT
         cd "$tmp_dir"
         (>&2 echo "downloading installer from")
         (>&2 echo "$url")
-        curl -L "$url" > installer.sh
+        curl -o installer.sh -L "$url"
         generated_sha=$(shasum -a 256 installer.sh | awk '{print $1}')
         if [ "$generated_sha" != "$sha" ]; then
             echo "Sha 256 does not match, expected: $sha"
