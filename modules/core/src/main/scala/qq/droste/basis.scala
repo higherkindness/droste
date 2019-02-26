@@ -12,6 +12,7 @@ import util.newtypes._
 import cats.Eval
 import cats.Eq
 import cats.Foldable
+import cats.Functor
 import cats.Monad
 import cats.Monoid
 import cats.free.Trampoline
@@ -143,6 +144,18 @@ private[droste] sealed trait FloatingBasisInstances0[H[F[_], A] >: Basis[F, A]] 
     Basis.Default[AttrF[F, A, ?], cats.free.Cofree[F, A]](
       Algebra(fa => cats.free.Cofree(fa.ask, Eval.now(fa.lower))),
       Coalgebra(a => AttrF(a.head, a.tailForced)))
+
+  implicit def drosteBasisForCatsFree[F[_]: Functor, A]: H[
+    CoattrF[F, A, ?],
+    cats.free.Free[F, A]] =
+    Basis.Default[CoattrF[F, A, ?], cats.free.Free[F, A]](
+      Algebra {
+        CoattrF.un(_).fold(cats.free.Free.pure, cats.free.Free.roll)
+      },
+      Coalgebra {
+        _.fold[CoattrF[F, A, cats.free.Free[F, A]]](CoattrF.pure, CoattrF.roll)
+      }
+    )
 }
 
 private[droste] sealed trait FloatingBasisSolveInstances {
@@ -154,5 +167,10 @@ private[droste] sealed trait FloatingBasisSolveInstances {
   implicit def drosteSolveCatsCofree[A]: Solve.Aux[
     cats.free.Cofree[?[_], A],
     AttrF[?[_], A, ?]] =
+    null
+
+  implicit def drosteSolveCatsFree[A]: Solve.Aux[
+    cats.free.Free[?[_], A],
+    CoattrF[?[_], A, ?]] =
     null
 }
