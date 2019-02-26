@@ -25,8 +25,8 @@ numbers as a chain of `Option`. We can easily unfold with an
 anamorphism and then fold to our result with a histomorphism.
 
 ```scala
-import qq.droste._
-import qq.droste.data._
+import higherkindness.droste._
+import higherkindness.droste.data._
 import cats.implicits._
 
 val natCoalgebra: Coalgebra[Option, BigDecimal] =

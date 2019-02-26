@@ -1,4 +1,4 @@
-package qq.droste
+package higherkindness.droste
 package tests
 
 import prelude._
