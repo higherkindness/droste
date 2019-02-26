@@ -1,13 +1,121 @@
-#!/bin/bash
+#!/bin/bash -e
 
-if [ -z "$IS_IN_NIX" ]; then
-    echo ""
-    echo "You're running Bazel from outside of nix-shell!"
-    echo "This will incur a slight overhead on each bazel invocation"
-    echo "Consider entering a nix-shell if you'd like to avoid this overhead"
-    echo ""
+default_bazel_version='0.22.0'
 
-    eval nix-shell --command \"bazel $@\"
+if [ -z "$OVERRIDE_BAZEL_VERSION" ]; then
+    bazel_version="$default_bazel_version"
 else
-    $BAZEL_REAL "$@"
+    bazel_version="$OVERRIDE_BAZEL_VERSION"
 fi
+
+case "$bazel_version" in
+    'host')
+        bazel_version=$("$BAZEL_REAL" version | awk '/Build label/ {print $3}' | cut -d '-' -f 1)
+        bazel="$BAZEL_REAL"
+        ;;
+    '0.21.0')
+        darwin_sha='5e40dcf12a18990ffe5830fb5c83297aed090fd6e6c7c5b2eb720c19a33044fc'
+        linux_sha='328d5fa87a61e1f6e674a8f88c5ae54b8987eaf5a6c944257600c5029c8feef8'
+        ;;
+    '0.22.0')
+        darwin_sha='adae5bbc3bf2b9b60d460d8ea2c65da1a6edd75b242439dfc49d001272548d13'
+        linux_sha='6d85f9fd6671ec5ffa8c78d150fe6c8da50874cfa8aa1900672dfd93e9989cb0'
+        ;;
+    *)
+        echo "The requested Bazel version '$bazel_version' is not supported"
+        exit 1
+        ;;
+esac
+
+if [ -z "$bazel" ]; then
+    bazel_bin_loc=~/.bazel_binaries
+    mkdir -p $bazel_bin_loc
+    bazel=$bazel_bin_loc/$bazel_version/bin/bazel-real
+fi
+
+if ! [ -f "$bazel" ]; then
+    case $(uname -s) in
+        Darwin)
+            platform='darwin'
+            sha=$darwin_sha
+            ;;
+        Linux)
+            platform='linux'
+            sha=$linux_sha
+            ;;
+        *)
+            echo 'Your OS is not supported.'
+            exit 1
+            ;;
+    esac
+    remote_source=https://github.com/bazelbuild/bazel/releases/download
+    installer_name="bazel-$bazel_version-installer-$platform-x86_64.sh"
+    url="$remote_source/$bazel_version/$installer_name"
+    (
+        tmp_dir=installer_dir
+        mkdir -p "$tmp_dir"
+        trap 'rm -rf $tmp_dir' EXIT
+        cd "$tmp_dir"
+        (>&2 echo "downloading installer from")
+        (>&2 echo "$url")
+        curl -o installer.sh -L "$url"
+        generated_sha=$(shasum -a 256 installer.sh | awk '{print $1}')
+        if [ "$generated_sha" != "$sha" ]; then
+            echo "Sha 256 does not match, expected: $sha"
+            echo "But found $generated_sha"
+            echo "Recommend you: update the sha to the expected"
+            echo "and then re-run this script"
+            exit 1
+        fi
+        chmod +x installer.sh
+        ./installer.sh --base=$bazel_bin_loc/"$bazel_version" --bin=$bazel_bin_loc/"$bazel_version"/bin_t
+    )
+fi
+
+extra_command_args=()
+
+IFS=. read -r major minor _ < <(echo "$bazel_version")
+extra_command_args+=("--config=v$major.$minor")
+
+for (( i=1; i<=$#; i++ ))
+do
+    case "${!i}" in
+        -*)
+            ;;
+        *)
+            n=$((i + 1))
+            set -- "${@:1:$i}" "${extra_command_args[@]}" "${@:$n}"
+            break
+            ;;
+    esac
+done
+
+abs_path() {
+    perl -MCwd -le '
+    for (@ARGV) {
+      if ($p = Cwd::abs_path $_) {
+        print $p;
+      } else {
+        warn "abs_path: $_: $!\n";
+        $ret = 1;
+      }
+    }
+    exit $ret' "$@"
+}
+root_workspace=$(cd "$(dirname "$(abs_path "$0")")"/..; pwd)
+workspace=$(cd "$(dirname "$0")"/..; pwd)
+
+if [ "$workspace" != "$root_workspace" ]; then
+    set -- --bazelrc="$root_workspace"/.bazelrc "$@"
+fi
+
+disk_cache="$root_workspace"/.bazel_cache
+disk_cache_rc="$disk_cache"/bazelrc
+mkdir -p "$disk_cache"
+cat > "$disk_cache_rc" <<EOF
+build --disk_cache=$disk_cache
+EOF
+set -- --bazelrc="$disk_cache_rc" "$@"
+
+(>&2 echo :: exec "$bazel" "$@")
+exec "$bazel" "$@"

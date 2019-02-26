@@ -7,11 +7,10 @@ stdenv.mkDerivation rec {
   src = builtins.filterSource (path: type: false) ./.;
 
   buildInputs = [
-    sbt bazel nodejs git openjdk8
+    git
+    nodejs
+    openjdk8
+    perl
+    sbt
   ];
-
-  shellHook =
-    ''
-    export IS_IN_NIX=true
-    '';
 }
