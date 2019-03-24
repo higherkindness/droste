@@ -17,6 +17,11 @@ import cats.syntax.flatMap._
 import cats.syntax.functor._
 import cats.syntax.semigroupal._
 
+/** A `GAlgebra[F[_], S, A]` is a wrapper for a function from `F[S]` to `A`.
+  *
+  * This type is isomorphic to a `cats.data.Cokleisli[F, S, A]`, but
+  * unlike Cats we use an AnyVal for efficiency.
+  */
 final class GAlgebra[F[_], S, A](val run: F[S] => A) extends AnyVal {
   def apply(fs: F[S]): A =
     run(fs)
@@ -104,6 +109,11 @@ object GAlgebraM {
   }
 }
 
+/** A GCoalgebra[F[_], A, S] is a _newtype_ value-class wrapper around a f1unction `A => F[S]`.
+  *
+  * This type is isomorphic  (the same) as a `cats.data.Kleisli[F, A, S]`. However,
+  * unlike the `cats.data`, in `droste` we use a value class, to preserve efficiency.
+  */
 final class GCoalgebra[F[_], A, S](val run: A => F[S]) extends AnyVal {
   def apply(a: A): F[S] =
     run(a)

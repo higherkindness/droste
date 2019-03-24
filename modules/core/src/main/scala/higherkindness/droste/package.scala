@@ -9,13 +9,30 @@ import syntax.compose._
 
 object `package` {
 
+  /** Type Alias for `F[A] => A` */
   type Algebra[F[_], A]   = GAlgebra[F, A, A]
+
+  /** Type Alias `Coalgebra[F, A]` is a type alias for `GCoalgebra[F, A, A]`.
+    * This in turn reduces to a `A => F[A]` */
   type Coalgebra[F[_], A] = GCoalgebra[F, A, A]
 
+  /** Type Alias `AlgebraM[M, F, A] = GAlgebraM[M, F, A, A]`, i.e. a `GAlgebraM` where the
+    * inner input and output types are the same.
+    *
+    * This in turn reduces to `M[A] => F[A]`, which is similar to a `FunctionK[M, F]`, except for
+    * the fact that it is not universally quantified on the value type `A`.
+    */
   type AlgebraM[M[_], F[_], A]   = GAlgebraM[M, F, A, A]
+
+  /** Type alias `CoalgebraM[M, F, A] = GCoalgebraM[M, F, A, A]`,
+    * a `GCoalgebraM`` whose inner input and output types are the same.
+    * This in turn reduces to `A => M[F[A]]`
+    */
   type CoalgebraM[M[_], F[_], A] = GCoalgebraM[M, F, A, A]
 
+  /* Reduces to `F[(R, A)] => A` */
   type RAlgebra[R, F[_], A]   = GAlgebra[F, (R, A), A]
+  /* Reduces to `A => F[R \/ A]` */
   type RCoalgebra[R, F[_], A] = GCoalgebra[F, A, Either[R, A]]
 
   type RAlgebraM[R, M[_], F[_], A]   = GAlgebraM[M, F, (R, A), A]
@@ -24,7 +41,16 @@ object `package` {
   type CVAlgebra[F[_], A]   = GAlgebra[F, Attr[F, A], A]
   type CVCoalgebra[F[_], A] = GCoalgebra[F, A, Coattr[F, A]]
 
+  /** A `Gather[F, S, A]` is a type alias for `(A, F[S]) => S`, that is a function
+    * that starts from an auxiliary value `A` and a collection `F[S]`,
+    * and obtains an end result `S`
+    */
   type Gather[F[_], S, A]  = (A, F[S]) => S
+
+  /** `Scatter[F[_], A, S]` is an alias for a function `S => Either[A, F[S]]`,
+    * that is a function that either arrives to a left result type `A`, or
+    * builds a collection `F` of new inputs `S`
+    */
   type Scatter[F[_], A, S] = S => Either[A, F[S]]
 
   object Algebra {

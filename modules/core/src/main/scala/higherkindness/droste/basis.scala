@@ -18,6 +18,10 @@ import cats.Monoid
 import cats.free.Trampoline
 import cats.instances.function._
 
+/** An `Embed[F, R]` is just a trait that provides an `Algebra[F, R]`,
+  * which is an alias for a `GAlgebra[F, A, A]`, which is itself 
+  * a wrapper for a function `A => F[A]`.
+  */
 trait Embed[F[_], R] {
   def algebra: Algebra[F, R]
 }
@@ -26,6 +30,9 @@ object Embed extends FloatingBasisInstances[Embed] {
   def apply[F[_], R](implicit ev: Embed[F, R]): Embed[F, R] = ev
 }
 
+/**
+  * A `Project[F, R]`
+  */
 trait Project[F[_], R] { self =>
   def coalgebra: Coalgebra[F, R]
 
