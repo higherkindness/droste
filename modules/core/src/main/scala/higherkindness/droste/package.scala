@@ -37,6 +37,8 @@ object `package` {
 
   object AlgebraM {
     def apply[M[_], F[_], A](f: F[A] => M[A]): AlgebraM[M, F, A] = GAlgebraM(f)
+
+    def apply[M[_], F[_], A](nt: F ~> M): AlgebraM[M, F, A] = GAlgebraM((fa: F[A]) => nt(fa))
   }
 
   object CoalgebraM {

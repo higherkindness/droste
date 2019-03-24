@@ -13,12 +13,7 @@ import cats.syntax.functor._
   * In Haskell this can more aptly be expressed as:
   * `data Mu f = Mu (forall x . (f x -> x) -> x)`
   */
-sealed abstract class Mu[F[_]] extends Serializable {
-  def apply[A](fold: Algebra[F, A]): A
-
-  def toFunctionK: Algebra[F, ?] ~> Id =
-    λ[Algebra[F, ?] ~> Id](Mu.this.apply(_))
-}
+sealed abstract class Mu[F[_]] extends (Algebra[F, ?] ~> Id)
 
 object Mu {
   def algebra[F[_]: Functor]: Algebra[F, Mu[F]] =
