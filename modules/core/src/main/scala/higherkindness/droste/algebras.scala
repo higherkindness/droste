@@ -17,10 +17,9 @@ import cats.syntax.flatMap._
 import cats.syntax.functor._
 import cats.syntax.semigroupal._
 
-/** A `GAlgebra[F[_], S, A]` is a wrapper for a function from `F[S]` to `A`.
+/** A `GAlgebra[F[_], S, A]` is a value-class wrapper for a function from `F[S]` to `A`.
   *
-  * This type is isomorphic to a `cats.data.Cokleisli[F, S, A]`, but
-  * unlike Cats we use an AnyVal for efficiency.
+  * This type is isomorphic to a `cats.data.Cokleisli[F, S, A]`.
   */
 final class GAlgebra[F[_], S, A](val run: F[S] => A) extends AnyVal {
   def apply(fs: F[S]): A =
@@ -33,9 +32,21 @@ final class GAlgebra[F[_], S, A](val run: F[S] => A) extends AnyVal {
   def gather(gather: Gather[F, S, A]): GAlgebra.Gathered[F, S, A] =
     GAlgebra.Gathered(this, gather)
 
+  /**
+    * Lifts the result `A` of this `GAlgebra` into a pure `M[A]`.
+    *
+    * Removing wrappers, the time of this method comes down to the following:
+    * `(F[S] => A) => (α => M[α]) => (F[S] => M[A])`,
+    * where the α is the universally quantified `p`
+    */
   def lift[M[_]](implicit M: Applicative[M]): GAlgebraM[M, F, S, A] =
     GAlgebraM(fs => run(fs).pure[M])
 
+  /**
+    * Removing wrappers, the type (F[S] => A) => (F[Z] => S) => (F[Z] => A)
+    *
+    * This operation is equivalent to the `compose` method of `Cokleisli`.
+    */
   def compose[Z](f: GAlgebra[F, Z, S])(
       implicit F: CoflatMap[F]): GAlgebra[F, Z, A] =
     GAlgebra(fz => run(fz coflatMap f.run))
@@ -53,12 +64,20 @@ object GAlgebra extends GAlgebraInstances {
   def apply[F[_], S, A](run: F[S] => A): GAlgebra[F, S, A] =
     new GAlgebra(run)
 
+  /** This operation is equivalent to the `split` operation from the instance of the `cats.Arrow`
+    * typeclass for `Cokleisli`
+    */
   def zip[F[_]: Functor, Sx, Sy, Ax, Ay](
       x: GAlgebra[F, Sx, Ax],
       y: GAlgebra[F, Sy, Ay]
   ): GAlgebra[F, (Sx, Sy), (Ax, Ay)] =
     GAlgebra(fz => (x(fz.map(v => v._1)), y(fz.map(v => v._2))))
 
+  /**
+    * A GAlgebra.Gathered[F[_], S, A]` is a pair of two functions, wrapped in value classes.
+    * - An `Algebra[F, S, A]`, which is to say a wrapper for `F[S] => A`.
+    * - A  `Gather[F, S, A]`, that is a wrapper for `(A, F[S]) => S`
+    */
   final case class Gathered[F[_], S, A](
       algebra: GAlgebra[F, S, A],
       gather: Gather[F, S, A]
@@ -71,6 +90,11 @@ object GAlgebra extends GAlgebraInstances {
   }
 }
 
+/** A `GAlgebraM[F[_], S, A]` is a wrapper (value-class) for a function from `F[S]` to `M[A]`.
+  *
+  * This type is similar to `GAlgebra[F, S, M[A]]`; vice-versa,
+  * a `GAlgebra[F, S, A]` is similar to a `GAlgebraM[Id, F, S, A]`.
+  */
 final class GAlgebraM[M[_], F[_], S, A](val run: F[S] => M[A]) extends AnyVal {
   def apply(fs: F[S]): M[A] =
     run(fs)
@@ -109,10 +133,10 @@ object GAlgebraM {
   }
 }
 
-/** A GCoalgebra[F[_], A, S] is a _newtype_ value-class wrapper around a f1unction `A => F[S]`.
+/** A GCoalgebra[F[_], A, S] is a value-class wrapper around a function `A => F[S]`.
   *
-  * This type is isomorphic  (the same) as a `cats.data.Kleisli[F, A, S]`. However,
-  * unlike the `cats.data`, in `droste` we use a value class, to preserve efficiency.
+  * This type is isomorphic to (the same as) a `cats.data.Kleisli[F, A, S]`.
+  * However, here we use different methods to those of the `Kleisli` class.
   */
 final class GCoalgebra[F[_], A, S](val run: A => F[S]) extends AnyVal {
   def apply(a: A): F[S] =
@@ -121,6 +145,10 @@ final class GCoalgebra[F[_], A, S](val run: A => F[S]) extends AnyVal {
   def scatter(scatter: Scatter[F, A, S]): GCoalgebra.Scattered[F, A, S] =
     GCoalgebra.Scattered(this, scatter)
 
+  /**
+    * Removing all middle wrappers, the type of this `lift` becomes:
+    * `(A => F[S]) =>  (α => M[α]) => ( A => M[F[S]] )
+    */
   def lift[M[_]](implicit M: Applicative[M]): GCoalgebraM[M, F, A, S] =
     GCoalgebraM(a => run(a).pure[M])
 
@@ -140,6 +168,10 @@ object GCoalgebra extends GCoalgebraInstances {
   def apply[F[_], A, S](run: A => F[S]): GCoalgebra[F, A, S] =
     new GCoalgebra(run)
 
+  /** A `Scattered[F, A, S]` is a wrapper around a pair of functions:
+    * - A `Coalgebra[F, A, S]`, which comes down to `A => F[S]`
+    * - A `Scatter[F, A, S]`, which can be reduced to `S => Either[A, F[S]]`
+    */
   final case class Scattered[F[_], A, S](
       coalgebra: GCoalgebra[F, A, S],
       scatter: Scatter[F, A, S]

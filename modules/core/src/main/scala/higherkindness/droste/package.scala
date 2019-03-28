@@ -9,8 +9,8 @@ import syntax.compose._
 
 object `package` {
 
-  /** Type Alias for `F[A] => A` */
-  type Algebra[F[_], A]   = GAlgebra[F, A, A]
+  /** An `Algebra[F[_], A]` is an alias for an `F[A] => A` function */
+  type Algebra[F[_], A] = GAlgebra[F, A, A]
 
   /** Type Alias `Coalgebra[F, A]` is a type alias for `GCoalgebra[F, A, A]`.
     * This in turn reduces to a `A => F[A]` */
@@ -19,8 +19,8 @@ object `package` {
   /** Type Alias `AlgebraM[M, F, A] = GAlgebraM[M, F, A, A]`, i.e. a `GAlgebraM` where the
     * inner input and output types are the same.
     *
-    * This in turn reduces to `M[A] => F[A]`, which is similar to a `FunctionK[M, F]`, except for
-    * the fact that it is not universally quantified on the value type `A`.
+    * This in turn reduces to `M[A] => F[A]`, which looks like `FunctionK[M, F]`,
+    * except that the type `A` is not universally quantified, but fixed.
     */
   type AlgebraM[M[_], F[_], A]   = GAlgebraM[M, F, A, A]
 
