@@ -351,7 +351,7 @@ object Macros {
 
       val algebra =
         q"""
-        new _root_.higherkindness.droste.GAlgebra[λ, ${clait.name}[..$claitTypeParamNames], ${clait.name}[..$claitTypeParamNames]]($mtch)
+        _root_.higherkindness.droste.GAlgebra[λ, ${clait.name}[..$claitTypeParamNames], ${clait.name}[..$claitTypeParamNames]]($mtch)
         """
 
       q"def embedAlgebra[..${clait.tparams}]: _root_.higherkindness.droste.Algebra[λ, ${clait.name}[..$claitTypeParamNames]] = $algebra"
@@ -380,7 +380,7 @@ object Macros {
 
       val algebra =
         q"""
-        new _root_.higherkindness.droste.GCoalgebra[λ, ${clait.name}[..$claitTypeParamNames], ${clait.name}[..$claitTypeParamNames]]($mtch)
+        _root_.higherkindness.droste.GCoalgebra[λ, ${clait.name}[..$claitTypeParamNames], ${clait.name}[..$claitTypeParamNames]]($mtch)
         """
 
       q"def projectCoalgebra[..${clait.tparams}]: _root_.higherkindness.droste.Coalgebra[λ, ${clait.name}[..$claitTypeParamNames]] = $algebra"

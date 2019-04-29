@@ -27,8 +27,9 @@ private[droste] trait Zoo {
       coalgebra: RCoalgebra[R, F, A]
   )(implicit embed: Embed[F, R]): A => R =
     kernel.hyloC(
-      embed.algebra.run.compose((frr: F[(R Either R)]) => frr.map(_.merge)),
-      coalgebra.run)
+      (frr: F[(R Either R)]) => embed.algebra(frr.map(_.merge)),
+      coalgebra.apply
+    )
 
   /** A monadic version of an apomorphism.
     *
@@ -38,11 +39,9 @@ private[droste] trait Zoo {
       coalgebraM: RCoalgebraM[R, M, F, A]
   )(implicit embed: Embed[F, R]): A => M[R] =
     kernel.hyloMC(
-      embed.algebra
-        .lift[M]
-        .run
-        .compose((frr: F[(R Either R)]) => frr.map(_.merge)),
-      coalgebraM.run)
+      (frr: F[(R Either R)]) => Monad[M].pure(embed.algebra(frr.map(_.merge))),
+      coalgebraM.apply
+    )
 
   /** A variation of a catamorphism that gives you access to the input value at
     * every point in the computation.
@@ -57,7 +56,10 @@ private[droste] trait Zoo {
   def para[F[_]: Functor, R, B](
       algebra: RAlgebra[R, F, B]
   )(implicit project: Project[F, R]): R => B =
-    kernel.hyloC(algebra.run, project.coalgebra.run.andThen(_.map(r => (r, r))))
+    kernel.hyloC(
+      algebra.apply,
+      (x: R) => project.coalgebra(x).map(r => (r, r))
+    )
 
   /** A monadic version of a paramorphism.
     *
@@ -67,8 +69,9 @@ private[droste] trait Zoo {
       algebraM: RAlgebraM[R, M, F, B]
   )(implicit project: Project[F, R]): R => M[B] =
     kernel.hyloMC(
-      algebraM.run,
-      project.coalgebra.lift[M].run.andThen(_.map(_.map(r => (r, r)))))
+      algebraM.apply,
+      (r: R) => Monad[M].pure(project.coalgebra(r).map(r => (r, r)))
+    )
 
   /** Histomorphism
     *
@@ -79,7 +82,7 @@ private[droste] trait Zoo {
   )(implicit project: Project[F, R]): R => B =
     kernel.hylo[F, R, Attr[F, B]](
       fb => Attr(algebra(fb), fb),
-      project.coalgebra.run
+      project.coalgebra.apply
     ) andThen (_.head)
 
   /** Futumorphism
@@ -90,8 +93,8 @@ private[droste] trait Zoo {
       coalgebra: CVCoalgebra[F, A]
   )(implicit embed: Embed[F, R]): A => R =
     kernel.hylo[F, Coattr[F, A], R](
-      embed.algebra.run,
-      _.fold(coalgebra.run, identity)
+      embed.algebra.apply,
+      _.fold(coalgebra.apply, identity)
     ) compose (Coattr.pure(_))
 
   /** A fusion refold of a futumorphism followed by a histomorphism
@@ -104,7 +107,7 @@ private[droste] trait Zoo {
   ): A => B =
     kernel.hylo[F, Coattr[F, A], Attr[F, B]](
       fb => Attr(algebra(fb), fb),
-      _.fold(coalgebra.run, identity)
+      _.fold(coalgebra.apply, identity)
     ) andThen (_.head) compose (Coattr.pure(_))
 
   /** A fusion refold of an anamorphism followed by a histomorphism
@@ -117,7 +120,7 @@ private[droste] trait Zoo {
   ): A => B =
     kernel.hylo[F, A, Attr[F, B]](
       fb => Attr(algebra(fb), fb),
-      coalgebra.run
+      coalgebra.apply
     ) andThen (_.head)
 
   /** A variation of a catamorphism that applies a natural transformation before its algebra.
@@ -131,8 +134,8 @@ private[droste] trait Zoo {
       algebra: Algebra[F, B]
   )(implicit project: Project[F, R]): R => B =
     kernel.hylo[Yoneda[F, ?], R, B](
-      yfb => algebra.run(yfb.mapK(natTrans).run),
-      project.coalgebra.run.andThen(Yoneda.apply[F, R])
+      yfb => algebra(yfb.mapK(natTrans).run),
+      xx => Yoneda.apply[F, R](project.coalgebra(xx))
     )
 
   /** A variation of an anamorphism that applies a natural transformation after its coalgebra.
@@ -146,8 +149,8 @@ private[droste] trait Zoo {
       natTrans: F ~> F
   )(implicit embed: Embed[F, R]): A => R =
     kernel.hylo[Yoneda[F, ?], A, R](
-      yfb => embed.algebra.run(yfb.run),
-      coalgebra.run.andThen(fa => Yoneda.apply[F, A](fa).mapK(natTrans))
+      yfb => embed.algebra(yfb.run),
+      xx => Yoneda.apply[F, A](coalgebra(xx)).mapK(natTrans)
     )
 
   /** A catamorphism built from two semi-mutually recursive functions.
@@ -161,7 +164,7 @@ private[droste] trait Zoo {
       ralgebra: RAlgebra[A, F, B]
   )(implicit project: Project[F, R]): R => B =
     kernel.hylo[F, R, (A, B)](
-      fab => (algebra.run(fab.map(_._1)), ralgebra.run(fab)),
-      project.coalgebra.run
+      fab => (algebra(fab.map(_._1)), ralgebra(fab)),
+      xx => project.coalgebra(xx)
     ) andThen (_._2)
 }

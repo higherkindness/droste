@@ -19,12 +19,12 @@ final class AlgebraTests extends Properties("algebras") {
   implicit def galgebraEq[F[_], S, A](
       implicit FS: Arbitrary[F[S]],
       A: Eq[A]): Eq[GAlgebra[F, S, A]] =
-    Eq.by[GAlgebra[F, S, A], F[S] => A](_.run)
+    Eq.by[GAlgebra[F, S, A], F[S] => A](_.apply)
 
   implicit def gcoalgebraEq[F[_], A, S](
       implicit A: Arbitrary[A],
       FS: Eq[F[S]]): Eq[GCoalgebra[F, A, S]] =
-    Eq.by[GCoalgebra[F, A, S], A => F[S]](_.run)
+    Eq.by[GCoalgebra[F, A, S], A => F[S]](_.apply)
 
   implicit def arbitraryGAlgebra[F[_], S, A](
       implicit arbA: Arbitrary[A],

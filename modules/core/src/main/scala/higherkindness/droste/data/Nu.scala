@@ -24,7 +24,7 @@ object Nu {
     new Default(unfold0, a0)
 
   def algebra[F[_]: Functor]: Algebra[F, Nu[F]] =
-    Algebra(t => Nu(Coalgebra[F, F[Nu[F]]](_ map coalgebra.run), t))
+    Algebra(t => Nu(Coalgebra[F, F[Nu[F]]](_ map coalgebra.apply), t))
 
   def coalgebra[F[_]: Functor]: Coalgebra[F, Nu[F]] =
     Coalgebra(nf => nf.unfold(nf.a).map(Nu(nf.unfold, _)))

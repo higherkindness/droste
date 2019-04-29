@@ -25,7 +25,7 @@ object Mu {
     Algebra(fmf => Default(fmf))
 
   def coalgebra[F[_]: Functor]: Coalgebra[F, Mu[F]] =
-    Coalgebra[F, Mu[F]](mf => mf[F[Mu[F]]](Algebra(_ map algebra.run)))
+    Coalgebra[F, Mu[F]](mf => mf[F[Mu[F]]](Algebra(_ map algebra.apply)))
 
   def apply[F[_]: Functor](fmf: F[Mu[F]]): Mu[F] = algebra[F].apply(fmf)
   def un[F[_]: Functor](mf: Mu[F]): F[Mu[F]]     = coalgebra[F].apply(mf)
