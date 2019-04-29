@@ -30,7 +30,7 @@ private[droste] trait Zoo {
       coalgebra: RCoalgebra[R, F, A]
   )(implicit embed: Embed[F, R]): A => R =
     kernel.hyloC(
-      embed.algebra.run.compose((frr: F[(R Either R)]) => frr.map(_.merge)),
+      (embed.algebra.run _).compose((frr: F[(R Either R)]) => frr.map(_.merge)),
       coalgebra.run)
 
   /** A monadic version of an apomorphism.

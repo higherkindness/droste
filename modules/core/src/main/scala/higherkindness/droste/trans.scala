@@ -5,7 +5,7 @@ import cats.syntax.functor._
 
 final class GTrans[F[_], G[_], A, B](val run: F[A] => G[B]) extends AnyVal {
   def algebra(implicit embed: Embed[G, B]): GAlgebra[F, A, B] =
-    GAlgebra(run andThen embed.algebra.run)
+    a => embed.algebra(run(a))
 
   def coalgebra(implicit project: Project[F, A]): GCoalgebra[G, A, B] =
     GCoalgebra(project.coalgebra.run andThen run)

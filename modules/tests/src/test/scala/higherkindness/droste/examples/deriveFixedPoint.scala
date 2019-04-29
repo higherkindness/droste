@@ -10,7 +10,6 @@ import higherkindness.droste.macros.deriveFixedPoint
 @deriveFixedPoint sealed trait RecursiveExpr
 object RecursiveExpr {
   final case class Dummy()
-
   final case class Const(value: BigDecimal)                extends RecursiveExpr
   final case class Add(x: RecursiveExpr, y: RecursiveExpr) extends RecursiveExpr
   final case class AddList(list: List[RecursiveExpr])      extends RecursiveExpr
@@ -20,7 +19,7 @@ final class RecursiveExprChecks extends Properties("deriveFixedPoint") {
   import RecursiveExpr._
   import RecursiveExpr.fixedpoint._
 
-  val evaluateAlgebra: Algebra[RecursiveExprF, BigDecimal] = Algebra {
+  val evaluateAlgebra: Algebra[RecursiveExprF, BigDecimal] = {
     case ConstF(v)   => v
     case AddF(x, y)  => x + y
     case AddListF(l) => l.reduce(_ + _)

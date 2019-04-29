@@ -349,13 +349,7 @@ object Macros {
 
       val mtch = Match(EmptyTree, embedAlgebraCases)
 
-      val algebra =
-        q"""
-        new _root_.higherkindness.droste.GAlgebra[λ, ${clait.name}[..$claitTypeParamNames], ${clait.name}[..$claitTypeParamNames]]($mtch)
-        """
-
-      q"def embedAlgebra[..${clait.tparams}]: _root_.higherkindness.droste.Algebra[λ, ${clait.name}[..$claitTypeParamNames]] = $algebra"
-
+      q"def embedAlgebra[..${clait.tparams}]: _root_.higherkindness.droste.Algebra[λ, ${clait.name}[..$claitTypeParamNames]] = $mtch"
     }
 
     val toFixedPoint: DefDef = {

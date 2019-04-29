@@ -17,9 +17,9 @@ import cats.syntax.flatMap._
 import cats.syntax.functor._
 import cats.syntax.semigroupal._
 
-final class GAlgebra[F[_], S, A](val run: F[S] => A) extends AnyVal {
-  def apply(fs: F[S]): A =
-    run(fs)
+abstract class GAlgebra[F[_], S, A] { self =>
+  def run(fs: F[S]): A
+  def apply(fs: F[S]): A = run(fs)
 
   def zip[T, B](that: GAlgebra[F, T, B])(
       implicit ev: Functor[F]): GAlgebra[F, (S, T), (A, B)] =
@@ -33,7 +33,7 @@ final class GAlgebra[F[_], S, A](val run: F[S] => A) extends AnyVal {
 
   def compose[Z](f: GAlgebra[F, Z, S])(
       implicit F: CoflatMap[F]): GAlgebra[F, Z, A] =
-    GAlgebra(fz => run(fz coflatMap f.run))
+    fz => run(fz coflatMap f.run)
 
   def andThen[B](f: GAlgebra[F, A, B])(
       implicit F: CoflatMap[F]): GAlgebra[F, S, B] =
@@ -46,13 +46,13 @@ final class GAlgebra[F[_], S, A](val run: F[S] => A) extends AnyVal {
 object GAlgebra extends GAlgebraInstances {
 
   def apply[F[_], S, A](run: F[S] => A): GAlgebra[F, S, A] =
-    new GAlgebra(run)
+    x => run(x)
 
   def zip[F[_]: Functor, Sx, Sy, Ax, Ay](
       x: GAlgebra[F, Sx, Ax],
       y: GAlgebra[F, Sy, Ay]
   ): GAlgebra[F, (Sx, Sy), (Ax, Ay)] =
-    GAlgebra(fz => (x(fz.map(v => v._1)), y(fz.map(v => v._2))))
+    fz => (x.run(fz.map(v => v._1)), y.run(fz.map(v => v._2)))
 
   final case class Gathered[F[_], S, A](
       algebra: GAlgebra[F, S, A],
@@ -166,7 +166,7 @@ private[droste] sealed trait GAlgebraInstances {
 private[droste] class GAlgebraArrow[F[_]: Comonad]
     extends Arrow[GAlgebra[F, ?, ?]] {
   def lift[A, B](f: A => B): GAlgebra[F, A, B] =
-    GAlgebra(fa => f(fa.extract))
+    fa => f(fa.extract)
   def compose[A, B, C](
       f: GAlgebra[F, B, C],
       g: GAlgebra[F, A, B]): GAlgebra[F, A, C] =
@@ -176,7 +176,7 @@ private[droste] class GAlgebraArrow[F[_]: Comonad]
       g: GAlgebra[F, B, C]): GAlgebra[F, A, C] =
     f andThen g
   def first[A, B, C](f: GAlgebra[F, A, B]): GAlgebra[F, (A, C), (B, C)] =
-    GAlgebra(fac => (f.run(fac.map(_._1)), fac.map(_._2).extract))
+    fac => (f.run(fac.map(_._1)), fac.map(_._2).extract)
 }
 
 private[droste] sealed trait GCoalgebraInstances {

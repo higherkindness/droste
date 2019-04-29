@@ -28,7 +28,7 @@ object `package` {
   type Scatter[F[_], A, S] = S => Either[A, F[S]]
 
   object Algebra {
-    def apply[F[_], A](f: F[A] => A): Algebra[F, A] = GAlgebra(f)
+    def apply[F[_], A](f: F[A] => A): Algebra[F, A] = x => f(x)
   }
 
   object Coalgebra {
@@ -45,7 +45,7 @@ object `package` {
   }
 
   object RAlgebra {
-    def apply[R, F[_], A](f: F[(R, A)] => A): RAlgebra[R, F, A] = GAlgebra(f)
+    def apply[R, F[_], A](f: F[(R, A)] => A): RAlgebra[R, F, A] = x => f(x)
   }
 
   object RCoalgebra {
@@ -65,7 +65,7 @@ object `package` {
   }
 
   object CVAlgebra {
-    def apply[F[_], A](f: F[Attr[F, A]] => A): CVAlgebra[F, A] = GAlgebra(f)
+    def apply[F[_], A](f: F[Attr[F, A]] => A): CVAlgebra[F, A] = x => f(x)
   }
 
   object CVCoalgebra {
