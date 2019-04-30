@@ -19,7 +19,7 @@ object `package` {
 object Stream extends StreamInstances {
 
   def forever[A](a: A): Stream[A] =
-    Nu(Coalgebra[ListF[A, ?], A](aa => ConsF(aa, aa)), a)
+    Nu( (aa: A) => ConsF(aa, aa) , a)
 
   def pure[A](a: A): Stream[A] = Nu(ConsF(a, empty))
 
@@ -48,7 +48,7 @@ object Stream extends StreamInstances {
         case NilF => NilF
       }
 
-    val outer: S => ListF[B, S] = _ match {
+    def outer(s: S): ListF[B, S] = s match {
       case Left(seed) => inner(seed)
       case Right(cont) =>
         Nu.un(cont._1) match {
@@ -57,49 +57,41 @@ object Stream extends StreamInstances {
         }
     }
 
-    Nu(Coalgebra(outer), Left(fa.a))
+    Nu((s:S) => outer(s), Left(fa.a))
   }
 
   object coalgebras {
-    def increment: Coalgebra[ListF[Int, ?], Int] =
-      Coalgebra(n => ConsF(n, n + 1))
+    def increment: Coalgebra[ListF[Int, ?], Int] = n => ConsF(n, n + 1)
   }
 
-  def naturalNumbers: Stream[Int] =
-    Nu(coalgebras.increment, 1)
+  def naturalNumbers: Stream[Int] = Nu(coalgebras.increment, 1)
 
   def take[A](fa: Stream[A])(n: Int): Stream[A] =
     Nu(
-      Coalgebra[ListF[A, ?], (Int, fa.A)](
-        ia =>
-          if (ia._1 <= 0) NilF
-          else
-            fa.unfold(ia._2) match {
-              case ConsF(head, tail) => ConsF(head, (ia._1 - 1, tail))
-              case NilF              => NilF
-          }),
+      (ia: (Int, fa.A)) =>
+        if (ia._1 <= 0) NilF
+        else
+          fa.unfold(ia._2) match {
+            case ConsF(head, tail) => ConsF(head, (ia._1 - 1, tail))
+            case NilF              => NilF
+          },
       (n, fa.a)
     )
 
   def fromJavaIterator[A](it0: => JavaIterator[A]): Stream[A] =
     Nu(
-      Coalgebra((it: JavaIterator[A]) =>
-        if (it.hasNext) ConsF(it.next(), it) else NilF),
+      (it: JavaIterator[A]) => if (it.hasNext) ConsF(it.next(), it) else NilF,
       it0)
 
   def fromIterator[A](it0: => Iterator[A]): Stream[A] =
-    Nu(
-      Coalgebra(
-        (it: Iterator[A]) => if (it.hasNext) ConsF(it.next(), it) else NilF),
-      it0)
+    Nu( (it: Iterator[A]) => if (it.hasNext) ConsF(it.next(), it) else NilF, it0)
 
   def fromList[A](l0: List[A]): Stream[A] =
     Nu(
-      Coalgebra((l: List[A]) =>
-        l match {
-          case head :: tail => ConsF(head, tail)
-          case Nil          => NilF
-      }),
+      (l: List[A]) => l match {
+        case head :: tail => ConsF(head, tail)
+        case Nil          => NilF
+      },
       l0)
 
   def foldLeft[A, B](fa: Stream[A])(z: B)(f: (B, A) => B): B = {

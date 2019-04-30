@@ -32,7 +32,7 @@ object ListF {
   ): PatR[ListF[A, ?]] =
     scheme.ana(fromScalaListCoalgebra[A]).apply(list)
 
-  def fromScalaListCoalgebra[A]: Coalgebra[ListF[A, ?], List[A]] = Coalgebra {
+  def fromScalaListCoalgebra[A]: Coalgebra[ListF[A, ?], List[A]] = {
     case head :: tail => ConsF(head, tail)
     case Nil          => NilF
   }

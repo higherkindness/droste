@@ -19,7 +19,7 @@ object Coattr {
     fa => Coattr(CoattrF.un(fa))
 
   def coalgebra[F[_], A]: Coalgebra[CoattrF[F, A, ?], Coattr[F, A]] =
-    Coalgebra(a => CoattrF(Coattr.un(a)))
+    a => CoattrF(Coattr.un(a))
 
   def fromCats[F[_]: Functor, A](free: cats.free.Free[F, A]): Coattr[F, A] =
     free.fold(pure, { ffree =>

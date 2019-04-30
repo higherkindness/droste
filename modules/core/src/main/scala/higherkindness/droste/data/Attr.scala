@@ -21,7 +21,7 @@ object Attr {
     fa => Attr(AttrF.un(fa))
 
   def coalgebra[F[_], A]: Coalgebra[AttrF[F, A, ?], Attr[F, A]] =
-    Coalgebra(a => AttrF(Attr.un(a)))
+    a => AttrF(Attr.un(a))
 
   def fromCats[F[_]: Functor, A](cofree: cats.free.Cofree[F, A]): Attr[F, A] =
     ana(cofree)(_.tail.value, _.head)

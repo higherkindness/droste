@@ -30,7 +30,7 @@ import higherkindness.droste.data._
 import cats.implicits._
 
 val natCoalgebra: Coalgebra[Option, BigDecimal] =
-  Coalgebra(n => if (n > 0) Some(n - 1) else None)
+  n => if (n > 0) Some(n - 1) else None
 
 val fibAlgebra: CVAlgebra[Option, BigDecimal] = CVAlgebra {
   case Some(r1 :< Some(r2 :< _)) => r1 + r2

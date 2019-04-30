@@ -34,8 +34,7 @@ class SchemePartialBasisTests extends Properties("SchemePartialBasis") {
 
   property("scheme[Fix].ana") = {
 
-    val f =
-      scheme[Fix].ana(Coalgebra((n: Int) => if (n > 0) Some(n - 1) else None))
+    val f = scheme[Fix].ana( (n: Int) => if (n > 0) Some(n - 1) else None)
 
     def expected(n: Int): Fix[Option] =
       if (n > 0) Fix(Some(expected(n - 1)))
@@ -73,10 +72,9 @@ class SchemePartialBasisTests extends Properties("SchemePartialBasis") {
   property("scheme[cats.free.Free[?[_], Int]].ana") = {
 
     val f = scheme[cats.free.Free[?[_], Int]].ana(
-      Coalgebra(
         (n: Int) =>
           if (n > 0) CoattrF.roll[Option, Int, Int](Some(n - 1))
-          else CoattrF.pure[Option, Int, Int](n)))
+          else CoattrF.pure[Option, Int, Int](n))
 
     def expected(n: Int): cats.free.Free[Option, Int] =
       if (n > 0)
@@ -138,8 +136,9 @@ class SchemePartialBasisTests extends Properties("SchemePartialBasis") {
 
   property("scheme[Mu].gana") = {
 
-    val f = scheme[Mu].gana(Coalgebra((n: Int) =>
-      if (n > 0) Some(n - 1) else None).scatter(Scatter.ana))
+    val f = scheme[Mu].gana {
+      (n: Int) => if (n > 0) Some(n - 1) else None.scatter(Scatter.ana)
+    }
 
     def expected(n: Int): Mu[Option] =
       if (n > 0) Mu(Some(expected(n - 1)))

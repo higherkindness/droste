@@ -143,16 +143,14 @@ private[droste] sealed trait FloatingBasisInstances0[H[F[_], A] >: Basis[F, A]] 
     cats.free.Cofree[F, A]] =
     Basis.Default[AttrF[F, A, ?], cats.free.Cofree[F, A]](
       fa => cats.free.Cofree(fa.ask, Eval.now(fa.lower)),
-      Coalgebra(a => AttrF(a.head, a.tailForced)))
+      a => AttrF(a.head, a.tailForced))
 
   implicit def drosteBasisForCatsFree[F[_]: Functor, A]: H[
     CoattrF[F, A, ?],
     cats.free.Free[F, A]] =
     Basis.Default[CoattrF[F, A, ?], cats.free.Free[F, A]](
       x => CoattrF.un(x).fold(cats.free.Free.pure, cats.free.Free.roll),
-      Coalgebra {
-        _.fold[CoattrF[F, A, cats.free.Free[F, A]]](CoattrF.pure, CoattrF.roll)
-      }
+      x => x.fold[CoattrF[F, A, cats.free.Free[F, A]]](CoattrF.pure, CoattrF.roll)
     )
 }
 
