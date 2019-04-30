@@ -16,7 +16,7 @@ object Coattr {
   def roll[F[_], A](fa: F[Coattr[F, A]]): Coattr[F, A] = apply(Right(fa))
 
   def algebra[F[_], A]: Algebra[CoattrF[F, A, ?], Coattr[F, A]] =
-    Algebra(fa => Coattr(CoattrF.un(fa)))
+    fa => Coattr(CoattrF.un(fa))
 
   def coalgebra[F[_], A]: Coalgebra[CoattrF[F, A, ?], Coattr[F, A]] =
     Coalgebra(a => CoattrF(Coattr.un(a)))

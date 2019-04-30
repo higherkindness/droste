@@ -28,10 +28,12 @@ object Stream extends StreamInstances {
   def empty[A]: Stream[A] = Nu(NilF: ListF[A, Nu[ListF[A, ?]]])
 
   def map[A, B](fa: Stream[A])(f: A => B): Stream[B] =
-    Nu(Coalgebra(fa.unfold.run andThen (_ match {
-      case ConsF(head, tail) => ConsF(f(head), tail)
-      case NilF              => NilF
-    })), fa.a)
+    Nu.apply[ListF[B, ?], fa.A](
+      (a: fa.A) => fa.unfold(a) match {
+        case ConsF(head, tail) => ConsF(f(head), tail)
+        case NilF              => NilF
+      }, fa.a
+    )
 
   def flatMap[A, B](fa: Stream[A])(f: A => Stream[B]): Stream[B] = {
     type S = Either[fa.A, (Stream[B], fa.A)]

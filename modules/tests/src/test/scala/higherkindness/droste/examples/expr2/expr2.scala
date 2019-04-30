@@ -13,7 +13,7 @@ import util.DefaultTraverse
 // point AST without using Fix
 final class Expr2Checks extends Properties("Expr2") {
 
-  val evaluateAlgebra: Algebra[ExprF, BigDecimal] = Algebra {
+  val evaluateAlgebra: Algebra[ExprF, BigDecimal] = {
     case ConstF(v)  => v
     case AddF(x, y) => x + y
   }
@@ -49,7 +49,7 @@ object ExprF {
         }
     }
 
-  val embedAlgebra: Algebra[ExprF, Expr] = Algebra {
+  val embedAlgebra: Algebra[ExprF, Expr] = {
     case ConstF(v)  => Const(v)
     case AddF(x, y) => Add(x, y)
   }

@@ -29,7 +29,7 @@ final class SmallPost extends Properties("SmallPost") {
     }
 
   implicit def streamFEmbed[A] = new Embed[StreamF[A, ?], Stream[A]] {
-    override def algebra = Algebra[StreamF[A, ?], Stream[A]] {
+    override def algebra: Algebra[StreamF[A, ?], Stream[A]] = {
       case PrependF(head, tail) => head #:: tail.value
       case EmptyF               => Stream.empty[A]
     }

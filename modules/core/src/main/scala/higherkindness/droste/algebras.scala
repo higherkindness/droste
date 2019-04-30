@@ -29,7 +29,7 @@ abstract class GAlgebra[F[_], S, A] { self =>
     GAlgebra.Gathered(this, gather)
 
   def lift[M[_]](implicit M: Applicative[M]): GAlgebraM[M, F, S, A] =
-    GAlgebraM(fs => run(fs).pure[M])
+    fs => run(fs).pure[M]
 
   def compose[Z](f: GAlgebra[F, Z, S])(
       implicit F: CoflatMap[F]): GAlgebra[F, Z, A] =
@@ -66,9 +66,10 @@ object GAlgebra extends GAlgebraInstances {
   }
 }
 
-final class GAlgebraM[M[_], F[_], S, A](val run: F[S] => M[A]) extends AnyVal {
-  def apply(fs: F[S]): M[A] =
-    run(fs)
+abstract class GAlgebraM[M[_], F[_], S, A] { self =>
+  def run(fs: F[S]): M[A]
+
+  def apply(fs: F[S]): M[A] = run(fs)
 
   def zip[T, B](that: GAlgebraM[M, F, T, B])(
       implicit M: Semigroupal[M],
@@ -82,13 +83,13 @@ final class GAlgebraM[M[_], F[_], S, A](val run: F[S] => M[A]) extends AnyVal {
 
 object GAlgebraM {
   def apply[M[_], F[_], S, A](run: F[S] => M[A]): GAlgebraM[M, F, S, A] =
-    new GAlgebraM(run)
+    fs => run(fs)
 
   def zip[M[_]: Semigroupal, F[_]: Functor, Sx, Sy, Ax, Ay](
       x: GAlgebraM[M, F, Sx, Ax],
       y: GAlgebraM[M, F, Sy, Ay]
   ): GAlgebraM[M, F, (Sx, Sy), (Ax, Ay)] =
-    GAlgebraM(fz => x(fz.map(v => v._1)) product y(fz.map(v => v._2)))
+    fz => x(fz.map(v => v._1)) product y(fz.map(v => v._2))
 
   final case class Gathered[M[_], F[_], S, A](
       algebra: GAlgebraM[M, F, S, A],
@@ -104,19 +105,20 @@ object GAlgebraM {
   }
 }
 
-final class GCoalgebra[F[_], A, S](val run: A => F[S]) extends AnyVal {
-  def apply(a: A): F[S] =
-    run(a)
+abstract class GCoalgebra[F[_], A, S] { self =>
+
+  def run(a: A): F[S] 
+  def apply(a: A): F[S] = run(a)
 
   def scatter(scatter: Scatter[F, A, S]): GCoalgebra.Scattered[F, A, S] =
     GCoalgebra.Scattered(this, scatter)
 
   def lift[M[_]](implicit M: Applicative[M]): GCoalgebraM[M, F, A, S] =
-    GCoalgebraM(a => run(a).pure[M])
+    a => run(a).pure[M]
 
   def compose[Z](f: GCoalgebra[F, Z, A])(
       implicit F: FlatMap[F]): GCoalgebra[F, Z, S] =
-    GCoalgebra(z => f(z) flatMap run)
+    z => f(z) flatMap run
 
   def andThen[T](f: GCoalgebra[F, S, T])(
       implicit F: FlatMap[F]): GCoalgebra[F, A, T] =
@@ -128,7 +130,7 @@ final class GCoalgebra[F[_], A, S](val run: A => F[S]) extends AnyVal {
 
 object GCoalgebra extends GCoalgebraInstances {
   def apply[F[_], A, S](run: A => F[S]): GCoalgebra[F, A, S] =
-    new GCoalgebra(run)
+    a => run(a)
 
   final case class Scattered[F[_], A, S](
       coalgebra: GCoalgebra[F, A, S],
@@ -136,10 +138,10 @@ object GCoalgebra extends GCoalgebraInstances {
   )
 }
 
-final class GCoalgebraM[M[_], F[_], A, S](val run: A => M[F[S]])
-    extends AnyVal {
-  def apply(a: A): M[F[S]] =
-    run(a)
+abstract class GCoalgebraM[M[_], F[_], A, S] {
+  def run(a: A): M[F[S]]
+
+  def apply(a: A): M[F[S]] = run(a)
 
   def scatter(scatter: Scatter[F, A, S]): GCoalgebraM.Scattered[M, F, A, S] =
     GCoalgebraM.Scattered(this, scatter)
@@ -147,7 +149,7 @@ final class GCoalgebraM[M[_], F[_], A, S](val run: A => M[F[S]])
 
 object GCoalgebraM {
   def apply[M[_], F[_], S, A](run: A => M[F[S]]): GCoalgebraM[M, F, A, S] =
-    new GCoalgebraM(run)
+    a => run(a)
 
   final case class Scattered[M[_], F[_], A, S](
       coalgebra: GCoalgebraM[M, F, A, S],
@@ -187,16 +189,20 @@ private[droste] sealed trait GCoalgebraInstances {
 
 private[droste] class GCoalgebraArrow[F[_]: Monad]
     extends Arrow[GCoalgebra[F, ?, ?]] {
+
   def lift[A, B](f: A => B): GCoalgebra[F, A, B] =
-    GCoalgebra(a => f(a).pure[F])
+    a => f(a).pure[F]
+
   def compose[A, B, C](
       f: GCoalgebra[F, B, C],
       g: GCoalgebra[F, A, B]): GCoalgebra[F, A, C] =
     f compose g
+
   override def andThen[A, B, C](
       f: GCoalgebra[F, A, B],
       g: GCoalgebra[F, B, C]): GCoalgebra[F, A, C] =
     f andThen g
+
   def first[A, B, C](fa: GCoalgebra[F, A, B]): GCoalgebra[F, (A, C), (B, C)] =
-    GCoalgebra(ac => fa.run(ac._1).fproduct(_ => ac._2))
+    ac => fa.run(ac._1).fproduct(_ => ac._2)
 }

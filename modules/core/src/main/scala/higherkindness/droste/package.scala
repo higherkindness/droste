@@ -27,10 +27,10 @@ object `package` {
   type Gather[F[_], S, A]  = (A, F[S]) => S
   type Scatter[F[_], A, S] = S => Either[A, F[S]]
 
-  object Algebra {
-    def apply[F[_], A](f: F[A] => A): Algebra[F, A] = x => f(x)
-  }
-
+//  object Algebra {
+//    def apply[F[_], A](f: F[A] => A): Algebra[F, A] = x => f(x)
+//  }
+//
   object Coalgebra {
     def apply[F[_], A](f: A => F[A]): Coalgebra[F, A] = GCoalgebra(f)
   }

@@ -44,9 +44,7 @@ private[droste] trait Zoo {
       coalgebraM: RCoalgebraM[R, M, F, A]
   )(implicit embed: Embed[F, R]): A => M[R] =
     kernel.hyloMC(
-      embed.algebra
-        .lift[M]
-        .run
+      (embed.algebra.lift[M].run _)
         .compose((frr: F[(R Either R)]) => frr.map(_.merge)),
       coalgebraM.run)
 
@@ -66,7 +64,7 @@ private[droste] trait Zoo {
   def para[F[_]: Functor, R, B](
       algebra: RAlgebra[R, F, B]
   )(implicit project: Project[F, R]): R => B =
-    kernel.hyloC(algebra.run, project.coalgebra.run.andThen(_.map(r => (r, r))))
+    kernel.hyloC(algebra.run, (project.coalgebra.run _).andThen(_.map(r => (r, r))))
 
   /** A monadic version of a paramorphism.
     *
@@ -80,7 +78,7 @@ private[droste] trait Zoo {
   )(implicit project: Project[F, R]): R => M[B] =
     kernel.hyloMC(
       algebraM.run,
-      project.coalgebra.lift[M].run.andThen(_.map(_.map(r => (r, r)))))
+      (project.coalgebra.lift[M].run _).andThen(_.map(_.map(r => (r, r)))))
 
   /** Histomorphism
     *
@@ -159,7 +157,7 @@ private[droste] trait Zoo {
   )(implicit project: Project[F, R]): R => B =
     kernel.hylo[Yoneda[F, ?], R, B](
       yfb => algebra.run(yfb.mapK(natTrans).run),
-      project.coalgebra.run.andThen(Yoneda.apply[F, R])
+      (project.coalgebra.run _).andThen(Yoneda.apply[F, R])
     )
 
   /** A variation of an anamorphism that applies a natural transformation after its coalgebra.
@@ -177,7 +175,7 @@ private[droste] trait Zoo {
   )(implicit embed: Embed[F, R]): A => R =
     kernel.hylo[Yoneda[F, ?], A, R](
       yfb => embed.algebra.run(yfb.run),
-      coalgebra.run.andThen(fa => Yoneda.apply[F, A](fa).mapK(natTrans))
+      (coalgebra.run _).andThen(fa => Yoneda.apply[F, A](fa).mapK(natTrans))
     )
 
   /** A catamorphism built from two semi-mutually recursive functions.

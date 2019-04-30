@@ -69,7 +69,7 @@ What if we want to do two things at once? Let's calculate a
 Fibonacci value and the sum of all squares.
 
 ```tut:silent
-val fromNatAlgebra: Algebra[Option, BigDecimal] = Algebra {
+val fromNatAlgebra: Algebra[Option, BigDecimal] = {
   case Some(n) => n + 1
   case None    => 0
 }

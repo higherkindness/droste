@@ -152,10 +152,10 @@ object MakeChange {
     scheme.ana(toNatCoalgebra)
 
   val fromNat: Fix[Nat] => Int =
-    scheme[Fix].cata[Nat, Int](Algebra {
+    scheme[Fix].cata[Nat, Int] {
       case Next(n) => n + 1
       case Zero    => 0
-    })
+    }
 
   def lookup(cache: Attr[Nat, Set[List[Coin]]], n: Int): Set[List[Coin]] =
     if (n == 0) cache.head

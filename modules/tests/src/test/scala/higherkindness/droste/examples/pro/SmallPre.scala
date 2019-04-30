@@ -18,7 +18,7 @@ final class SmallPre extends Properties("SmallPre") {
       case ConsF(_, _)                 => NilF
     }
 
-  val sumAlg = Algebra[ListF[Int, ?], Int] {
+  val sumAlg: Algebra[ListF[Int, ?], Int] = {
     case ConsF(h, t) => h + t
     case NilF        => 0
   }

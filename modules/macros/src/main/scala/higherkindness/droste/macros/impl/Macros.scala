@@ -372,12 +372,7 @@ object Macros {
 
       val mtch = c.untypecheck(Match(EmptyTree, embedAlgebraCases))
 
-      val algebra =
-        q"""
-        new _root_.higherkindness.droste.GCoalgebra[λ, ${clait.name}[..$claitTypeParamNames], ${clait.name}[..$claitTypeParamNames]]($mtch)
-        """
-
-      q"def projectCoalgebra[..${clait.tparams}]: _root_.higherkindness.droste.Coalgebra[λ, ${clait.name}[..$claitTypeParamNames]] = $algebra"
+      q"def projectCoalgebra[..${clait.tparams}]: _root_.higherkindness.droste.Coalgebra[λ, ${clait.name}[..$claitTypeParamNames]] = $mtch"
     }
 
     val basisInstance: DefDef = {
@@ -399,27 +394,21 @@ object Macros {
       }
       """
 
-    val outputs =
-      clait match {
-        case classOrTrait: ClassDef if isSealed(classOrTrait) =>
-          List(
-            clait,
-            ModuleDef(
-              companion.mods,
-              companion.name,
-              Template(
-                companion.impl.parents,
-                companion.impl.self,
-                companion.impl.body :+ deriveFixedPointModule
-              )
-            )
+    val output = clait match {
+      case classOrTrait: ClassDef if isSealed(classOrTrait) =>
+        ModuleDef(
+          companion.mods,
+          companion.name,
+          Template(
+            companion.impl.parents,
+            companion.impl.self,
+            companion.impl.body :+ deriveFixedPointModule
           )
+        )
+      case _ =>
+        sys.error("@deriveFixedPoint should only annotate sealed traits or sealed abstract classes")
+    }
 
-        case _ =>
-          sys.error(
-            "@deriveFixedPoint should only annotate sealed traits or sealed abstract classes")
-      }
-
-    c.Expr[Any](Block(outputs, Literal(Constant(()))))
+    c.Expr[Any](Block( List(clait, output), Literal(Constant(()))))
   }
 }

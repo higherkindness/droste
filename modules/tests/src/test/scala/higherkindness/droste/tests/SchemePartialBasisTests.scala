@@ -25,7 +25,7 @@ import data.list._
 import syntax.attr._
 
 class SchemePartialBasisTests extends Properties("SchemePartialBasis") {
-  val sumListFIntAlgebra: Algebra[ListF[Int, ?], Int] = Algebra {
+  val sumListFIntAlgebra: Algebra[ListF[Int, ?], Int] = {
     case ConsF(x, y) => x + y
     case NilF        => 0
   }

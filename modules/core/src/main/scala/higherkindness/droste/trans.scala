@@ -8,7 +8,7 @@ final class GTrans[F[_], G[_], A, B](val run: F[A] => G[B]) extends AnyVal {
     a => embed.algebra(run(a))
 
   def coalgebra(implicit project: Project[F, A]): GCoalgebra[G, A, B] =
-    GCoalgebra(project.coalgebra.run andThen run)
+    GCoalgebra( (project.coalgebra.run _) andThen run)
 }
 
 object GTrans {
@@ -24,7 +24,7 @@ final class GTransM[M[_], F[_], G[_], A, B](val run: F[A] => M[G[B]])
     GAlgebraM(run andThen (_.map(embed.algebra.run)))
 
   def coalgebra(implicit project: Project[F, A]): GCoalgebraM[M, G, A, B] =
-    GCoalgebraM(project.coalgebra.run andThen run)
+    GCoalgebraM((project.coalgebra.run _) andThen run)
 }
 
 object GTransM {

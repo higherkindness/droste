@@ -18,7 +18,7 @@ object Attr {
   def unapply[F[_], A](f: Attr[F, A]): Some[(A, F[Attr[F, A]])] = Some(f.tuple)
 
   def algebra[F[_], A]: Algebra[AttrF[F, A, ?], Attr[F, A]] =
-    Algebra(fa => Attr(AttrF.un(fa)))
+    fa => Attr(AttrF.un(fa))
 
   def coalgebra[F[_], A]: Coalgebra[AttrF[F, A, ?], Attr[F, A]] =
     Coalgebra(a => AttrF(Attr.un(a)))

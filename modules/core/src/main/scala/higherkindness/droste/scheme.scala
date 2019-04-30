@@ -207,7 +207,7 @@ private[droste] sealed trait SchemeGeneralizedPlumbing {
           .map(
             kernel.hylo[F, R, S](
               fb => gather(galgebra(fb), fb),
-              project.coalgebra.run)))
+              project.coalgebra.run _)))
 
   def gcataM[M[_]: Monad, F[_]: Traverse, R, S, B](
       algebra: GAlgebraM[M, F, S, B])(
