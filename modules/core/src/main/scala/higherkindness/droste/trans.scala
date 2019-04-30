@@ -21,10 +21,10 @@ final class GTransM[M[_], F[_], G[_], A, B](val run: F[A] => M[G[B]])
   def algebra(
       implicit embed: Embed[G, B],
       ev: Functor[M]): GAlgebraM[M, F, A, B] =
-    GAlgebraM(run andThen (_.map(embed.algebra.run)))
+    x => run(x).map(embed.algebra.run)
 
   def coalgebra(implicit project: Project[F, A]): GCoalgebraM[M, G, A, B] =
-    GCoalgebraM((project.coalgebra.run _) andThen run)
+    x => run(project.coalgebra.run(x))
 }
 
 object GTransM {

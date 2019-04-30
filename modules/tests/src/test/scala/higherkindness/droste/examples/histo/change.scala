@@ -145,8 +145,7 @@ object MakeChange {
   case object Zero               extends Nat[Nothing]
   final case class Next[A](a: A) extends Nat[A]
 
-  val toNatCoalgebra: Coalgebra[Nat, Int] =
-    Coalgebra(n => if (n > 0) Next(n - 1) else Zero)
+  val toNatCoalgebra: Coalgebra[Nat, Int] = n => if (n > 0) Next(n - 1) else Zero
 
   val toNat: Int => Fix[Nat] =
     scheme.ana(toNatCoalgebra)

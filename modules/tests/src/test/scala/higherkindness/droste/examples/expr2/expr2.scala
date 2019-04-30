@@ -54,7 +54,7 @@ object ExprF {
     case AddF(x, y) => Add(x, y)
   }
 
-  val projectCoalgebra: Coalgebra[ExprF, Expr] = Coalgebra {
+  val projectCoalgebra: Coalgebra[ExprF, Expr] = {
     case Const(v)  => ConstF(v)
     case Add(x, y) => AddF(x, y)
   }

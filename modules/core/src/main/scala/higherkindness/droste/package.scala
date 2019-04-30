@@ -27,15 +27,6 @@ object `package` {
   type Gather[F[_], S, A]  = (A, F[S]) => S
   type Scatter[F[_], A, S] = S => Either[A, F[S]]
 
-  object AlgebraM {
-    def apply[M[_], F[_], A](f: F[A] => M[A]): AlgebraM[M, F, A] = GAlgebraM(f)
-  }
-
-  object CoalgebraM {
-    def apply[M[_], F[_], A](f: A => M[F[A]]): CoalgebraM[M, F, A] =
-      GCoalgebraM(f)
-  }
-
   object RAlgebra {
     def apply[R, F[_], A](f: F[(R, A)] => A): RAlgebra[R, F, A] = x => f(x)
   }
@@ -53,7 +44,7 @@ object `package` {
   object RCoalgebraM {
     def apply[R, M[_], F[_], A](
         f: A => M[F[Either[R, A]]]): RCoalgebraM[R, M, F, A] =
-      GCoalgebraM(f)
+      x => f(x)
   }
 
   object CVAlgebra {

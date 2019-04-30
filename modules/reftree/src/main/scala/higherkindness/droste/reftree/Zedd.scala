@@ -32,7 +32,7 @@ private[reftree] object Zedd {
   def empty: Zedd = Zedd(0, Map.empty)
 
   def down[F[_], R](implicit project: Project[F, R]): CoalgebraM[M, F, R] =
-    CoalgebraM(a => State(s => (s.down, project.coalgebra(a))))
+    a => State(s => (s.down, project.coalgebra(a)))
 
   def up[F[_]](algebra: Algebra[F, RefTree]): AlgebraM[M, F, RefTree] =
     AlgebraM(fa =>

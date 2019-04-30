@@ -42,10 +42,9 @@ final class SmallPost extends Properties("SmallPost") {
       case PrependF(_, _)                 => EmptyF
     }
 
-  val infiniteCoalg = Coalgebra[StreamF[Int, ?], Int] { n =>
-    PrependF(n, Eval.later(n + 1))
-  }
-
+  val infiniteCoalg: Coalgebra[StreamF[Int, ?], Int] =
+    n => PrependF(n, Eval.later(n + 1))
+  
   val smallStream =
     scheme.zoo
       .postpro[StreamF[Int, ?], Int, Stream[Int]](infiniteCoalg, filterNT(10))

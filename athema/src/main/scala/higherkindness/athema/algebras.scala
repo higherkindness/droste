@@ -13,8 +13,7 @@ object Evaluate {
 
   def algebraM[V](
       variables: Map[String, V]
-  )(implicit V: Field[V]): AlgebraM[Either[String, ?], Expr[V, ?], V] =
-    AlgebraM {
+  )(implicit V: Field[V]): AlgebraM[Either[String, ?], Expr[V, ?], V] = {
       case Var(name)  => variables.get(name).toRight(s"unknown variable: $name")
       case Const(v)   => v.asRight
       case Neg(x)     => V.negate(x).asRight

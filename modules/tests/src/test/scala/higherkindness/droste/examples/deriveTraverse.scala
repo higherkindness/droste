@@ -25,8 +25,7 @@ object ExprDerivingTraverse {
 final class DeriveTraverseChecks extends Properties("deriveTraverse") {
   import ExprDerivingTraverse._
 
-  val summingAlgebraM: AlgebraM[Option, ExprDerivingTraverse, BigDecimal] =
-    AlgebraM {
+  val summingAlgebraM: AlgebraM[Option, ExprDerivingTraverse, BigDecimal] = {
       case Const(value)                           => Some(value)
       case Add(ExprDerivingTraverse.Box(_, x), y) => Some(x + y)
       case AddList(list)                          => list.map(_.a).sequence.map(_.reduce(_ + _))
