@@ -45,11 +45,9 @@ private[droste] trait Zoo {
       coalgebraM: RCoalgebraM[R, M, F, A]
   )(implicit embed: Embed[F, R]): A => M[R] =
     kernel.hyloMC(
-      embed.algebra
-        .lift[M]
-        .apply
-        .compose((frr: F[(R Either R)]) => frr.map(_.merge)),
-      coalgebraM.apply)
+      (frr: F[(R Either R)]) => Monad[M].pure(embed.algebra(frr.map(_.merge))),
+      coalgebraM.apply
+    )
 
   /** A variation of a catamorphism that gives you access to the input value at
     * every point in the computation.
@@ -69,7 +67,7 @@ private[droste] trait Zoo {
   )(implicit project: Project[F, R]): R => B =
     kernel.hyloC(
       algebra.apply,
-      x => project.coalgebra(x).map(r => (r, r))
+      (x: R) => project.coalgebra(x).map(r => (r, r))
     )
 
   /** A monadic version of a paramorphism.
@@ -84,7 +82,7 @@ private[droste] trait Zoo {
   )(implicit project: Project[F, R]): R => M[B] =
     kernel.hyloMC(
       algebraM.apply,
-      x => (project.coalgebra(x).map(r => (r, r))).pure[M]
+      (r: R) => Monad[M].pure(project.coalgebra(r).map(r => (r, r)))
     )
 
   /** Histomorphism

@@ -148,7 +148,7 @@ abstract class GCoalgebraM[M[_], F[_], A, S] {
 
 object GCoalgebraM {
   def apply[M[_], F[_], S, A](run: A => M[F[S]]): GCoalgebraM[M, F, A, S] =
-    new GCoalgebraM[M, F, S, A]{
+    new GCoalgebraM[M, F, A, S] {
       def apply(a: A): M[F[S]] = run(a)
     }
 
