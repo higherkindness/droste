@@ -23,13 +23,11 @@ object Nu {
   def apply[F[_], A](unfold0: Coalgebra[F, A], a0: A): Nu[F] =
     new Default(unfold0, a0)
 
-  def algebra[F[_]: Functor]: Algebra[F, Nu[F]] = {
-    val co: Coalgebra[F, F[Nu[F]]] = _ map coalgebra.run
-    t => Nu(co, t)
-  }
+  def algebra[F[_]: Functor]: Algebra[F, Nu[F]] =
+    Algebra(t => Nu(Coalgebra[F, F[Nu[F]]](_ map coalgebra.apply), t))
 
   def coalgebra[F[_]: Functor]: Coalgebra[F, Nu[F]] =
-    nf => nf.unfold(nf.a).map(Nu(nf.unfold, _))
+    Coalgebra(nf => nf.unfold(nf.a).map(Nu(nf.unfold, _)))
 
   def apply[F[_]: Functor](fnf: F[Nu[F]]): Nu[F] = algebra[F].apply(fnf)
   def un[F[_]: Functor](nf: Nu[F]): F[Nu[F]]     = coalgebra[F].apply(nf)

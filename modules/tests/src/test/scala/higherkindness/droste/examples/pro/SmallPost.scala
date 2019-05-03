@@ -29,7 +29,7 @@ final class SmallPost extends Properties("SmallPost") {
     }
 
   implicit def streamFEmbed[A] = new Embed[StreamF[A, ?], Stream[A]] {
-    override def algebra: Algebra[StreamF[A, ?], Stream[A]] = {
+    override def algebra = Algebra[StreamF[A, ?], Stream[A]] {
       case PrependF(head, tail) => head #:: tail.value
       case EmptyF               => Stream.empty[A]
     }
@@ -42,9 +42,10 @@ final class SmallPost extends Properties("SmallPost") {
       case PrependF(_, _)                 => EmptyF
     }
 
-  val infiniteCoalg: Coalgebra[StreamF[Int, ?], Int] =
-    n => PrependF(n, Eval.later(n + 1))
-  
+  val infiniteCoalg = Coalgebra[StreamF[Int, ?], Int] { n =>
+    PrependF(n, Eval.later(n + 1))
+  }
+
   val smallStream =
     scheme.zoo
       .postpro[StreamF[Int, ?], Int, Stream[Int]](infiniteCoalg, filterNT(10))

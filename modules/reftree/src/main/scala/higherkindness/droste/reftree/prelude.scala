@@ -62,13 +62,13 @@ object prelude {
   private def fixedToRefTreeAlgebra[F[_]](
       implicit evF: ToRefTree[F[RefTree]]
   ): Algebra[F, RefTree] =
-    (fa: F[RefTree]) => evF.refTree(fa)
+    Algebra((fa: F[RefTree]) => evF.refTree(fa))
 
   private def cofreeToRefTreeAlgebra[F[_] <: AnyRef, A](
       implicit evF: ToRefTree[F[RefTree]],
       evA: ToRefTree[A]
   ): Algebra[AttrF[F, A, ?], RefTree] =
-    (fa: AttrF[F, A, RefTree]) => {
+    Algebra { (fa: AttrF[F, A, RefTree]) =>
       val children = evF.refTree(fa.lower) match {
         case ref: RefTree.Ref => ref.children.toList
         case other            => List(other.toField.withName("value"))
@@ -82,5 +82,5 @@ object prelude {
       implicit evF: ToRefTree[F[RefTree]],
       evA: ToRefTree[A]
   ): Algebra[CoattrF[F, A, ?], RefTree] =
-    x => CoattrF.un(x).fold(evA.refTree, evF.refTree)
+    Algebra(CoattrF.un(_).fold(evA.refTree, evF.refTree))
 }

@@ -47,10 +47,11 @@ object stratagem {
     */
   def partials[F[_]: Traverse, A](
       app: Applicative[List]): Algebra[AttrF[F, A, ?], List[Coattr[F, A]]] =
+    Algebra(
       envt =>
         Coattr.pure[F, A](envt.ask) :: Traverse[F]
           .sequence(envt.lower)(app)
-          .map(Coattr.roll)
+          .map(Coattr.roll))
 
   private lazy val listPerimeterApplicative: Applicative[List] =
     new Applicative[List] {

@@ -11,7 +11,7 @@ final class WorkDone extends Properties("WorkDone") {
 
   final class Sketch(var value: Int = 0)
 
-  def cataAlgebra(sketch: Sketch): Algebra[ListF[Unit, ?], Int] = {
+  def cataAlgebra(sketch: Sketch): Algebra[ListF[Unit, ?], Int] = Algebra {
     case NilF =>
       sketch.value += 1
       0

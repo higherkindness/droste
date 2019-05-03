@@ -42,22 +42,22 @@ private[droste] sealed trait SchemeConvenientPorcelain {
   def ana[F[_]: Functor, A, R](
       coalgebra: Coalgebra[F, A]
   )(implicit embed: Embed[F, R]): A => R =
-    kernel.hylo(embed.algebra.run, coalgebra.run)
+    kernel.hylo(embed.algebra.apply, coalgebra.apply)
 
   def anaM[M[_]: Monad, F[_]: Traverse, A, R](
       coalgebraM: CoalgebraM[M, F, A]
   )(implicit embed: Embed[F, R]): A => M[R] =
-    kernel.hyloM(embed.algebra.lift[M].run, coalgebraM.run)
+    kernel.hyloM(embed.algebra.lift[M].apply, coalgebraM.apply)
 
   def cata[F[_]: Functor, R, B](
       algebra: Algebra[F, B]
   )(implicit project: Project[F, R]): R => B =
-    kernel.hylo(algebra.run, project.coalgebra.run)
+    kernel.hylo(algebra.apply, project.coalgebra.apply)
 
   def cataM[M[_]: Monad, F[_]: Traverse, R, B](
       algebraM: AlgebraM[M, F, B]
   )(implicit project: Project[F, R]): R => M[B] =
-    kernel.hyloM(algebraM.run, project.coalgebra.lift[M].run)
+    kernel.hyloM(algebraM.apply, project.coalgebra.lift[M].apply)
 
   /** Convenience to specify the base constructor "shape" (such as `Fix`
     * or `Cofree[?[_], Int]`) for recursion.
@@ -179,7 +179,7 @@ private[droste] sealed trait SchemeGeneralizedPlumbing {
         coalgebra(a).map(
           kernel.hylo[F, SA, SB](
             fb => gather(algebra(fb), fb),
-            sa => scatter(sa).fold(coalgebra.run, identity))))
+            sa => scatter(sa).fold(coalgebra.apply, identity))))
 
   def ghyloM[M[_]: Monad, F[_]: Traverse, A, SA, SB, B](
       algebra: GAlgebraM[M, F, SB, B],
@@ -194,8 +194,8 @@ private[droste] sealed trait SchemeGeneralizedPlumbing {
             .traverse(
               kernel.hyloM[M, F, SA, SB](
                 fb => algebra(fb).map(gather(_, fb)),
-                sa => scatter(sa).fold(coalgebra.run, _.pure[M])))
-            .flatMap(algebra.run))
+                sa => scatter(sa).fold(coalgebra.apply, _.pure[M])))
+            .flatMap(algebra.apply))
 
   def gcata[F[_]: Functor, R, S, B](galgebra: GAlgebra[F, S, B])(
       gather: Gather[F, S, B]
@@ -207,7 +207,7 @@ private[droste] sealed trait SchemeGeneralizedPlumbing {
           .map(
             kernel.hylo[F, R, S](
               fb => gather(galgebra(fb), fb),
-              project.coalgebra.run _)))
+              project.coalgebra.apply)))
 
   def gcataM[M[_]: Monad, F[_]: Traverse, R, S, B](
       algebra: GAlgebraM[M, F, S, B])(
@@ -220,8 +220,8 @@ private[droste] sealed trait SchemeGeneralizedPlumbing {
           kernel
             .hyloM[M, F, R, S](
               fb => algebra(fb).map(gather(_, fb)),
-              project.coalgebra.lift[M].run))
-        .flatMap(algebra.run)
+              project.coalgebra.lift[M].apply))
+        .flatMap(algebra.apply)
 
   def gana[F[_]: Functor, A, S, R](coalgebra: GCoalgebra[F, A, S])(
       scatter: Scatter[F, A, S]
@@ -230,8 +230,8 @@ private[droste] sealed trait SchemeGeneralizedPlumbing {
       embed.algebra(
         coalgebra(a).map(
           kernel.hylo[F, S, R](
-            embed.algebra.run,
-            s => scatter(s).fold(coalgebra.run, identity))))
+            embed.algebra.apply,
+            s => scatter(s).fold(coalgebra.apply, identity))))
 
   def ganaM[M[_]: Monad, F[_]: Traverse, A, S, R](
       coalgebra: GCoalgebraM[M, F, A, S])(
@@ -242,9 +242,9 @@ private[droste] sealed trait SchemeGeneralizedPlumbing {
         .flatMap(
           _.traverse(
             kernel.hyloM[M, F, S, R](
-              embed.algebra.lift[M].run,
-              sa => scatter(sa).fold(coalgebra.run, _.pure[M]))))
-        .map(embed.algebra.run)
+              embed.algebra.lift[M].apply,
+              sa => scatter(sa).fold(coalgebra.apply, _.pure[M]))))
+        .map(embed.algebra.apply)
 
 }
 
@@ -274,7 +274,7 @@ private[droste] sealed trait SchemeHyloPorcelain {
       algebra: Algebra[F, B],
       coalgebra: Coalgebra[F, A]
   ): A => B =
-    kernel.hylo(algebra.run, coalgebra.run)
+    kernel.hylo(algebra.apply, coalgebra.apply)
 
   /** Build a monadic hylomorphism
     *
@@ -305,6 +305,6 @@ private[droste] sealed trait SchemeHyloPorcelain {
       algebra: AlgebraM[M, F, B],
       coalgebra: CoalgebraM[M, F, A]
   ): A => M[B] =
-    kernel.hyloM(algebra.run, coalgebra.run)
+    kernel.hyloM(algebra.apply, coalgebra.apply)
 
 }

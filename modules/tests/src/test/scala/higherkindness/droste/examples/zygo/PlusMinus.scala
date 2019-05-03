@@ -10,7 +10,7 @@ import higherkindness.droste.data.list._
 
 final class PlusMinus extends Properties("PlusMinus") {
 
-  val evenAlgebra: Algebra[ListF[Int, ?], Boolean] = {
+  val evenAlgebra = Algebra[ListF[Int, ?], Boolean] {
     case NilF           => false
     case ConsF(_, bool) => !bool
   }

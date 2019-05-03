@@ -26,7 +26,7 @@ import higherkindness.droste.data._
 import cats.implicits._
 
 val natCoalgebra: Coalgebra[Option, BigDecimal] =
-  n => if (n > 0) Some(n - 1) else None
+  Coalgebra(n => if (n > 0) Some(n - 1) else None)
 
 val fibAlgebra: CVAlgebra[Option, BigDecimal] = CVAlgebra {
   case Some(r1 :< Some(r2 :< _)) => r1 + r2
@@ -69,7 +69,7 @@ What if we want to do two things at once? Let's calculate a
 Fibonacci value and the sum of all squares.
 
 ```tut:silent
-val fromNatAlgebra: Algebra[Option, BigDecimal] = {
+val fromNatAlgebra: Algebra[Option, BigDecimal] = Algebra {
   case Some(n) => n + 1
   case None    => 0
 }

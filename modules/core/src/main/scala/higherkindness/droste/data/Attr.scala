@@ -18,10 +18,10 @@ object Attr {
   def unapply[F[_], A](f: Attr[F, A]): Some[(A, F[Attr[F, A]])] = Some(f.tuple)
 
   def algebra[F[_], A]: Algebra[AttrF[F, A, ?], Attr[F, A]] =
-    fa => Attr(AttrF.un(fa))
+    Algebra(fa => Attr(AttrF.un(fa)))
 
   def coalgebra[F[_], A]: Coalgebra[AttrF[F, A, ?], Attr[F, A]] =
-    a => AttrF(Attr.un(a))
+    Coalgebra(a => AttrF(Attr.un(a)))
 
   def fromCats[F[_]: Functor, A](cofree: cats.free.Cofree[F, A]): Attr[F, A] =
     ana(cofree)(_.tail.value, _.head)

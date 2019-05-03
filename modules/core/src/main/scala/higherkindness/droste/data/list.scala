@@ -22,7 +22,7 @@ object ListF {
   ): List[A] =
     scheme.cata(toScalaListAlgebra[A]).apply(list)
 
-  def toScalaListAlgebra[A]: Algebra[ListF[A, ?], List[A]] = {
+  def toScalaListAlgebra[A]: Algebra[ListF[A, ?], List[A]] = Algebra {
     case ConsF(head, tail) => head :: tail
     case NilF              => Nil
   }
@@ -32,7 +32,7 @@ object ListF {
   ): PatR[ListF[A, ?]] =
     scheme.ana(fromScalaListCoalgebra[A]).apply(list)
 
-  def fromScalaListCoalgebra[A]: Coalgebra[ListF[A, ?], List[A]] = {
+  def fromScalaListCoalgebra[A]: Coalgebra[ListF[A, ?], List[A]] = Coalgebra {
     case head :: tail => ConsF(head, tail)
     case Nil          => NilF
   }
@@ -52,11 +52,12 @@ object ListF {
     new Monoid[T] {
       def empty = T.algebra(NilF)
       def combine(f1: T, f2: T): T = {
-        val alg: Algebra[ListF[A, ?], T] = {
-          case NilF => f2
-          case cons => T.algebra(cons)
-        }
-        scheme.cata(alg).apply(f1)
+        scheme
+          .cata(Algebra[ListF[A, ?], T] {
+            case NilF => f2
+            case cons => T.algebra(cons)
+          })
+          .apply(f1)
       }
     }
 

@@ -37,11 +37,11 @@ object `package` {
     Gen.sized(
       maxSize =>
         scheme
-          .anaM((size: Int) =>
+          .anaM(CoalgebraM((size: Int) =>
             for {
               a <- arbitrary[A]
               f <- genSizedF[F](size)
-            } yield AttrF(a, f))
+            } yield AttrF(a, f)))
           .apply(maxSize))
 
   def drosteGenCoattr[F[_]: Applicative: MonoidK, A: Arbitrary](
@@ -51,10 +51,10 @@ object `package` {
       maxSize =>
         scheme
           .anaM(
-            (size: Int) =>
+            CoalgebraM((size: Int) =>
               Gen.oneOf(
                 arbitrary[A].map(CoattrF.pure[F, A, Int](_)),
-                genSizedF[F](size).map(CoattrF.roll[F, A, Int](_))))
+                genSizedF[F](size).map(CoattrF.roll[F, A, Int](_)))))
           .apply(maxSize))
 
   def drosteGenAttrF[F[_], A, B](
@@ -67,19 +67,19 @@ object `package` {
 
   def drosteGenFix[F[_]: Applicative: Traverse: MonoidK]: Gen[Fix[F]] =
     Gen.sized(maxSize =>
-      scheme[Fix].anaM(x => genSizedF[F](x) ).apply(maxSize))
+      scheme[Fix].anaM(CoalgebraM(genSizedF[F])).apply(maxSize))
 
   def drosteGenMu[F[_]: Applicative: Traverse: MonoidK](
       implicit ev: Embed[F, Mu[F]]
   ): Gen[Mu[F]] =
     Gen.sized(maxSize =>
-      scheme[Mu].anaM(x => genSizedF[F](x)).apply(maxSize))
+      scheme[Mu].anaM(CoalgebraM(genSizedF[F])).apply(maxSize))
 
   def drosteGenNu[F[_]: Applicative: Traverse: MonoidK](
       implicit ev: Embed[F, Nu[F]]
   ): Gen[Nu[F]] =
     Gen.sized(maxSize =>
-      scheme[Nu].anaM(x => genSizedF[F](x) ).apply(maxSize))
+      scheme[Nu].anaM(CoalgebraM(genSizedF[F])).apply(maxSize))
 
   implicit def drosteArbitraryCofree[F[_]: Applicative: MonoidK, A: Arbitrary](
       implicit ev: Traverse[AttrF[F, A, ?]]

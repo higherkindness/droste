@@ -145,16 +145,17 @@ object MakeChange {
   case object Zero               extends Nat[Nothing]
   final case class Next[A](a: A) extends Nat[A]
 
-  val toNatCoalgebra: Coalgebra[Nat, Int] = n => if (n > 0) Next(n - 1) else Zero
+  val toNatCoalgebra: Coalgebra[Nat, Int] =
+    Coalgebra(n => if (n > 0) Next(n - 1) else Zero)
 
   val toNat: Int => Fix[Nat] =
     scheme.ana(toNatCoalgebra)
 
   val fromNat: Fix[Nat] => Int =
-    scheme[Fix].cata[Nat, Int] {
+    scheme[Fix].cata[Nat, Int](Algebra {
       case Next(n) => n + 1
       case Zero    => 0
-    }
+    })
 
   def lookup(cache: Attr[Nat, Set[List[Coin]]], n: Int): Set[List[Coin]] =
     if (n == 0) cache.head

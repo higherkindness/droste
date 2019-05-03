@@ -27,8 +27,25 @@ object `package` {
   type Gather[F[_], S, A]  = (A, F[S]) => S
   type Scatter[F[_], A, S] = S => Either[A, F[S]]
 
+  object Algebra {
+    def apply[F[_], A](f: F[A] => A): Algebra[F, A] = GAlgebra(f)
+  }
+
+  object Coalgebra {
+    def apply[F[_], A](f: A => F[A]): Coalgebra[F, A] = GCoalgebra(f)
+  }
+
+  object AlgebraM {
+    def apply[M[_], F[_], A](f: F[A] => M[A]): AlgebraM[M, F, A] = GAlgebraM(f)
+  }
+
+  object CoalgebraM {
+    def apply[M[_], F[_], A](f: A => M[F[A]]): CoalgebraM[M, F, A] =
+      GCoalgebraM(f)
+  }
+
   object RAlgebra {
-    def apply[R, F[_], A](f: F[(R, A)] => A): RAlgebra[R, F, A] = x => f(x)
+    def apply[R, F[_], A](f: F[(R, A)] => A): RAlgebra[R, F, A] = GAlgebra(f)
   }
 
   object RCoalgebra {
@@ -44,11 +61,11 @@ object `package` {
   object RCoalgebraM {
     def apply[R, M[_], F[_], A](
         f: A => M[F[Either[R, A]]]): RCoalgebraM[R, M, F, A] =
-      x => f(x)
+      GCoalgebraM(f)
   }
 
   object CVAlgebra {
-    def apply[F[_], A](f: F[Attr[F, A]] => A): CVAlgebra[F, A] = x => f(x)
+    def apply[F[_], A](f: F[Attr[F, A]] => A): CVAlgebra[F, A] = GAlgebra(f)
   }
 
   object CVCoalgebra {
