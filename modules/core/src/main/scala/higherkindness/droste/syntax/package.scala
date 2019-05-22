@@ -73,7 +73,7 @@ sealed trait AttrSyntax {
 }
 
 object AttrSyntax {
-  final class Ops[F[_], B](val lower: F[B]) extends AnyVal {
+  final class Ops[F[_], B](private val lower: F[B]) extends AnyVal {
     implicit def attr[G[a] >: F[a], A](ask: A): AttrF[G, A, B] =
       AttrF(ask, lower)
   }
@@ -85,7 +85,7 @@ sealed trait LiftSyntax {
 }
 
 object LiftSyntax {
-  final class Ops[A, B](val f: A => B) extends AnyVal {
+  final class Ops[A, B](private val f: A => B) extends AnyVal {
     def lift[F[_]](implicit F: Applicative[F]): A => F[B] = a => F.pure(f(a))
   }
 }
@@ -96,7 +96,7 @@ sealed trait FixSyntax {
 }
 
 object FixSyntax {
-  final class Ops[F[_], A](val unfix: F[A]) {
+  final class Ops[F[_], A](private val unfix: F[A]) extends AnyVal {
     def fix[G[A] >: F[A]](implicit ev: A =:= Fix[G]): Fix[G] =
       Fix(unfix.asInstanceOf[G[Fix[G]]])
   }
@@ -108,7 +108,7 @@ sealed trait UnfixSyntax {
 }
 
 object UnfixSyntax {
-  final class Ops[F[_]](val fix: Fix[F]) extends AnyVal {
+  final class Ops[F[_]](private val fix: Fix[F]) extends AnyVal {
     def unfix: F[Fix[F]] = Fix.un(fix)
   }
 }
