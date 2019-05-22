@@ -97,7 +97,8 @@ sealed trait FixSyntax {
 
 object FixSyntax {
   final class Ops[F[_], A](val unfix: F[A]) {
-    def fix[G[A] >: F[A]](implicit ev: A =:= Fix[G]): Fix[G] = Fix(unfix.asInstanceOf[G[Fix[G]]])
+    def fix[G[A] >: F[A]](implicit ev: A =:= Fix[G]): Fix[G] =
+      Fix(unfix.asInstanceOf[G[Fix[G]]])
   }
 }
 
