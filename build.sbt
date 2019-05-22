@@ -30,7 +30,7 @@ lazy val coverage = (project in file(".coverage"))
   .aggregate(testsJVM)
 
 lazy val V = new {
-  val cats = "1.4.0"
+  val cats = "1.6.0"
   def refined(scalaVersion: String): String =
     if (scalaVersion.startsWith("2.13")) "0.9.2" else "0.9.0"
   val algebra = "1.0.0"
