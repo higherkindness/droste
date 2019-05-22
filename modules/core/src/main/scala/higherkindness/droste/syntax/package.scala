@@ -91,13 +91,13 @@ object LiftSyntax {
 }
 
 sealed trait FixSyntax {
-  implicit def toFixSyntaxOps[F[_]](unfix: F[_]): FixSyntax.Ops[F] =
+  implicit def toFixSyntaxOps[F[_], A](unfix: F[A]): FixSyntax.Ops[F, A] =
     new FixSyntax.Ops(unfix)
 }
 
 object FixSyntax {
-  final class Ops[F[_]](val unfix: F[_]) extends AnyVal {
-    def fix[G[a] >: F[a]]: Fix[G] = Fix(unfix.asInstanceOf[G[Fix[G]]])
+  final class Ops[F[_], A](val unfix: F[A]) {
+    def fix[G[A] >: F[A]](implicit ev: A =:= Fix[G]): Fix[G] = Fix(unfix.asInstanceOf[G[Fix[G]]])
   }
 }
 
