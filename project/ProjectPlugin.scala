@@ -72,7 +72,7 @@ object ProjectPlugin extends AutoPlugin {
       outputStrategy := Some(StdoutOutput),
       connectInput in run := true,
       cancelable in Global := true,
-      crossScalaVersions := List("2.11.12", "2.12.6", "2.13.0-M4"),
+      crossScalaVersions := List("2.11.12", "2.12.8"),
       scalaVersion := "2.12.6"
     ) ++ publishSettings
 
