@@ -78,7 +78,7 @@ object Macros {
             v
         })
 
-    def traverseInstance(λ: TypeName): DefDef = {
+    def traverseInstance(λ: TypeName): ValDef = {
       val G  = c.freshName(TypeName("G"))
       val AA = c.freshName(TypeName("AA"))
       val B  = c.freshName(TypeName("B"))
@@ -142,7 +142,7 @@ object Macros {
       val mtch = Match(Ident(TermName("fa")), cases)
 
       q"""
-      implicit def traverseInstance: _root_.cats.Traverse[$λ] = new _root_.higherkindness.droste.util.DefaultTraverse[$λ] {
+      implicit val traverseInstance: _root_.cats.Traverse[$λ] = new _root_.higherkindness.droste.util.DefaultTraverse[$λ] {
         def traverse[$G[_]: _root_.cats.Applicative, $AA, $B](fa: $λ[$AA])(fn: $AA => $G[$B]): $G[$λ[$B]] = $mtch
       }
       """
