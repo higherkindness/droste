@@ -189,16 +189,17 @@ lazy val readme = (project in file("modules/readme"))
 
 lazy val docs = (project in file("docs"))
   .dependsOn(coreJVM)
+  .dependsOn(macrosJVM)
   .dependsOn(athemaJVM)
   .settings(moduleName := "droste-docs")
   .settings(micrositeSettings: _*)
   .settings(noPublishSettings: _*)
+  .settings(libraryDependencies ++= paradiseDep(scalaVersion.value))
+  .settings(micrositeCompilingDocsTool := WithMdoc)
   .enablePlugins(MicrositesPlugin)
   .disablePlugins(ProjectPlugin)
   .disablePlugins(MimaPlugin)
-  .settings(
-    scalacOptions in Tut ~= (_ filterNot Set("-Ywarn-unused-import", "-Xlint").contains)
-  )
+  .settings(mdocIn := tutSourceDirectory.value)
 
 //////////////////
 //// ALIASES /////

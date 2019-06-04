@@ -10,7 +10,7 @@ The basic idea of recursion schemes is that we factor the recursion
 out of recursive data types.  We do so by converting recursive data
 types:
 
-``` scala
+``` scala mdoc
 sealed trait Expr
 case class Sum(a: Expr, b: Expr) extends Expr
 case class Val(a: Int) extends Expr
@@ -19,7 +19,7 @@ case class Val(a: Int) extends Expr
 into non-recursive data types, in which the recursion is factored to a
 type parameter.
 
-``` scala
+``` scala mdoc
 sealed trait ExprF[A]
 case class SumF[A](a: A, b: A) extends ExprF[A]
 case class ValF[A](a: Int) extends ExprF[A]
@@ -32,25 +32,25 @@ However, how do we create values using our new ADT?  Imagine we want
 to represent the `1 + 2` expression.  In the first version of
 `Expr`, it's easy:
 
-``` scala
+``` scala mdoc
 val sum: Expr = Sum(Val(1), Val(2))
 ```
 
 However, using the second type is not as easy, if we try to follow the
 same approach, we see that something doesn't work:
 
-``` scala
-val sumF: ??? = SumF(ValF(1), ValF(2))
+``` scala mdoc
+val sumF: ExprF[ExprF[Int]] = SumF(ValF(1), ValF(2))
 ```
 
 What's the type of `sumF` now? If we'd start substituting we'd get
-something like `Expr[Expr[...]]`, and that's not what we want.
+something like `ExprF[ExprF[...]]`, and that's not what we want.
 
 Introducing fixpoint types.
 
 Fixpoint types are the missing piece in the previous approach to
-datatypes.  They allow us to represent recursion, there are several of
-them, but we will focus on `Fix` now.
+datatypes, they tie the recursive knot in order to avoid scenarios
+such as `ExprF[ExprF[ExprF[...]]]`.
 
 ## Fix
 
@@ -91,7 +91,9 @@ very useful when you need to add an annotation, or attribute, to the
 values in your pattern functor.
 
 `Attr` can be used for:
-* doing [type inference](https://brianmckenna.org/blog/type_annotation_cofree) in an AST, in which the annotation would be the
-  type.
+* [annotating an AST with types](https://brianmckenna.org/blog/type_annotation_cofree)
 * [annotating an AST with positions in the source file](https://github.com/haskell-nix/hnix/blob/master/src/Nix/Expr/Types/Annotated.hs).
 
+# Pattern Functors
+
+Pattern functors are the 
