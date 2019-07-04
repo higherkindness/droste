@@ -3,6 +3,7 @@ package examples
 
 import cats.instances.list._
 import cats.kernel.Eq
+import cats.syntax.option._
 
 import org.scalacheck.Properties
 import org.scalacheck.Prop._
@@ -43,6 +44,16 @@ final class FoldableOpsChecks
     tru[LExpr].collect[List[String], String] {
       case Lam(name, _) => name
     } ?= List("a", "b", "c", "d", "e", "f")
+
+  property("find none") =
+    tru[LExpr].find {
+      case v @ Var(name) if name.startsWith("d") => v
+    } ?= Option.empty[Var]
+
+  property("find existing") =
+    tru[LExpr].find {
+      case Lam(name, _) if !name.startsWith("a") => name
+    } ?= "b".some
 
   property("any") =
     tru[LExpr].any {
