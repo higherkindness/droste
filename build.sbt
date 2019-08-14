@@ -30,7 +30,7 @@ lazy val coverage = (project in file(".coverage"))
   .aggregate(testsJVM)
 
 lazy val V = new {
-  val cats       = "1.6.0"
+  val cats       = "1.6.1"
   val refined    = "0.9.0"
   val algebra    = "1.0.1"
   val atto       = "0.6.5"
@@ -42,7 +42,7 @@ def paradiseDep(scalaVersion: String): Seq[ModuleID] =
     case Some((2, minor)) if minor < 13 =>
       Seq(
         compilerPlugin(
-          "org.scalamacros" %% "paradise" % "2.1.0" cross CrossVersion.patch))
+          "org.scalamacros" %% "paradise" % "2.1.1" cross CrossVersion.patch))
     case _ => Nil
   }
 
