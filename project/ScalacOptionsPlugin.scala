@@ -15,7 +15,7 @@ object ScalacOptionsPlugin extends AutoPlugin {
 
   override def projectSettings: Seq[Def.Setting[_]] = Seq(
     addCompilerPlugin(
-      "org.typelevel" % "kind-projector" % "0.10.1" cross CrossVersion.binary),
+      "org.typelevel" % "kind-projector" % "0.10.3" cross CrossVersion.binary),
     scalac211Options := defaultScalac211Options,
     scalac212Options := defaultScalac212Options,
     scalac213Options := defaultScalac213Options,
