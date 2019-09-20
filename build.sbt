@@ -34,7 +34,7 @@ lazy val V = new {
   val refined    = "0.9.0"
   val algebra    = "1.0.1"
   val atto       = "0.6.5"
-  val scalacheck = "1.13.5"
+  val scalacheck = "1.14.1"
 }
 
 def paradiseDep(scalaVersion: String): Seq[ModuleID] =
