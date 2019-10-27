@@ -12,6 +12,7 @@ import cats.Eq
 import cats.implicits._
 import cats.laws.discipline.ArrowTests
 import cats.laws.discipline.eq._
+import cats.laws.discipline.DeprecatedEqInstances._
 
 final class AlgebraTests extends Properties("algebras") {
 
