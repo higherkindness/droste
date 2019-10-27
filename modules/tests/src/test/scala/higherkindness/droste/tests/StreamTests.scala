@@ -53,7 +53,7 @@ final class StreamTests extends Properties("StreamTests") {
   implicit val arbitraryIntStream: Arbitrary[Stream[Int]] =
     Arbitrary(
       Gen
-        .resize(50, Gen.listOf(Gen.chooseNum[Int](1, Int.MaxValue)))
+        .resize(25, Gen.listOf(Gen.chooseNum[Int](1, Int.MaxValue)))
         .map(Stream.fromList))
 
   include(EqTests[Stream[Int]].eqv.all)
