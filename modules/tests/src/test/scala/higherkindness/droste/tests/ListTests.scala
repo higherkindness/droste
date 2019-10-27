@@ -58,7 +58,7 @@ final class ListTests extends Properties("ListTest") {
       toList(x)
     }
   implicit def arbitrary[T](implicit T: Basis[ListF[Int, ?], T]): Arbitrary[T] =
-    Arbitrary(Gen.resize(50, Gen.listOf(Gen.posNum[Int])).map(scheme.ana(ListF.fromScalaListCoalgebra[Int])))
+    Arbitrary(Gen.resize(50, Gen.listOf(Gen.chooseNum[Int](1, Int.MaxValue))).map(scheme.ana(ListF.fromScalaListCoalgebra[Int])))
 
   import ListF._
 
