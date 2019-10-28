@@ -8,7 +8,7 @@ case "$1" in
         ./tools/bazel build ...
         ;;
     "test")
-        sbt ';+clean;test'
+        sbt ';+clean;+test'
         ;;
     "format")
         ./scalafmt --test

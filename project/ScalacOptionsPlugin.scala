@@ -15,7 +15,7 @@ object ScalacOptionsPlugin extends AutoPlugin {
 
   override def projectSettings: Seq[Def.Setting[_]] = Seq(
     addCompilerPlugin(
-      "org.typelevel" % "kind-projector" % "0.10.3" cross CrossVersion.binary),
+      "org.typelevel" % "kind-projector" % "0.11.0" cross CrossVersion.full),
     scalac211Options := defaultScalac211Options,
     scalac212Options := defaultScalac212Options,
     scalac213Options := defaultScalac213Options,
@@ -36,8 +36,15 @@ object ScalacOptionsPlugin extends AutoPlugin {
   private[this] def defaultScalac213Options: List[String] =
     defaultScalac212Options.filterNot(
       Set(
+        "-Xfuture",
+        "-Xlint:by-name-right-associative",
+        "-Xlint:unsound-match",
         "-Yno-adapted-args",
-        "-Ypartial-unification"
+        "-Ypartial-unification",
+        "-Ywarn-inaccessible",
+        "-Ywarn-infer-any",
+        "-Ywarn-nullary-override",
+        "-Ywarn-nullary-unit"
       )) ++ List(
       "-Ymacro-annotations"
     )
