@@ -1,3 +1,8 @@
+resolvers += Resolver.url(
+  "typesafe sbt-plugins",
+  url("https://dl.bintray.com/typesafe/sbt-plugins")
+)(Resolver.ivyStylePatterns)
+
 addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject"      % "0.6.1")
 addSbtPlugin("org.portable-scala" % "sbt-scala-native-crossproject" % "0.6.1")
 addSbtPlugin("org.scala-js"       % "sbt-scalajs"                   % "0.6.29")
@@ -6,3 +11,4 @@ addSbtPlugin("org.scoverage"      % "sbt-scoverage"                 % "1.6.0")
 addSbtPlugin("io.crashbox"        % "sbt-gpg"                       % "0.2.0")
 addSbtPlugin("com.github.gseitz"  % "sbt-release"                   % "1.0.12")
 addSbtPlugin("com.47deg"          % "sbt-microsites"                % "0.9.7")
+addSbtPlugin("com.typesafe"       % "sbt-mima-plugin"               % "0.6.1")
