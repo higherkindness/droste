@@ -50,10 +50,12 @@ def paradiseDep(scalaVersion: String): Seq[ModuleID] =
 
 lazy val meta = module("meta")
   .settings(
-    mimaPreviousArtifacts := Set(organization.value %%% moduleName.value % V.drostePrev),
+    mimaPreviousArtifacts := Set(
+      organization.value %%% moduleName.value % V.drostePrev),
     libraryDependencies ++= Seq(
       "org.scala-lang" % "scala-reflect"  % scalaVersion.value,
-      "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided"))
+      "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided")
+  )
 
 lazy val metaJVM = meta.jvm
 lazy val metaJS  = meta.js
@@ -61,24 +63,33 @@ lazy val metaJS  = meta.js
 lazy val core = module("core")
   .dependsOn(meta)
   .settings(
-    mimaPreviousArtifacts := Set(organization.value %%% moduleName.value % V.drostePrev),
+    mimaPreviousArtifacts := Set(
+      organization.value %%% moduleName.value % V.drostePrev),
     mimaBinaryIssueFilters ++= {
       import com.typesafe.tools.mima.core.IncompatibleSignatureProblem
       import com.typesafe.tools.mima.core.ProblemFilters.exclude
       // See https://github.com/lightbend/mima/issues/423
       Seq(
-        exclude[IncompatibleSignatureProblem]("higherkindness.droste.Basis#Default.unapply"),
-        exclude[IncompatibleSignatureProblem]("higherkindness.droste.GAlgebra#Gathered.unapply"),
-        exclude[IncompatibleSignatureProblem]("higherkindness.droste.GAlgebraArrow.algebra"),
-        exclude[IncompatibleSignatureProblem]("higherkindness.droste.GAlgebraM#Gathered.unapply"),
-        exclude[IncompatibleSignatureProblem]("higherkindness.droste.GCoalgebra#Scattered.unapply"),
-        exclude[IncompatibleSignatureProblem]("higherkindness.droste.GCoalgebraArrow.algebra"),
-        exclude[IncompatibleSignatureProblem]("higherkindness.droste.GCoalgebraM#Scattered.unapply")
+        exclude[IncompatibleSignatureProblem](
+          "higherkindness.droste.Basis#Default.unapply"),
+        exclude[IncompatibleSignatureProblem](
+          "higherkindness.droste.GAlgebra#Gathered.unapply"),
+        exclude[IncompatibleSignatureProblem](
+          "higherkindness.droste.GAlgebraArrow.algebra"),
+        exclude[IncompatibleSignatureProblem](
+          "higherkindness.droste.GAlgebraM#Gathered.unapply"),
+        exclude[IncompatibleSignatureProblem](
+          "higherkindness.droste.GCoalgebra#Scattered.unapply"),
+        exclude[IncompatibleSignatureProblem](
+          "higherkindness.droste.GCoalgebraArrow.algebra"),
+        exclude[IncompatibleSignatureProblem](
+          "higherkindness.droste.GCoalgebraM#Scattered.unapply")
       )
     },
     libraryDependencies ++= Seq(
       "org.typelevel" %%% "cats-core" % V.cats,
-      "org.typelevel" %%% "cats-free" % V.cats))
+      "org.typelevel" %%% "cats-free" % V.cats)
+  )
 
 lazy val coreJVM = core.jvm
 lazy val coreJS  = core.js
@@ -86,7 +97,8 @@ lazy val coreJS  = core.js
 lazy val macros = module("macros")
   .dependsOn(core)
   .settings(
-    mimaPreviousArtifacts := Set(organization.value %%% moduleName.value % V.drostePrev),
+    mimaPreviousArtifacts := Set(
+      organization.value %%% moduleName.value % V.drostePrev),
     libraryDependencies ++= paradiseDep(scalaVersion.value))
 
 lazy val macrosJVM = macros.jvm
@@ -96,8 +108,9 @@ lazy val reftree = module("reftree")
   .dependsOn(core)
   .settings(noScala213Settings)
   .settings(
-    mimaPreviousArtifacts := Set(organization.value %%% moduleName.value % V.drostePrev),
-    libraryDependencies ++= Seq("io.github.stanch" %%% "reftree" % "1.2.1"))
+    mimaPreviousArtifacts := Set(
+      organization.value                           %%% moduleName.value % V.drostePrev),
+    libraryDependencies ++= Seq("io.github.stanch" %%% "reftree"        % "1.2.1"))
 
 lazy val reftreeJVM = reftree.jvm
 lazy val reftreeJS  = reftree.js
@@ -105,9 +118,11 @@ lazy val reftreeJS  = reftree.js
 lazy val scalacheck = module("scalacheck")
   .dependsOn(core)
   .settings(
-    mimaPreviousArtifacts := Set(organization.value %%% moduleName.value % V.drostePrev),
+    mimaPreviousArtifacts := Set(
+      organization.value %%% moduleName.value % V.drostePrev),
     libraryDependencies ++= Seq(
-      "org.scalacheck" %%% "scalacheck" % V.scalacheck))
+      "org.scalacheck" %%% "scalacheck" % V.scalacheck)
+  )
 
 lazy val scalacheckJVM = scalacheck.jvm
 lazy val scalacheckJS  = scalacheck.js
@@ -115,8 +130,11 @@ lazy val scalacheckJS  = scalacheck.js
 lazy val laws = module("laws")
   .dependsOn(core)
   .settings(
-    mimaPreviousArtifacts := Set(organization.value %%% moduleName.value % V.drostePrev),
-    libraryDependencies ++= Seq("org.scalacheck" %%% "scalacheck" % V.scalacheck))
+    mimaPreviousArtifacts := Set(
+      organization.value %%% moduleName.value % V.drostePrev),
+    libraryDependencies ++= Seq(
+      "org.scalacheck" %%% "scalacheck" % V.scalacheck)
+  )
 
 lazy val lawsJVM = laws.jvm
 lazy val lawsJS  = laws.js
@@ -125,13 +143,12 @@ lazy val tests = module("tests")
   .dependsOn(core, scalacheck, laws, macros)
   .settings(noPublishSettings)
   .disablePlugins(MimaPlugin)
-  .settings(
-    libraryDependencies ++= Seq(
-      "org.scalacheck" %%% "scalacheck"         % V.scalacheck,
-      "org.typelevel"  %%% "cats-laws"          % V.cats,
-      "eu.timepit"     %%% "refined"            % V.refined,
-      "eu.timepit"     %%% "refined-scalacheck" % V.refined
-    ) ++ paradiseDep(scalaVersion.value))
+  .settings(libraryDependencies ++= Seq(
+    "org.scalacheck" %%% "scalacheck"         % V.scalacheck,
+    "org.typelevel"  %%% "cats-laws"          % V.cats,
+    "eu.timepit"     %%% "refined"            % V.refined,
+    "eu.timepit"     %%% "refined-scalacheck" % V.refined
+  ) ++ paradiseDep(scalaVersion.value))
 
 lazy val testsJVM = tests.jvm
 lazy val testsJS  = tests.js
