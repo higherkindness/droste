@@ -34,9 +34,6 @@ object kernel {
     * </pre>
     *
     * @group refolds
-    *
-    * @usecase def hylo[F[_], A, B](algebra: F[B] => B, coalgebra: A => F[A]): A => B
-    *   @inheritdoc
     */
   def hylo[F[_]: Functor, A, B](
       algebra: F[B] => B,
@@ -52,9 +49,6 @@ object kernel {
     * to `hylo` with the types set properly.
     *
     * @group refolds
-    *
-    * @usecase def hyloC[F[_], G[_], A, B](algebra: F[G[B]] => B, coalgebra: A => F[G[A]]): A => B
-    *   @inheritdoc
     */
   @inline def hyloC[F[_]: Functor, G[_]: Functor, A, B](
       algebra: F[G[B]] => B,
@@ -82,9 +76,6 @@ object kernel {
     * </pre>
     *
     * @group refolds
-    *
-    * @usecase def hyloM[M[_], F[_], A, B](algebra: F[B] => M[B], coalgebra: A => M[F[A]]): A => M[B]
-    *   @inheritdoc
     */
   def hyloM[M[_]: Monad, F[_]: Traverse, A, B](
       algebra: F[B] => M[B],
@@ -95,9 +86,6 @@ object kernel {
   /** Convenience to build a monadic hylomorphism for the composed functor `F[G[_]]`.
     *
     * @group refolds
-    *
-    * @usecase def hyloMC[M[_], F[_], G[_], A, B](algebra: F[G[B]] => M[B], coalgebra: A => M[F[G[A]]]): A => M[B]
-    *   @inheritdoc
     */
   def hyloMC[M[_]: Monad, F[_]: Traverse, G[_]: Traverse, A, B](
       algebra: F[G[B]] => M[B],

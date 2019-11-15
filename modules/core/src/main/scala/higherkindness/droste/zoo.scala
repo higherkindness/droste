@@ -22,9 +22,6 @@ private[droste] trait Zoo {
     * unfold.
     *
     * @group unfolds
-    *
-    * @usecase def apo[F[_], A, R](coalgebra: RCoalgebra[R, F, A]): A => R
-    *   @inheritdoc
     */
   def apo[F[_]: Functor, A, R](
       coalgebra: RCoalgebra[R, F, A]
@@ -36,9 +33,6 @@ private[droste] trait Zoo {
   /** A monadic version of an apomorphism.
     *
     * @group unfolds
-    *
-    * @usecase def apoM[M[_], F[_], A, R](coalgebraM: RCoalgebraM[R, M, F, A]): A => M[R]
-    *   @inheritdoc
     */
   def apoM[M[_]: Monad, F[_]: Traverse, A, R](
       coalgebraM: RCoalgebraM[R, M, F, A]
@@ -59,9 +53,6 @@ private[droste] trait Zoo {
     * value as well as the original value.
     *
     * @group folds
-    *
-    * @usecase def para[F[_], R, B](algebra: RAlgebra[R, F, B]): R => B
-    *   @inheritdoc
     */
   def para[F[_]: Functor, R, B](
       algebra: RAlgebra[R, F, B]
@@ -71,9 +62,6 @@ private[droste] trait Zoo {
   /** A monadic version of a paramorphism.
     *
     * @group folds
-    *
-    * @usecase def paraM[M[_], F[_], R, B](algebraM: RAlgebraM[R, M, F, B]): R => M[B]
-    *   @inheritdoc
     */
   def paraM[M[_]: Monad, F[_]: Traverse, R, B](
       algebraM: RAlgebraM[R, M, F, B]
@@ -85,9 +73,6 @@ private[droste] trait Zoo {
   /** Histomorphism
     *
     * @group folds
-    *
-    * @usecase def histo[F[_], R, B](algebra: CVAlgebra[F, B]): R => B
-    *   @inheritdoc
     */
   def histo[F[_]: Functor, R, B](
       algebra: CVAlgebra[F, B]
@@ -100,9 +85,6 @@ private[droste] trait Zoo {
   /** Futumorphism
     *
     * @group unfolds
-    *
-    * @usecase def futu[F[_], A, R](coalgebra: CVCoalgebra[F, A]): A => R
-    *   @inheritdoc
     */
   def futu[F[_]: Functor, A, R](
       coalgebra: CVCoalgebra[F, A]
@@ -115,9 +97,6 @@ private[droste] trait Zoo {
   /** A fusion refold of a futumorphism followed by a histomorphism
     *
     * @group refolds
-    *
-    * @usecase def chrono[F[_], A, B](algebra: CVAlgebra[F, B], coalgebra: CVCoalgebra[F, A]): A => B
-    *   @inheritdoc
     */
   def chrono[F[_]: Functor, A, B](
       algebra: CVAlgebra[F, B],
@@ -131,9 +110,6 @@ private[droste] trait Zoo {
   /** A fusion refold of an anamorphism followed by a histomorphism
     *
     * @group refolds
-    *
-    * @usecase def dyna[F[_], A, B](algebra: CVAlgebra[F, B], coalgebra: Coalgebra[F, A]): A => B
-    *   @inheritdoc
     */
   def dyna[F[_]: Functor, A, B](
       algebra: CVAlgebra[F, B],
@@ -149,9 +125,6 @@ private[droste] trait Zoo {
     * This allows one to preprocess the input structure.
     *
     * @group folds
-    *
-    * @usecase def prepro[F[_], R, B](natTrans: F ~> F, algebra: Algebra[F, B]): R => B
-    *   @inheritdoc
     */
   def prepro[F[_]: Functor, R, B](
       natTrans: F ~> F,
@@ -167,9 +140,6 @@ private[droste] trait Zoo {
     * This allows one to postprocess the output structure.
     *
     * @group unfolds
-    *
-    * @usecase def postpro[F[_], A, R](coalgebra: Coalgebra[F, A], natTrans: F ~> F): A => R
-    *   @inheritdoc
     */
   def postpro[F[_]: Functor, A, R](
       coalgebra: Coalgebra[F, A],
@@ -185,9 +155,6 @@ private[droste] trait Zoo {
     * This allows the second algebra to depend on the result of the first one.
     *
     * @group folds
-    *
-    * @usecase def zygo[F[_], R, A, B](algebra: Algebra[F, A], ralgebra: RAlgebra[A, F, B]): R => B
-    *   @inheritdoc
     */
   def zygo[F[_]: Functor, R, A, B](
       algebra: Algebra[F, A],
