@@ -65,9 +65,6 @@ private[droste] sealed trait SchemeConvenientPorcelain {
     * This helps to guide Scala's type inference so all of the type
     * parameters for the various recursion scheme methods don't have
     * to be provided.
-    *
-    * @usecase def apply[Shape]: SchemePartialBasis[Shape, Shape]
-    *   @inheritdoc
     */
   def apply[PatR[_[_]]](
       implicit ev: Basis.Solve[PatR]): SchemePartialBasis[PatR, ev.PatF] =
@@ -266,9 +263,6 @@ private[droste] sealed trait SchemeHyloPorcelain {
     * </pre>
     *
     * @group refolds
-    *
-    * @usecase def hylo[F[_], A, B](algebra: Algebra[F, B], coalgebra: Coalgebra[F, A]): A => B
-    *   @inheritdoc
     */
   def hylo[F[_]: Functor, A, B](
       algebra: Algebra[F, B],
@@ -297,9 +291,6 @@ private[droste] sealed trait SchemeHyloPorcelain {
     * </pre>
     *
     * @group refolds
-    *
-    * @usecase def hyloM[M[_], F[_], A, B](algebra: AlgebraM[M, F, B], coalgebra: CoalgebraM[M, F, A]): A => M[B]
-    *   @inheritdoc
     */
   def hyloM[M[_]: Monad, F[_]: Traverse, A, B](
       algebra: AlgebraM[M, F, B],
