@@ -27,7 +27,9 @@ abstract class GTransM[M[_], F[_], G[_], A, B] { self =>
   def algebra(
     implicit embed: Embed[G, B],
     ev: Functor[M]): GAlgebraM[M, F, A, B] =
-    GAlgebraM(x => self(x).map(embed.algebra.apply))
+    new GAlgebraM[M, F, A, B]{
+      def apply(x: F[A]): M[B] = self(x).map(embed.algebra.apply)
+    }
 
   def coalgebra(implicit project: Project[F, A]): GCoalgebraM[M, G, A, B] =
     GCoalgebraM(x => self(project.coalgebra(x)))

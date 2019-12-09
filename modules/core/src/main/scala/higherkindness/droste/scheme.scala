@@ -87,11 +87,9 @@ private[droste] sealed trait SchemeConvenientPorcelain {
     )(implicit embed: EmbedP[F], ev: TraverseP[F]): A => M[PatR[F]] =
       scheme.anaM[M, PatF[F, ?], A, PatR[F]](coalgebraM)
 
-    def gana[F[_], A, S](
-        scattered: GCoalgebra.Scattered[PatF[F, ?], A, S]
+    def gana[F[_], A, S](scattered: GCoalgebra.Scattered[PatF[F, ?], A, S]
     )(implicit embed: EmbedP[F], ev: FunctorP[F]): A => PatR[F] =
-      scheme.gana[PatF[F, ?], A, S, PatR[F]](scattered.coalgebra)(
-        scattered.scatter)
+      scheme.gana[PatF[F, ?], A, S, PatR[F]](scattered)(scattered.scatter)
 
     def ganaM[M[_]: Monad, F[_], A, S](
         scattered: GCoalgebraM.Scattered[M, PatF[F, ?], A, S]
