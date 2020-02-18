@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-default_bazel_version='2.1.0'
+default_bazel_version='1.2.0'
 
 if [ -z "$OVERRIDE_BAZEL_VERSION" ]; then
     bazel_version="$default_bazel_version"
