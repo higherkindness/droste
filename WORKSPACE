@@ -2,7 +2,7 @@ workspace(name = "io_higherkindness_droste")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-rules_scala_version = "1fa4408d48cbf0da72e9229d49d07e10aa8847cd"  # update this as needed
+rules_scala_version = "69d3c5b5d9b51537231746e93b4383384c9ebcf4"  # update this as needed
 
 http_archive(
     name = "io_bazel_rules_scala",
