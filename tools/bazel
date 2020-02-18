@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-default_bazel_version='0.29.1'
+default_bazel_version='1.2.1'
 
 if [ -z "$OVERRIDE_BAZEL_VERSION" ]; then
     bazel_version="$default_bazel_version"
@@ -13,10 +13,6 @@ case "$bazel_version" in
         bazel_version=$("$BAZEL_REAL" version | awk '/Build label/ {print $3}' | cut -d '-' -f 1)
         bazel="$BAZEL_REAL"
         ;;
-    '0.21.0')
-        darwin_sha='5e40dcf12a18990ffe5830fb5c83297aed090fd6e6c7c5b2eb720c19a33044fc'
-        linux_sha='328d5fa87a61e1f6e674a8f88c5ae54b8987eaf5a6c944257600c5029c8feef8'
-        ;;
     '0.22.0')
         darwin_sha='adae5bbc3bf2b9b60d460d8ea2c65da1a6edd75b242439dfc49d001272548d13'
         linux_sha='6d85f9fd6671ec5ffa8c78d150fe6c8da50874cfa8aa1900672dfd93e9989cb0'
@@ -24,6 +20,10 @@ case "$bazel_version" in
     '0.29.1')
         darwin_sha='66395b3fce4f35326403a0063b25f5357d520ee13e4f0e0ac969d7914e2c1d33'
         linux_sha='f87f0057cd7d6666e4d371267fbe27a9ed47f42e6663694a1cd755c8c6858baf'
+        ;;
+    '1.2.1')
+        darwin_sha='59e469bf1d8d1615b67856ea17e761be05e9c92b462e55c0354cd78145b480d5'
+        linux_sha='ae6249e25b0f5a06d79fad90325477dd56275657951cf7aa6a3cbcd79fc4d749'
         ;;
     *)
         echo "The requested Bazel version '$bazel_version' is not supported"
