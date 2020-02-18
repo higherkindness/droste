@@ -12,6 +12,7 @@ common:v0.22 --config=noop
 common:v0.23 --config=noop
 common:v0.24 --config=noop
 common:v0.29 --config=noop
+common:v1.2 --config=noop
 
 # pick something trivial as a "noop"
 common:noop --logging=3
