@@ -11,7 +11,7 @@ http_archive(
     sha256 = "2ef429f5d7ce7111263289644d233707dba35e39696377ebab8b0bc701f7818e",
 )
 
-rules_scala_version="bd0c388125e12f4f173648fc4474f73160a5c628" # update this as needed
+rules_scala_version="6442e78e9c16afa12cefd26a95722887e7697d3f" # update this as needed
 
 http_archive(
     name = "io_bazel_rules_scala",
