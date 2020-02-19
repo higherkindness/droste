@@ -26,7 +26,7 @@ scala_register_toolchains()
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
 scala_repositories()
 
-protobuf_version="09745575a923640154bcf307fba8aedff47f240a"
+protobuf_version="d0bfd5221182da1a7cc280f3337b5e41a89539cf"
 protobuf_version_sha256="416212e14481cff8fd4849b1c1c1200a7f34808a54377e22d7447efdf54ad758"
 
 http_archive(
