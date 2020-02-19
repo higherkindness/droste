@@ -26,6 +26,16 @@ scala_register_toolchains()
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
 scala_repositories()
 
+protobuf_version="09745575a923640154bcf307fba8aedff47f240a"
+protobuf_version_sha256="416212e14481cff8fd4849b1c1c1200a7f34808a54377e22d7447efdf54ad758"
+
+http_archive(
+    name = "com_google_protobuf",
+    url = "https://github.com/protocolbuffers/protobuf/archive/%s.tar.gz" % protobuf_version,
+    strip_prefix = "protobuf-%s" % protobuf_version,
+    sha256 = protobuf_version_sha256,
+)
+
 load(":workspace.bzl", "droste_bind_dependencies")
 droste_bind_dependencies()
 
