@@ -28,3 +28,7 @@ scala_repositories()
 
 load(":workspace.bzl", "droste_bind_dependencies")
 droste_bind_dependencies()
+
+load("//3rdparty:workspace.bzl", "maven_dependencies")
+maven_dependencies()
+
