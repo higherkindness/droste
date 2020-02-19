@@ -27,7 +27,7 @@ load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
 scala_repositories()
 
 protobuf_version="d0bfd5221182da1a7cc280f3337b5e41a89539cf"
-protobuf_version_sha256="416212e14481cff8fd4849b1c1c1200a7f34808a54377e22d7447efdf54ad758"
+protobuf_version_sha256="2435b7fb83b8a608c24ca677907aa9a35e482a7f018e65ca69481b3c8c9f7caf"
 
 http_archive(
     name = "com_google_protobuf",
