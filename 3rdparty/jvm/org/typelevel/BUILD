@@ -1,11 +1,12 @@
+load("@io_bazel_rules_scala//scala:scala.bzl", "scala_library")
 load("@io_bazel_rules_scala//scala:scala_import.bzl", "scala_import")
 scala_import(
     name = "cats_core",
     exports = [
         "//3rdparty/jvm/org/scala_lang:scala_library",
         ":cats_kernel",
-        ":cats_macros_2_11",
-        ":machinist_2_11"
+        ":cats_macros",
+        ":machinist"
     ],
     jars = [
         "//external:jar/io_higherkindness_droste_org/typelevel/cats_core_2_11"
@@ -22,8 +23,8 @@ scala_import(
     exports = [
         "//3rdparty/jvm/org/scala_lang:scala_library",
         ":cats_core",
-        ":cats_macros_2_11",
-        ":machinist_2_11"
+        ":cats_macros",
+        ":machinist"
     ],
     jars = [
         "//external:jar/io_higherkindness_droste_org/typelevel/cats_free_2_11"
@@ -50,12 +51,14 @@ scala_import(
 
 
 
-java_library(
-    name = "cats_macros_2_11",
+scala_import(
+    name = "cats_macros",
     exports = [
         "//3rdparty/jvm/org/scala_lang:scala_library",
-        "//external:jar/io_higherkindness_droste_org/typelevel/cats_macros_2_11",
-        ":machinist_2_11"
+        ":machinist"
+    ],
+    jars = [
+        "//external:jar/io_higherkindness_droste_org/typelevel/cats_macros_2_11"
     ],
     visibility = [
         "//3rdparty/jvm:__subpackages__"
@@ -64,11 +67,13 @@ java_library(
 
 
 
-java_library(
-    name = "machinist_2_11",
+scala_import(
+    name = "machinist",
     exports = [
         "//3rdparty/jvm/org/scala_lang:scala_library",
-        "//3rdparty/jvm/org/scala_lang:scala_reflect",
+        "//3rdparty/jvm/org/scala_lang:scala_reflect"
+    ],
+    jars = [
         "//external:jar/io_higherkindness_droste_org/typelevel/machinist_2_11"
     ],
     visibility = [
