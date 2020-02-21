@@ -32,10 +32,10 @@ lazy val coverage = (project in file(".coverage"))
 
 lazy val V = new {
   val cats       = "2.0.0"
-  val refined    = "0.9.10"
+  val refined    = "0.9.12"
   val algebra    = "2.0.0"
   val atto       = "0.7.1"
-  val scalacheck = "1.14.2"
+  val scalacheck = "1.14.3"
   val drostePrev = "0.7.0"
 }
 
