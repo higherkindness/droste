@@ -2,6 +2,8 @@
 
 # Droste
 
+[![Join the chat at https://gitter.im/higherkindness/droste](https://badges.gitter.im/higherkindness/droste.svg)](https://gitter.im/higherkindness/droste?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Droste is a recursion library for Scala.
 
 **SBT installation**
