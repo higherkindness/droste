@@ -31,8 +31,8 @@ lazy val coverage = (project in file(".coverage"))
   .aggregate(testsJVM)
 
 lazy val V = new {
-  val cats       = "2.0.0"
-  val refined    = "0.9.12"
+  val cats       = "2.2.0-RC1"
+  val refined    = "0.9.15"
   val algebra    = "2.0.0"
   val atto       = "0.7.1"
   val scalacheck = "1.14.3"
