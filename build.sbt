@@ -10,7 +10,7 @@ lazy val root = (project in file("."))
   .aggregate(athemaJVM, athemaJS)
   .aggregate(readme)
 
-lazy val publish = (project in file("."))
+lazy val publish = (project in file(".publish"))
   .settings(noPublishSettings)
   .disablePlugins(MimaPlugin)
   .aggregate(coreJVM, coreJS)
