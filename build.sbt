@@ -3,14 +3,15 @@ lazy val root = (project in file("."))
   .aggregate(coreJVM, coreJS)
   .aggregate(metaJVM, metaJS)
   .aggregate(macrosJVM, macrosJS)
-  .aggregate(reftreeJVM, reftreeJS)
+  .aggregate(reftree)
   .aggregate(scalacheckJVM, scalacheckJS)
   .aggregate(lawsJVM, lawsJS)
   .aggregate(testsJVM, testsJS)
   .aggregate(athemaJVM, athemaJS)
   .aggregate(readme)
+  .settings(crossScalaVersions := List()) // work around https://github.com/sbt/sbt/issues/4181
 
-lazy val publish = (project in file("."))
+lazy val publish = (project in file(".publish"))
   .settings(noPublishSettings)
   .disablePlugins(MimaPlugin)
   .aggregate(coreJVM, coreJS)
@@ -104,16 +105,14 @@ lazy val macros = module("macros")
 lazy val macrosJVM = macros.jvm
 lazy val macrosJS  = macros.js
 
-lazy val reftree = module("reftree")
-  .dependsOn(core)
+lazy val reftree = jvmModule("reftree")
+  .dependsOn(coreJVM)
   .settings(noScala213Settings)
   .settings(
     mimaPreviousArtifacts := Set(
-      organization.value                           %%% moduleName.value % V.drostePrev),
-    libraryDependencies ++= Seq("io.github.stanch" %%% "reftree"        % "1.2.1"))
-
-lazy val reftreeJVM = reftree.jvm
-lazy val reftreeJS  = reftree.js
+      organization.value                           %% moduleName.value % V.drostePrev),
+    libraryDependencies ++= Seq("io.github.stanch" %% "reftree"        % "1.2.1")
+  )
 
 lazy val scalacheck = module("scalacheck")
   .dependsOn(core)
@@ -156,7 +155,6 @@ lazy val testsJS  = tests.js
 lazy val athema = module("athema", prefix = "")
   .dependsOn(core)
   .settings(noPublishSettings)
-  .settings(noScala213Settings)
   .disablePlugins(MimaPlugin)
   .settings(
     libraryDependencies ++=

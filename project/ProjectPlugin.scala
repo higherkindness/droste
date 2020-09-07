@@ -29,6 +29,16 @@ object ProjectPlugin extends AutoPlugin {
         .jvmSettings(fork in Test := true)
         .settings(moduleName := s"droste-$modName")
 
+    def jvmModule(
+        modName: String,
+        prefix: String = "modules/"
+    ): Project =
+      Project(modName, file(s"$prefix$modName"))
+        .settings(
+          fork in Test := true,
+          moduleName := s"droste-$modName"
+        )
+
     lazy val macroSettings: Seq[Setting[_]] = Seq(
       libraryDependencies ++= Seq(
         scalaOrganization.value % "scala-compiler" % scalaVersion.value % Provided,
