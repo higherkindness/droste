@@ -199,3 +199,11 @@ lazy val docs = (project in file("docs"))
   .settings(
     scalacOptions in Tut ~= (_ filterNot Set("-Ywarn-unused-import", "-Xlint").contains)
   )
+
+
+
+addCommandAlias(
+  "ci-test",
+  ";+clean;+test"
+)
+addCommandAlias("ci-docs", ";readme/tut")
