@@ -1,40 +1,71 @@
+# Don't edit this file!
+# It is automatically updated after every release of https://github.com/47degrees/.github
+# If you want to suggest a change, please open a PR or issue in that repository
 
-project/boot
-target
-.ensime
-.ensime_lucene
-.ensime_cache
-.metals
-project/.bloop
-project/project/.bloop
-TAGS
-\#*#
-*~
-.#*
-.lib
-.history
-.*.swp
+### Intellij ###
+
 .idea
-.idea/*
-.idea_modules
-.DS_Store
-.sbtrc
-*.sublime-project
-*.sublime-workspace
-tests.iml
+out/
+
+### Java ###
+
+*.class
 *.log
-.sass-cache/
-metastore_db/
-checkpoint/
-testData/
-.phantom-temp
 
-# PGP keys
-secring.asc
+### macOS ###
 
-# bazel
-result
-bazel-*
-!*.nix
-.bazel_cache
-.direnv
+.DS_Store
+
+### SBT ###
+
+dist/*
+target/
+lib_managed/
+src_managed/
+project/boot/
+project/plugins/project/
+.history
+.cache
+.lib/
+.bsp
+
+### Scala ###
+
+*.metals
+.bloop/
+.metals/
+metals.sbt
+
+### Vim ###
+
+# Swap
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+
+# Session
+Session.vim
+Sessionx.vim
+
+# Temporary
+.netrwhist
+
+# Auto-generated tag files
+tags
+
+# Persistent undo
+[._]*.un~
+
+# Coc configuration directory
+.vim
+
+### VisualStudioCode ###
+
+.vscode/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
