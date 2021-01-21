@@ -1,19 +1,23 @@
-{ java ? "openjdk11" }:
+{ java ? "openjdk14" }:
 
 let
   sources = import ./nix/sources.nix;
   pkgs = import sources.nixpkgs {};
-in
-pkgs.mkShell {
+  sbt = pkgs.sbt.override {
+    jre = pkgs.${java};
+  };
+  metals = pkgs.metals.override {
+    jre = pkgs.${java};
+  };
+in pkgs.mkShell {
   buildInputs = [
     pkgs.${java}
     pkgs.git
     pkgs.jekyll
-    pkgs.metals
+    metals
     pkgs.nodejs
-    pkgs.openjdk8
+    sbt
     pkgs.perl
-    pkgs.sbt
     pkgs.niv
   ];
 }
