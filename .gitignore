@@ -6,6 +6,7 @@ target
 .ensime_cache
 .metals
 project/.bloop
+project/project/.bloop
 TAGS
 \#*#
 *~
@@ -36,3 +37,4 @@ result
 bazel-*
 !*.nix
 .bazel_cache
+.direnv

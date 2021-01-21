@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell ../default.nix -i bash
+#! nix-shell ../shell.nix -i bash
 
 set -euxo pipefail
 
