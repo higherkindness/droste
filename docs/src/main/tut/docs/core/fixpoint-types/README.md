@@ -10,7 +10,7 @@ The basic idea of recursion schemes is that we factor the recursion
 out of recursive data types.  We do so by converting recursive data
 types:
 
-``` scala mdoc
+```scala mdoc
 sealed trait Expr
 case class Sum(a: Expr, b: Expr) extends Expr
 case class Val(a: Int) extends Expr
@@ -19,7 +19,7 @@ case class Val(a: Int) extends Expr
 into non-recursive data types, in which the recursion is factored to a
 type parameter.
 
-``` scala mdoc
+```scala mdoc
 sealed trait ExprF[A]
 case class SumF[A](a: A, b: A) extends ExprF[A]
 case class ValF[A](a: Int) extends ExprF[A]
@@ -32,14 +32,14 @@ However, how do we create values using our new ADT?  Imagine we want
 to represent the `1 + 2` expression.  In the first version of
 `Expr`, it's easy:
 
-``` scala mdoc
+```scala mdoc
 val sum: Expr = Sum(Val(1), Val(2))
 ```
 
 However, using the second type is not as easy, if we try to follow the
 same approach, we see that something doesn't work:
 
-``` scala mdoc
+```scala mdoc
 val sumF: ExprF[ExprF[Int]] = SumF(ValF(1), ValF(2))
 ```
 
@@ -57,7 +57,7 @@ such as `ExprF[ExprF[ExprF[...]]]`.
 Fix is the simplest of fixpoint data types, and it's declaration is as
 follows:
 
-``` scala
+```scala
 case class Fix[F[_]](unFix: F[Fix[F]])
 ```
 
@@ -65,7 +65,7 @@ Even though it may look extrange, the idea is quite simple.  Let's get
 back to the previous example.  Using `Fix` we can now define our value
 sumF as follows:
 
-``` scala
+```scala
 val sumF: Fix[ExprF] = Fix(SumF(Fix(ValF(1)), Fix(ValF(2))))
 ```
 
@@ -96,4 +96,4 @@ values in your pattern functor.
 
 # Pattern Functors
 
-Pattern functors are the 
+Pattern functors are the

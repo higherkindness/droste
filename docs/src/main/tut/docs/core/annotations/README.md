@@ -18,14 +18,14 @@ There are some restrictions in order to use `@deriveFixedPoint`:
 - the annotee should be either a `sealed trait` or `sealed abstract class`
 - cases of the ADT should be declared inside the companion object
 - recursion should appear on positive postion, somethink like follows will not compile:
-  
-``` scala mdoc:fail
+
+```scala mdoc:fail
 import higherkindness.droste.macros.deriveFixedPoint
 
 @deriveFixedPoint sealed trait X
 object X{
   // here, X appears in negative postition
-  case class Y[A](f: X => Int) extends X 
+  case class Y[A](f: X => Int) extends X
 }
 ```
 
@@ -40,7 +40,7 @@ the following:
 - create a NonRecursive[A] => Recursive algebra
 - create a `Basis` instance
 
-``` scala mdoc
+```scala mdoc
 import cats.instances.list._
 
 import higherkindness.droste.Basis
@@ -51,7 +51,7 @@ import higherkindness.droste.macros.deriveFixedPoint
 object Expr {
   case class Val(i: Int) extends Expr
   case class Sum(a: Expr, b: Expr) extends Expr
-  
+
   def `val`[A](i: Int): fixedpoint.ExprF[A]  = fixedpoint.ValF(i)
   def sum[A](a: A, b: A): fixedpoint.ExprF[A] = fixedpoint.SumF(a, b)
 }
@@ -59,7 +59,7 @@ object Expr {
 import Expr._
 import Expr.fixedpoint._
 
-def program[T: Basis[ExprF, ?]]: T = 
+def program[T: Basis[ExprF, ?]]: T =
   sum[T](
     sum[T](
 	  `val`[T](1).embed,
@@ -70,11 +70,10 @@ def program[T: Basis[ExprF, ?]]: T =
 	  `val`[T](4).embed
 	).embed
   ).embed
-  
+
 val numbersToBeAdded = program[Expr].collect[List[Int], Int] {
   case Val(x) => x
 }
 
 println(numbersToBeAdded)
 ```
-
