@@ -208,4 +208,4 @@ addCommandAlias(
   "ci-test",
   ";+clean;+test"
 )
-addCommandAlias("ci-docs", ";readme/tut")
+addCommandAlias("ci-docs", "github; docs/mdoc; readme/mdoc")

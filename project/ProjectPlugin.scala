@@ -7,7 +7,6 @@ import sbtcrossproject.CrossProject
 import sbtcrossproject.CrossPlugin.autoImport._
 import scalajscrossproject.ScalaJSCrossPlugin.autoImport._
 import scalanativecrossproject.ScalaNativeCrossPlugin.autoImport._
-import sbtrelease.ReleasePlugin.autoImport._
 
 object ProjectPlugin extends AutoPlugin {
 
@@ -84,38 +83,6 @@ object ProjectPlugin extends AutoPlugin {
       cancelable in Global := true,
       crossScalaVersions := List("2.12.10", "2.13.1"),
       scalaVersion := "2.12.10"
-    ) ++ publishSettings
-
-  lazy val publishSettings = Seq(
-    releaseCrossBuild := true,
-    homepage := Some(url("https://github.com/andyscott/droste")),
-    licenses := Seq(
-      "Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
-    publishMavenStyle := true,
-    publishArtifact in Test := false,
-    pomIncludeRepository := (_ => false),
-    publishTo := {
-      val nexus = "https://oss.sonatype.org/"
-      if (isSnapshot.value)
-        Some("snapshots" at nexus + "content/repositories/snapshots")
-      else
-        Some("releases" at nexus + "service/local/staging/deploy/maven2")
-    },
-    autoAPIMappings := true,
-    scmInfo := Some(
-      ScmInfo(
-        url("https://github.com/andyscott/droste"),
-        "scm:git:git@github.com:andyscott/droste.git"
-      )
-    ),
-    developers := List(
-      Developer(
-        "andyscott",
-        "Andy Scott",
-        "andy.g.scott@gmail.com",
-        url("https://twitter.com/andygscott")
-      )
     )
-  )
 
 }
