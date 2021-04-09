@@ -30,7 +30,7 @@ final class FoldableOpsChecks
   import LExpr._
   import LExpr.fixedpoint._
 
-  def tru[T: Basis[LExprF, ?]]: T =
+  def tru[T: Basis[LExprF, *]]: T =
     lam[T](
       "a",
       lam[T](

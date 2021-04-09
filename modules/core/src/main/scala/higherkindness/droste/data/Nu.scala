@@ -19,7 +19,7 @@ sealed abstract class Nu[F[_]] extends Serializable {
   override final def toString: String = s"Nu($unfold, $a)"
 }
 
-object Nu {
+object Nu extends NuCompanion {
   def apply[F[_], A](unfold0: Coalgebra[F, A], a0: A): Nu[F] =
     new Default(unfold0, a0)
 
@@ -41,8 +41,4 @@ object Nu {
 
   implicit def drosteBasisForNu[F[_]: Functor]: Basis[F, Nu[F]] =
     Basis.Default[F, Nu[F]](Nu.algebra, Nu.coalgebra)
-
-  implicit val drosteBasisSolveForNu: Basis.Solve.Aux[
-    Nu,
-    λ[(F[_], α) => F[α]]] = null
 }

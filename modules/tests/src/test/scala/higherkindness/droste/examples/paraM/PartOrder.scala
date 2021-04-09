@@ -43,7 +43,7 @@ object PartOrder {
   def insertM[M[_], A](cmp: (A, A) => M[Boolean], x: A)(
       implicit M: Monad[M]): List[A] => M[List[A]] =
     scheme.zoo.paraM(
-      RAlgebraM[List[A], M, ListF[A, ?], List[A]] {
+      RAlgebraM[List[A], M, ListF[A, *], List[A]] {
         case NilF => M.pure(List(x))
         case ConsF(h, (l, rec)) =>
           cmp(x, h).map(if (_) x :: h :: l else h :: rec)

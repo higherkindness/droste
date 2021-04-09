@@ -17,12 +17,12 @@ import cats.laws.discipline.TraverseTests
 final class AttrTests extends Properties("Attr/AttrF") {
 
   include(
-    BasisLaws.props[AttrF[Option, Int, ?], Attr[Option, Int]](
-      "AttrF[Int, Option, ?]",
+    BasisLaws.props[AttrF[Option, Int, *], Attr[Option, Int]](
+      "AttrF[Int, Option, *]",
       "Attr[Option, Int]"))
 
   include(
-    TraverseTests[AttrF[Option, Int, ?]]
+    TraverseTests[AttrF[Option, Int, *]]
       .traverse[Int, Int, Int, Int, Option, Option]
       .all)
 

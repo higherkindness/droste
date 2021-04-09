@@ -55,7 +55,7 @@ sealed trait ComposeSyntax {
     * This type provides a convenient (maybe?) way to inline
     * the above type:
     * {{{
-    * method[(List ∘ Option)#λ]
+    * method[List ∘ Option]
     * }}}
     *
     * Note: If you have the kind projector plugin enabled, this alias
@@ -64,7 +64,7 @@ sealed trait ComposeSyntax {
     * method[λ[α => List[Option[α]]]]
     * }}}
     */
-  type ∘[F[_], G[_]] = { type λ[α] = F[G[α]] }
+  type ∘[F[_], G[_]] = ({ type λ[α] = F[G[α]] })#λ
 }
 
 sealed trait AttrSyntax {
@@ -171,7 +171,7 @@ object ProjectSyntax {
       Project.any(self)(p)
 
     def collect[U: Monoid, B](pf: PartialFunction[T, B])(
-        implicit U: Basis[ListF[B, ?], U]): U =
+        implicit U: Basis[ListF[B, *], U]): U =
       Project.collect[F, T, U, B](self)(pf)
 
     def contains(c: T)(implicit T: Eq[T]): Boolean =

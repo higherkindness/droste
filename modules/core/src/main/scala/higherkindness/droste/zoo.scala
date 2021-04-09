@@ -130,7 +130,7 @@ private[droste] trait Zoo {
       natTrans: F ~> F,
       algebra: Algebra[F, B]
   )(implicit project: Project[F, R]): R => B =
-    kernel.hylo[Yoneda[F, ?], R, B](
+    kernel.hylo[Yoneda[F, *], R, B](
       yfb => algebra.run(yfb.mapK(natTrans).run),
       project.coalgebra.run.andThen(Yoneda.apply[F, R])
     )
@@ -145,7 +145,7 @@ private[droste] trait Zoo {
       coalgebra: Coalgebra[F, A],
       natTrans: F ~> F
   )(implicit embed: Embed[F, R]): A => R =
-    kernel.hylo[Yoneda[F, ?], A, R](
+    kernel.hylo[Yoneda[F, *], A, R](
       yfb => embed.algebra.run(yfb.run),
       coalgebra.run.andThen(fa => Yoneda.apply[F, A](fa).mapK(natTrans))
     )

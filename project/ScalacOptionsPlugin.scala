@@ -12,17 +12,19 @@ object ScalacOptionsPlugin extends AutoPlugin {
     taskKey[Seq[String]]("Options for the Scala 2.12 compiler.")
   lazy val scalac213Options =
     taskKey[Seq[String]]("Options for the Scala 2.13 compiler.")
+  lazy val scalac3Options =
+    taskKey[Seq[String]]("Options for the Scala 3.x compiler.")
 
   override def projectSettings: Seq[Def.Setting[_]] = Seq(
-    addCompilerPlugin(
-      "org.typelevel" % "kind-projector" % "0.11.0" cross CrossVersion.full),
     scalac211Options := defaultScalac211Options,
     scalac212Options := defaultScalac212Options,
     scalac213Options := defaultScalac213Options,
+    scalac3Options   := defaultScala3Options,
     scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, 13)) => scalac213Options.value
       case Some((2, 12)) => scalac212Options.value
       case Some((2, 11)) => scalac211Options.value
+      case Some((3, _))  => scalac3Options.value
       case _             => Nil
     }),
     scalacOptions in (Compile, doc) ~= (_.filterNot(scalacOptionsDocsFilter)),
@@ -30,8 +32,28 @@ object ScalacOptionsPlugin extends AutoPlugin {
     scalacOptions in (Compile, console) ~= (_.filterNot(
       scalacOptionsConsoleFilter)),
     scalacOptions in (Test, console) ~= (_.filterNot(
-      scalacOptionsConsoleFilter))
+      scalacOptionsConsoleFilter)),
+    libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, _)) =>
+        List(
+          compilerPlugin("org.typelevel" % "kind-projector" % "0.11.3" cross CrossVersion.full),
+        )
+      case _ => Nil
+    })
   )
+
+  private[this] def defaultScala3Options: List[String] =
+    List(
+      "-deprecation",
+      "-encoding",
+      "utf-8",
+      "-feature",
+      "-unchecked",
+      "-explain",
+      "-explain-types",
+      "-Ykind-projector",
+      // "-Xprint:typer"
+    )
 
   private[this] def defaultScalac213Options: List[String] =
     defaultScalac212Options.filterNot(

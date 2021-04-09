@@ -53,7 +53,7 @@ object kernel {
   @inline def hyloC[F[_]: Functor, G[_]: Functor, A, B](
       algebra: F[G[B]] => B,
       coalgebra: A => F[G[A]]
-  ): A => B = hylo[(F ∘ G)#λ, A, B](algebra, coalgebra)
+  ): A => B = hylo[F ∘ G, A, B](algebra, coalgebra)
 
   /** Build a monadic hylomorphism
     *
@@ -91,6 +91,6 @@ object kernel {
       algebra: F[G[B]] => M[B],
       coalgebra: A => M[F[G[A]]]
   ): A => M[B] =
-    hyloM[M, (F ∘ G)#λ, A, B](algebra, coalgebra)
+    hyloM[M, F ∘ G, A, B](algebra, coalgebra)
 
 }

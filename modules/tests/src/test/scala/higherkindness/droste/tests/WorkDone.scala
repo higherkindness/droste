@@ -11,7 +11,7 @@ final class WorkDone extends Properties("WorkDone") {
 
   final class Sketch(var value: Int = 0)
 
-  def cataAlgebra(sketch: Sketch): Algebra[ListF[Unit, ?], Int] = Algebra {
+  def cataAlgebra(sketch: Sketch): Algebra[ListF[Unit, *], Int] = Algebra {
     case NilF =>
       sketch.value += 1
       0
@@ -33,7 +33,7 @@ final class WorkDone extends Properties("WorkDone") {
     }
   }
 
-  def histoAlgebra(sketch: Sketch): CVAlgebra[ListF[Unit, ?], Int] = CVAlgebra {
+  def histoAlgebra(sketch: Sketch): CVAlgebra[ListF[Unit, *], Int] = CVAlgebra {
     case NilF =>
       sketch.value += 1
       0

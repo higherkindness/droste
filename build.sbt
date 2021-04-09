@@ -3,7 +3,7 @@ lazy val root = (project in file("."))
   .aggregate(coreJVM, coreJS)
   .aggregate(metaJVM, metaJS)
   .aggregate(macrosJVM, macrosJS)
-  .aggregate(reftree)
+//  .aggregate(reftree)
   .aggregate(scalacheckJVM, scalacheckJS)
   .aggregate(lawsJVM, lawsJS)
   .aggregate(testsJVM, testsJS)
@@ -21,22 +21,23 @@ lazy val publish = (project in file(".publish"))
   .aggregate(lawsJVM, lawsJS)
   .aggregate(testsJVM, testsJS)
 
-lazy val coverage = (project in file(".coverage"))
-  .settings(noPublishSettings)
-  .settings(coverageEnabled := true)
-  .aggregate(coreJVM)
-  .aggregate(metaJVM)
-  .aggregate(macrosJVM)
-  .aggregate(scalacheckJVM)
-  .aggregate(lawsJVM)
-  .aggregate(testsJVM)
+//lazy val coverage = (project in file(".coverage"))
+//  .settings(noPublishSettings)
+//  .settings(coverageEnabled := true)
+//  .aggregate(coreJVM)
+//  .aggregate(metaJVM)
+//  .aggregate(macrosJVM)
+//  .aggregate(scalacheckJVM)
+//  .aggregate(lawsJVM)
+//  .aggregate(testsJVM)
 
 lazy val V = new {
-  val cats       = "2.2.0-RC1"
-  val refined    = "0.9.15"
-  val algebra    = "2.0.1"
-  val atto       = "0.8.0"
-  val scalacheck = "1.14.3"
+  val cats       = "2.5.0"
+  val refined    = "0.9.22"
+  val reftree    = "1.4.0"
+  val algebra    = "2.2.2"
+  val atto       = "0.9.3"
+  val scalacheck = "1.15.3"
   val drostePrev = "0.7.0"
 }
 
@@ -53,9 +54,16 @@ lazy val meta = module("meta")
   .settings(
     mimaPreviousArtifacts := Set(
       organization.value %%% moduleName.value % V.drostePrev),
-    libraryDependencies ++= Seq(
-      "org.scala-lang" % "scala-reflect"  % scalaVersion.value,
-      "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided")
+    libraryDependencies ++= (
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, _)) =>
+          Seq(
+            "org.scala-lang" % "scala-reflect"  % scalaVersion.value,
+            "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided")
+        case _ =>
+          Seq.empty
+      })
+
   )
 
 lazy val metaJVM = meta.jvm
@@ -105,14 +113,20 @@ lazy val macros = module("macros")
 lazy val macrosJVM = macros.jvm
 lazy val macrosJS  = macros.js
 
-lazy val reftree = jvmModule("reftree")
-  .dependsOn(coreJVM)
-  .settings(noScala213Settings)
-  .settings(
-    mimaPreviousArtifacts := Set(
-      organization.value                           %% moduleName.value % V.drostePrev),
-    libraryDependencies ++= Seq("io.github.stanch" %% "reftree"        % "1.2.1")
-  )
+lazy val playground = module("playground").dependsOn(core)
+
+lazy val playgroundJVM = playground.jvm
+lazy val playgroundJS = playground.js
+
+//lazy val reftree = jvmModule("reftree")
+//  .dependsOn(coreJVM)
+//  .settings(noScala213Settings)
+//  .settings(noScala3Settings)
+//  .settings(
+//    mimaPreviousArtifacts := Set(
+//      organization.value                           %% moduleName.value % V.drostePrev),
+//    libraryDependencies += "io.github.stanch" %% "reftree"        % V.reftree
+//  )
 
 lazy val scalacheck = module("scalacheck")
   .dependsOn(core)
@@ -170,13 +184,13 @@ lazy val athemaJVM = athema.jvm
 lazy val athemaJS  = athema.js
 
 lazy val readme = (project in file("modules/readme"))
-  .enablePlugins(TutPlugin)
+  .enablePlugins(MdocPlugin)
   .dependsOn(coreJVM)
   .dependsOn(athemaJVM)
   .settings(noPublishSettings)
   .disablePlugins(MimaPlugin)
   .settings(
-    scalacOptions in Tut ~= {
+    Tut / scalacOptions ~= {
       _.filterNot(
         Set("-Ywarn-unused-import", "-Yno-predef", "-Ywarn-unused:imports"))
     },
@@ -187,18 +201,18 @@ lazy val readme = (project in file("modules/readme"))
 //// DOCS ////
 ///////////////
 
-lazy val docs = (project in file("docs"))
-  .dependsOn(coreJVM)
-  .dependsOn(athemaJVM)
-  .settings(moduleName := "droste-docs")
-  .settings(micrositeSettings: _*)
-  .settings(noPublishSettings: _*)
-  .enablePlugins(MicrositesPlugin)
-  .disablePlugins(ProjectPlugin)
-  .disablePlugins(MimaPlugin)
-  .settings(
-    scalacOptions in Tut ~= (_ filterNot Set("-Ywarn-unused-import", "-Xlint").contains)
-  )
+//lazy val docs = (project in file("docs"))
+//  .dependsOn(coreJVM)
+//  .dependsOn(athemaJVM)
+//  .settings(moduleName := "droste-docs")
+//  .settings(micrositeSettings: _*)
+//  .settings(noPublishSettings: _*)
+//  .enablePlugins(MicrositesPlugin)
+//  .disablePlugins(ProjectPlugin)
+//  .disablePlugins(MimaPlugin)
+//  .settings(
+//    Tut / scalacOptions ~= (_ filterNot Set("-Ywarn-unused-import", "-Xlint").contains)
+//  )
 
 //////////////////
 //// ALIASES /////

@@ -33,26 +33,24 @@ object ExprParser {
   private final case class SS(ops: List[(Int, Token)], output: Output)
   private type AA = Either[List[Token], Expr.Fixed[BigDecimal]]
 
-  private val yardStep: List[Token] => StateT[FF, SS, AA] = input => {
-    input match {
-      case op :: tail =>
-        (op match {
-          case c: TConst => enqueue(c)
-          case v: TVar   => enqueue(v)
-          case TParenL   => parenL()
-          case TParenR   => parenR().flatMap(_.traverse(enqueue))
-          case TAdd      => shunt(op, 1).flatMap(_.traverse(enqueue))
-          case TSub      => shunt(op, 1).flatMap(_.traverse(enqueue))
-          case TProd     => shunt(op, 2).flatMap(_.traverse(enqueue))
-          case TDiv      => shunt(op, 2).flatMap(_.traverse(enqueue))
-        }).as(tail.asLeft)
-      case Nil =>
-        for {
-          s0 <- StateT.get[FF, SS]
-          _  <- s0.ops.map(_._2).traverse(enqueue)
-          s1 <- StateT.get[FF, SS]
-        } yield s1.output.head.asRight
-    }
+  private val yardStep: List[Token] => StateT[FF, SS, AA] = {
+    case op :: tail =>
+      toFunctorOps(op match {
+        case c: TConst => enqueue(c)
+        case v: TVar   => enqueue(v)
+        case TParenL   => parenL()
+        case TParenR   => parenR().flatMap(_.traverse(enqueue))
+        case TAdd      => shunt(op, 1).flatMap(_.traverse(enqueue))
+        case TSub      => shunt(op, 1).flatMap(_.traverse(enqueue))
+        case TProd     => shunt(op, 2).flatMap(_.traverse(enqueue))
+        case TDiv      => shunt(op, 2).flatMap(_.traverse(enqueue))
+      }).as(tail.asLeft)
+    case Nil =>
+      for {
+        s0 <- StateT.get[FF, SS]
+        _  <- s0.ops.map(_._2).traverse(enqueue)
+        s1 <- StateT.get[FF, SS]
+      } yield s1.output.head.asRight
   }
 
   private def parenL(): StateT[FF, SS, Unit] =

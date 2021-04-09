@@ -13,19 +13,19 @@ import scala.annotation.tailrec
 import list._
 
 object `package` {
-  type Stream[A] = Nu[ListF[A, ?]]
+  type Stream[A] = Nu[ListF[A, *]]
 }
 
-object Stream extends StreamInstances {
+object Stream extends StreamInstances with StreamCompanion {
 
   def forever[A](a: A): Stream[A] =
-    Nu(Coalgebra[ListF[A, ?], A](aa => ConsF(aa, aa)), a)
+    Nu(Coalgebra[ListF[A, *], A](aa => ConsF(aa, aa)), a)
 
   def pure[A](a: A): Stream[A] = Nu(ConsF(a, empty))
 
   def cons[A](fa: Stream[A])(a: A): Stream[A] = Nu(ConsF(a, fa))
 
-  def empty[A]: Stream[A] = Nu(NilF: ListF[A, Nu[ListF[A, ?]]])
+  def empty[A]: Stream[A] = Nu(NilF: ListF[A, Nu[ListF[A, *]]])
 
   def map[A, B](fa: Stream[A])(f: A => B): Stream[B] =
     Nu(Coalgebra(fa.unfold.run andThen (_ match {
@@ -59,7 +59,7 @@ object Stream extends StreamInstances {
   }
 
   object coalgebras {
-    def increment: Coalgebra[ListF[Int, ?], Int] =
+    def increment: Coalgebra[ListF[Int, *], Int] =
       Coalgebra(n => ConsF(n, n + 1))
   }
 
@@ -68,7 +68,7 @@ object Stream extends StreamInstances {
 
   def take[A](fa: Stream[A])(n: Int): Stream[A] =
     Nu(
-      Coalgebra[ListF[A, ?], (Int, fa.A)](
+      Coalgebra[ListF[A, *], (Int, fa.A)](
         ia =>
           if (ia._1 <= 0) NilF
           else
@@ -110,19 +110,6 @@ object Stream extends StreamInstances {
 
   def toList[A](fa: Stream[A]): List[A] =
     foldLeft(fa)(List.empty[A])((acc, a) => a :: acc).reverse
-
-  final class StreamOps[A](val fa: Stream[A]) extends AnyVal {
-    def map[B](f: A => B): Stream[B]             = Stream.map(fa)(f)
-    def flatMap[B](f: A => Stream[B]): Stream[B] = Stream.flatMap(fa)(f)
-    def take(n: Int): Stream[A]                  = Stream.take(fa)(n)
-    def toList: List[A]                          = Stream.toList(fa)
-  }
-
-  object implicits {
-    implicit def toStreamOps[A](fa: Stream[A]): StreamOps[A] =
-      new StreamOps[A](fa)
-  }
-
 }
 
 private[stream] sealed trait StreamInstances {

@@ -38,7 +38,7 @@ trait Project[F[_], R] { self =>
     Project.any[F, R](r)(p)
 
   def collect[U: Monoid, B](r: R)(pf: PartialFunction[R, B])(
-      implicit U: Basis[ListF[B, ?], U],
+      implicit U: Basis[ListF[B, *], U],
       F: Foldable[F]): U =
     Project.collect[F, R, U, B](r)(pf)
 
@@ -67,7 +67,7 @@ object Project extends FloatingBasisInstances[Project] {
 
   def collect[F[_], R, U: Monoid, B](r: R)(pf: PartialFunction[R, B])(
       implicit P: Project[F, R],
-      U: Basis[ListF[B, ?], U],
+      U: Basis[ListF[B, *], U],
       F: Foldable[F]): U =
     foldMap[F, R, U](r)(
       pf.lift(_)
@@ -119,19 +119,19 @@ object Basis extends FloatingBasisInstances[Basis] {
 
 private[droste] sealed trait FloatingBasisInstances[H[F[_], A] >: Basis[F, A]]
     extends FloatingBasisInstances0[H] {
-  implicit def drosteBasisForListF[A]: H[ListF[A, ?], List[A]] =
-    Basis.Default[ListF[A, ?], List[A]](
+  implicit def drosteBasisForListF[A]: H[ListF[A, *], List[A]] =
+    Basis.Default[ListF[A, *], List[A]](
       ListF.toScalaListAlgebra,
       ListF.fromScalaListCoalgebra)
 
-  implicit def drosteBasisForAttr[F[_], A]: H[AttrF[F, A, ?], Attr[F, A]] =
-    Basis.Default[AttrF[F, A, ?], Attr[F, A]](Attr.algebra, Attr.coalgebra)
+  implicit def drosteBasisForAttr[F[_], A]: H[AttrF[F, A, *], Attr[F, A]] =
+    Basis.Default[AttrF[F, A, *], Attr[F, A]](Attr.algebra, Attr.coalgebra)
 
   implicit def drosteBasisForCoattr[F[_], A]: H[
-    CoattrF[F, A, ?],
+    CoattrF[F, A, *],
     Coattr[F, A]] =
     Basis
-      .Default[CoattrF[F, A, ?], Coattr[F, A]](Coattr.algebra, Coattr.coalgebra)
+      .Default[CoattrF[F, A, *], Coattr[F, A]](Coattr.algebra, Coattr.coalgebra)
 }
 
 private[droste] sealed trait FloatingBasisInstances0[H[F[_], A] >: Basis[F, A]] {
@@ -139,16 +139,16 @@ private[droste] sealed trait FloatingBasisInstances0[H[F[_], A] >: Basis[F, A]] 
     Basis.Default[F, Fix[F]](Fix.algebra, Fix.coalgebra)
 
   implicit def drosteBasisForCatsCofree[F[_], A]: H[
-    AttrF[F, A, ?],
+    AttrF[F, A, *],
     cats.free.Cofree[F, A]] =
-    Basis.Default[AttrF[F, A, ?], cats.free.Cofree[F, A]](
+    Basis.Default[AttrF[F, A, *], cats.free.Cofree[F, A]](
       Algebra(fa => cats.free.Cofree(fa.ask, Eval.now(fa.lower))),
       Coalgebra(a => AttrF(a.head, a.tailForced)))
 
   implicit def drosteBasisForCatsFree[F[_]: Functor, A]: H[
-    CoattrF[F, A, ?],
+    CoattrF[F, A, *],
     cats.free.Free[F, A]] =
-    Basis.Default[CoattrF[F, A, ?], cats.free.Free[F, A]](
+    Basis.Default[CoattrF[F, A, *], cats.free.Free[F, A]](
       Algebra {
         CoattrF.un(_).fold(cats.free.Free.pure, cats.free.Free.roll)
       },
@@ -156,21 +156,4 @@ private[droste] sealed trait FloatingBasisInstances0[H[F[_], A] >: Basis[F, A]] 
         _.fold[CoattrF[F, A, cats.free.Free[F, A]]](CoattrF.pure, CoattrF.roll)
       }
     )
-}
-
-private[droste] sealed trait FloatingBasisSolveInstances {
-  import Basis.Solve
-
-  implicit val drosteSolveFix: Solve.Aux[Fix, λ[(F[_], α) => F[α]]] = null
-  implicit def drosteSolveAttr[A]: Solve.Aux[Attr[?[_], A], AttrF[?[_], A, ?]] =
-    null
-  implicit def drosteSolveCatsCofree[A]: Solve.Aux[
-    cats.free.Cofree[?[_], A],
-    AttrF[?[_], A, ?]] =
-    null
-
-  implicit def drosteSolveCatsFree[A]: Solve.Aux[
-    cats.free.Free[?[_], A],
-    CoattrF[?[_], A, ?]] =
-    null
 }

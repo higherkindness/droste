@@ -16,11 +16,13 @@ import cats.syntax.functor._
 sealed abstract class Mu[F[_]] extends Serializable {
   def apply[A](fold: Algebra[F, A]): A
 
-  def toFunctionK: Algebra[F, ?] ~> Id =
-    λ[Algebra[F, ?] ~> Id](Mu.this.apply(_))
+  def toFunctionK: Algebra[F, *] ~> Id =
+    new ~>[Algebra[F, *], Id] {
+      def apply[A](x: Algebra[F, A]): A = Mu.this.apply(x)
+    }
 }
 
-object Mu {
+object Mu extends MuCompanion {
   def algebra[F[_]: Functor]: Algebra[F, Mu[F]] =
     Algebra(fmf => Default(fmf))
 
@@ -41,8 +43,4 @@ object Mu {
 
   implicit def drosteBasisForMu[F[_]: Functor]: Basis[F, Mu[F]] =
     Basis.Default[F, Mu[F]](Mu.algebra, Mu.coalgebra)
-
-  implicit val drosteBasisSolveForMu: Basis.Solve.Aux[
-    Mu,
-    λ[(F[_], α) => F[α]]] = null
 }

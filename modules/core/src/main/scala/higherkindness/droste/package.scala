@@ -85,7 +85,7 @@ object `package` {
       GTransM(f)
   }
 
-  type Delay[F[_], G[_]] = F ~> (F ∘ G)#λ
+  type Delay[F[_], G[_]] = F ~> (F ∘ G)
 }
 
 object prelude {
@@ -99,8 +99,10 @@ object prelude {
 
   // todo: where should this live?
   implicit val drosteDelayEqOption: Delay[Eq, Option] =
-    λ[Eq ~> (Eq ∘ Option)#λ](eq =>
-      Eq.instance((x, y) =>
-        x.fold(y.fold(true)(_ => false))(xx =>
-          y.fold(false)(yy => eq.eqv(xx, yy)))))
+    new ~>[Eq, Eq ∘ Option] {
+      def apply[B](eq: Eq[B]): (Eq ∘ Option)[B] =
+        Eq.instance((x, y) =>
+          x.fold(y.fold(true)(_ => false))(xx =>
+            y.fold(false)(yy => eq.eqv(xx, yy))))
+    }
 }
