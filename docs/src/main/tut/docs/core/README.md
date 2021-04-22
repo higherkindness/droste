@@ -6,6 +6,6 @@ permalink: /docs/core/
 
 # Core
 
-* [Data Structures](dataStructures/)
-* [Type Classes](typeClasses/)
-* [Recursion Schemes](recursionSchemes/)
+* [Fixpoint types](fixpoint-types/)
+* [Typeclasses](typeclasses/)
+* [Recursion Schemes](recursion-schemes/)

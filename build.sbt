@@ -170,35 +170,35 @@ lazy val athemaJVM = athema.jvm
 lazy val athemaJS  = athema.js
 
 lazy val readme = (project in file("modules/readme"))
-  .enablePlugins(TutPlugin)
+  .enablePlugins(MdocPlugin)
   .dependsOn(coreJVM)
   .dependsOn(athemaJVM)
   .settings(noPublishSettings)
   .disablePlugins(MimaPlugin)
   .settings(
-    scalacOptions in Tut ~= {
-      _.filterNot(
-        Set("-Ywarn-unused-import", "-Yno-predef", "-Ywarn-unused:imports"))
-    },
-    tutTargetDirectory := (baseDirectory in LocalRootProject).value
+    mdocExtraArguments := Seq(
+      "--in", baseDirectory.value + "/src/main/tut/README.md",
+      "--out", (baseDirectory in LocalRootProject).value + "/README.md"
+    )
   )
 
 ///////////////
 //// DOCS ////
 ///////////////
 
-lazy val docs = (project in file("docs"))
+lazy val docs = (project in file("microsite"))
   .dependsOn(coreJVM)
+  .dependsOn(macrosJVM)
   .dependsOn(athemaJVM)
-  .settings(moduleName := "droste-docs")
+  .settings(moduleName := "droste-microsite")
   .settings(micrositeSettings: _*)
   .settings(noPublishSettings: _*)
+  .settings(libraryDependencies ++= paradiseDep(scalaVersion.value))
+  .settings(micrositeCompilingDocsTool := WithMdoc)
   .enablePlugins(MicrositesPlugin)
   .disablePlugins(ProjectPlugin)
   .disablePlugins(MimaPlugin)
-  .settings(
-    scalacOptions in Tut ~= (_ filterNot Set("-Ywarn-unused-import", "-Xlint").contains)
-  )
+  .settings(mdocIn := tutSourceDirectory.value)
 
 //////////////////
 //// ALIASES /////
@@ -208,4 +208,4 @@ addCommandAlias(
   "ci-test",
   ";+clean;+test"
 )
-addCommandAlias("ci-docs", ";readme/tut")
+addCommandAlias("ci-docs", "github; docs/mdoc; readme/mdoc")

@@ -11,7 +11,7 @@ case "$1" in
         sbt ';+clean;+test'
         ;;
     "format")
-        ./scalafmt --test
+        sbt scalafmtAll
         ;;
     "coverage")
         sbt 'project coverage' test coverageReport

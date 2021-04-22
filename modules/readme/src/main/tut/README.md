@@ -22,7 +22,7 @@ Fibonacci values can be done with a histomorphism if we model natural
 numbers as a chain of `Option`. We can easily unfold with an
 anamorphism and then fold to our result with a histomorphism.
 
-```tut:silent
+```scala mdoc:silent
 import higherkindness.droste._
 import higherkindness.droste.data._
 import cats.implicits._
@@ -41,7 +41,7 @@ val fib: BigDecimal => BigDecimal = scheme.ghylo(
   natCoalgebra.scatter(Scatter.ana))
 ```
 
-```tut
+```scala mdoc
 fib(0)
 fib(1)
 fib(2)
@@ -53,13 +53,13 @@ An anamorphism followed by a histomorphism is also known as a
 dynamorphism. Recursion scheme animals like dyna are available
 in the zoo:
 
-```tut:silent
+```scala mdoc:silent
 
 val fibAlt: BigDecimal => BigDecimal =
   scheme.zoo.dyna(fibAlgebra, natCoalgebra)
 ```
 
-```tut
+```scala mdoc
 fibAlt(0)
 fibAlt(1)
 fibAlt(2)
@@ -70,7 +70,7 @@ fibAlt(100)
 What if we want to do two things at once? Let's calculate a
 Fibonacci value and the sum of all squares.
 
-```tut:silent
+```scala mdoc:silent
 val fromNatAlgebra: Algebra[Option, BigDecimal] = Algebra {
   case Some(n) => n + 1
   case None    => 0
@@ -87,7 +87,7 @@ val sumSquares: BigDecimal => BigDecimal = scheme.ghylo(
   natCoalgebra.scatter(Scatter.ana))
 ```
 
-```tut
+```scala mdoc
 sumSquares(0)
 sumSquares(1)
 sumSquares(2)
@@ -98,7 +98,7 @@ sumSquares(100)
 Now we can zip the two algebras into one so that we calculate
 both results in one pass.
 
-```tut:silent
+```scala mdoc:silent
 val fused: BigDecimal => (BigDecimal, BigDecimal) =
   scheme.ghylo(
     fibAlgebra.gather(Gather.histo) zip
@@ -106,7 +106,7 @@ val fused: BigDecimal => (BigDecimal, BigDecimal) =
     natCoalgebra.scatter(Scatter.ana))
 ```
 
-```tut
+```scala mdoc
 fused(0)
 fused(1)
 fused(2)

@@ -1,3 +1,15 @@
 options:
   - title: Quick Start
     url: docs/
+
+  - title: Typeclasses
+    url: docs/core/typeclasses
+
+  - title: Fixpoint types
+    url: docs/core/fixpoint-types
+
+  - title: Recursion schemes
+    url: docs/core/recursion-schemes
+
+  - title: Annotations
+    url: docs/core/annotations
