@@ -22,11 +22,12 @@ object ProjectPlugin extends AutoPlugin {
     ): CrossProject =
       CrossProject(modName, file(s"$prefix$modName"))(
         JSPlatform,
-        JVMPlatform /*, NativePlatform // soon */ )
+        JVMPlatform /*, NativePlatform // soon */
+      )
         .crossType(CrossType.Pure)
         .withoutSuffixFor(JVMPlatform)
         .build()
-        .jvmSettings(fork in Test := true)
+        .jvmSettings(Test / fork := true)
         .settings(moduleName := s"droste-$modName")
 
     def jvmModule(
@@ -35,7 +36,7 @@ object ProjectPlugin extends AutoPlugin {
     ): Project =
       Project(modName, file(s"$prefix$modName"))
         .settings(
-          fork in Test := true,
+          Test / fork := true,
           moduleName := s"droste-$modName"
         )
 
@@ -44,13 +45,16 @@ object ProjectPlugin extends AutoPlugin {
         scalaOrganization.value % "scala-compiler" % scalaVersion.value % Provided,
         scalaOrganization.value % "scala-reflect"  % scalaVersion.value % Provided,
         compilerPlugin(
-          "org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.patch)
-      ))
+          "org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.patch
+        )
+      )
+    )
 
     lazy val noPublishSettings: Seq[Def.Setting[_]] = Seq(
       publish := ((): Unit),
       publishLocal := ((): Unit),
-      publishArtifact := false)
+      publishArtifact := false
+    )
 
     lazy val micrositeSettings = Seq(
       micrositeName := "Droste",
@@ -60,10 +64,10 @@ object ProjectPlugin extends AutoPlugin {
       micrositeGithubOwner := "andyscott",
       micrositeGithubRepo := "droste",
       micrositeGitterChannelUrl := "droste-recursion/Lobby",
-      micrositeExternalLayoutsDirectory := (resourceDirectory in Compile).value / "microsite" / "layouts",
-      micrositeExternalIncludesDirectory := (resourceDirectory in Compile).value / "microsite" / "includes",
-      includeFilter in makeSite := "*.html" | "*.css" | "*.png" | "*.jpg" | "*.gif" | "*.js" | "*.swf" | "*.yml" | "*.md" | "*.svg" | "*.json" | "CNAME",
-      includeFilter in Jekyll := (includeFilter in makeSite).value,
+      micrositeExternalLayoutsDirectory := (Compile / resourceDirectory).value / "microsite" / "layouts",
+      micrositeExternalIncludesDirectory := (Compile / resourceDirectory).value / "microsite" / "includes",
+      makeSite / includeFilter := "*.html" | "*.css" | "*.png" | "*.jpg" | "*.gif" | "*.js" | "*.swf" | "*.yml" | "*.md" | "*.svg" | "*.json" | "CNAME",
+      Jekyll / includeFilter := (makeSite / includeFilter).value,
       micrositePushSiteWith := GitHub4s
     )
 
@@ -78,11 +82,11 @@ object ProjectPlugin extends AutoPlugin {
       organization := "io.higherkindness",
       name := "droste",
       startYear := Option(2018),
-      parallelExecution in Test := false,
+      Test / parallelExecution := false,
       outputStrategy := Some(StdoutOutput),
-      connectInput in run := true,
-      cancelable in Global := true,
-      crossScalaVersions := List("2.12.10", "2.13.1"),
+      run / connectInput := true,
+      Global / cancelable := true,
+      crossScalaVersions := List("2.12.10", "2.13.1", "3.0.0-RC3"),
       scalaVersion := "2.12.10"
     ) ++ publishSettings
 
@@ -90,9 +94,10 @@ object ProjectPlugin extends AutoPlugin {
     releaseCrossBuild := true,
     homepage := Some(url("https://github.com/andyscott/droste")),
     licenses := Seq(
-      "Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
+      "Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")
+    ),
     publishMavenStyle := true,
-    publishArtifact in Test := false,
+    Test / publishArtifact := false,
     pomIncludeRepository := (_ => false),
     publishTo := {
       val nexus = "https://oss.sonatype.org/"
