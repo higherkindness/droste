@@ -176,11 +176,11 @@ lazy val readme = (project in file("modules/readme"))
   .settings(noPublishSettings)
   .disablePlugins(MimaPlugin)
   .settings(
-    scalacOptions in Tut ~= {
+    Tut / scalacOptions ~= {
       _.filterNot(
         Set("-Ywarn-unused-import", "-Yno-predef", "-Ywarn-unused:imports"))
     },
-    tutTargetDirectory := (baseDirectory in LocalRootProject).value
+    tutTargetDirectory := (LocalRootProject / baseDirectory).value
   )
 
 ///////////////
@@ -197,7 +197,7 @@ lazy val docs = (project in file("docs"))
   .disablePlugins(ProjectPlugin)
   .disablePlugins(MimaPlugin)
   .settings(
-    scalacOptions in Tut ~= (_ filterNot Set("-Ywarn-unused-import", "-Xlint").contains)
+    Tut / scalacOptions ~= (_ filterNot Set("-Ywarn-unused-import", "-Xlint").contains)
   )
 
 //////////////////
