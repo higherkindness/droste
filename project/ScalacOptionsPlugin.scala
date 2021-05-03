@@ -25,12 +25,14 @@ object ScalacOptionsPlugin extends AutoPlugin {
       case Some((2, 11)) => scalac211Options.value
       case _             => Nil
     }),
-    scalacOptions in (Compile, doc) ~= (_.filterNot(scalacOptionsDocsFilter)),
-    scalacOptions in (Compile, doc) += "-groups",
-    scalacOptions in (Compile, console) ~= (_.filterNot(
-      scalacOptionsConsoleFilter)),
-    scalacOptions in (Test, console) ~= (_.filterNot(
-      scalacOptionsConsoleFilter))
+    Compile / doc / scalacOptions ~= (_.filterNot(scalacOptionsDocsFilter)),
+    Compile / doc / scalacOptions += "-groups",
+    Compile / console / scalacOptions ~= (_.filterNot(
+      scalacOptionsConsoleFilter
+    )),
+    Test / console / scalacOptions ~= (_.filterNot(
+      scalacOptionsConsoleFilter
+    ))
   )
 
   private[this] def defaultScalac213Options: List[String] =
