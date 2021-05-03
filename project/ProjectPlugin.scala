@@ -61,7 +61,7 @@ object ProjectPlugin extends AutoPlugin {
       micrositeDescription := "A recursion library for Scala",
       micrositeDocumentationUrl := "/docs/",
       micrositeAuthor := "Andy Scott",
-      micrositeGithubOwner := "andyscott",
+      micrositeGithubOwner := "higherkindness",
       micrositeGithubRepo := "droste",
       micrositeGitterChannelUrl := "droste-recursion/Lobby",
       micrositeExternalLayoutsDirectory := (Compile / resourceDirectory).value / "microsite" / "layouts",
@@ -92,7 +92,7 @@ object ProjectPlugin extends AutoPlugin {
 
   lazy val publishSettings = Seq(
     releaseCrossBuild := true,
-    homepage := Some(url("https://github.com/andyscott/droste")),
+    homepage := Some(url("https://github.com/higherkindness/droste")),
     licenses := Seq(
       "Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")
     ),
@@ -107,12 +107,6 @@ object ProjectPlugin extends AutoPlugin {
         Some("releases" at nexus + "service/local/staging/deploy/maven2")
     },
     autoAPIMappings := true,
-    scmInfo := Some(
-      ScmInfo(
-        url("https://github.com/andyscott/droste"),
-        "scm:git:git@github.com:andyscott/droste.git"
-      )
-    ),
     developers := List(
       Developer(
         "andyscott",

@@ -170,18 +170,13 @@ lazy val athemaJVM = athema.jvm
 lazy val athemaJS  = athema.js
 
 lazy val readme = (project in file("modules/readme"))
-  .enablePlugins(TutPlugin)
+  .enablePlugins(MdocPlugin)
   .dependsOn(coreJVM)
   .dependsOn(athemaJVM)
   .settings(noPublishSettings)
   .disablePlugins(MimaPlugin)
-  .settings(
-    Tut / scalacOptions ~= {
-      _.filterNot(
-        Set("-Ywarn-unused-import", "-Yno-predef", "-Ywarn-unused:imports"))
-    },
-    tutTargetDirectory := (LocalRootProject / baseDirectory).value
-  )
+  .settings(mdocIn := file("modules/readme/docs"))
+  .settings(mdocOut := (baseDirectory in LocalRootProject).value)
 
 ///////////////
 //// DOCS ////
@@ -196,9 +191,6 @@ lazy val docs = (project in file("docs"))
   .enablePlugins(MicrositesPlugin)
   .disablePlugins(ProjectPlugin)
   .disablePlugins(MimaPlugin)
-  .settings(
-    Tut / scalacOptions ~= (_ filterNot Set("-Ywarn-unused-import", "-Xlint").contains)
-  )
 
 //////////////////
 //// ALIASES /////
@@ -208,4 +200,4 @@ addCommandAlias(
   "ci-test",
   ";+clean;+test"
 )
-addCommandAlias("ci-docs", ";readme/tut")
+addCommandAlias("ci-docs", ";github;mdoc")
