@@ -5,7 +5,7 @@ import org.scalacheck.Properties
 import org.scalacheck.Prop._
 
 import cats._
-import cats.implicits._
+import cats.syntax.all._
 
 import util.DefaultTraverse
 
@@ -44,8 +44,8 @@ object ExprF {
       def traverse[G[_]: Applicative, A, B](fa: ExprF[A])(
           f: A => G[B]): G[ExprF[B]] =
         fa match {
-          case c: ConstF[B] => (c: ExprF[B]).pure[G]
-          case AddF(x, y)   => (f(x), f(y)).mapN(AddF(_, _))
+          case c: ConstF[B] @unchecked => (c: ExprF[B]).pure[G]
+          case AddF(x, y)              => (f(x), f(y)).mapN(AddF(_, _))
         }
     }
 

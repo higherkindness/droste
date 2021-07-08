@@ -7,9 +7,6 @@ import cats.Traverse
 import cats.arrow.Category
 import cats.data.Const
 
-import cats.instances.function._
-import cats.instances.list._
-
 trait DefaultTraverse[F[_]] extends Traverse[F] {
   override def foldMap[A, B: Monoid](fa: F[A])(f: A => B): B =
     traverse(fa)(a => Const[B, B](f(a))).getConst

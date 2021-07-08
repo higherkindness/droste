@@ -17,10 +17,10 @@ object Attr {
   def un[F[_], A](f: Attr[F, A]): (A, F[Attr[F, A]]) = macro Meta.fastCast
   def unapply[F[_], A](f: Attr[F, A]): Some[(A, F[Attr[F, A]])] = Some(f.tuple)
 
-  def algebra[F[_], A]: Algebra[AttrF[F, A, ?], Attr[F, A]] =
+  def algebra[F[_], A]: Algebra[AttrF[F, A, *], Attr[F, A]] =
     Algebra(fa => Attr(AttrF.un(fa)))
 
-  def coalgebra[F[_], A]: Coalgebra[AttrF[F, A, ?], Attr[F, A]] =
+  def coalgebra[F[_], A]: Coalgebra[AttrF[F, A, *], Attr[F, A]] =
     Coalgebra(a => AttrF(Attr.un(a)))
 
   def fromCats[F[_]: Functor, A](cofree: cats.free.Cofree[F, A]): Attr[F, A] =
@@ -48,12 +48,12 @@ private[data] trait AttrImplicits {
       Fix(tail.map(_.forget))
   }
 
-  implicit def drosteAttrComonad[F[_]: Functor]: Comonad[Attr[F, ?]] =
+  implicit def drosteAttrComonad[F[_]: Functor]: Comonad[Attr[F, *]] =
     new AttrComonad[F]
 }
 
 private[data] final class AttrComonad[F[_]: Functor]
-    extends Comonad[Attr[F, ?]] {
+    extends Comonad[Attr[F, *]] {
   def coflatMap[A, B](fa: Attr[F, A])(f: Attr[F, A] => B): Attr[F, B] =
     Attr.ana(fa)(_.tail, f)
 

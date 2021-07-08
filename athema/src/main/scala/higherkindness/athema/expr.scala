@@ -17,7 +17,7 @@ final case class Prod[V, A](x: A, y: A)  extends Expr[V, A]
 final case class Div[V, A](x: A, y: A)   extends Expr[V, A]
 
 object Expr extends ExprInstances {
-  type Fixed[V] = Fix[Expr[V, ?]]
+  type Fixed[V] = Fix[Expr[V, *]]
 }
 
 object Var {
@@ -53,8 +53,8 @@ object Div {
 }
 
 private[athema] sealed trait ExprInstances {
-  implicit def traverseExpr[V]: Traverse[Expr[V, ?]] =
-    new DefaultTraverse[Expr[V, ?]] {
+  implicit def traverseExpr[V]: Traverse[Expr[V, *]] =
+    new DefaultTraverse[Expr[V, *]] {
       def traverse[G[_]: Applicative, A, B](fa: Expr[V, A])(
           f: A => G[B]): G[Expr[V, B]] = fa match {
         case v: Var[_, B @unchecked]   => (v: Expr[V, B]).pure[G]

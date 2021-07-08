@@ -32,7 +32,7 @@ lazy val coverage = (project in file(".coverage"))
   .aggregate(testsJVM)
 
 lazy val V = new {
-  val cats       = "2.2.0-RC1"
+  val cats       = "2.6.1"
   val refined    = "0.9.15"
   val algebra    = "2.0.1"
   val atto       = "0.8.0"
@@ -176,7 +176,7 @@ lazy val readme = (project in file("modules/readme"))
   .settings(noPublishSettings)
   .disablePlugins(MimaPlugin)
   .settings(mdocIn := file("modules/readme/docs"))
-  .settings(mdocOut := (baseDirectory in LocalRootProject).value)
+  .settings(mdocOut := (LocalRootProject / baseDirectory).value)
 
 ///////////////
 //// DOCS ////

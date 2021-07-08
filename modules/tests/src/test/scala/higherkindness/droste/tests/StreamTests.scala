@@ -1,7 +1,6 @@
 package higherkindness.droste
 package tests
 
-import cats.instances.int._
 import cats.kernel.laws.discipline.EqTests
 import cats.kernel.laws.discipline.MonoidTests
 

@@ -12,7 +12,7 @@ import cats.Applicative
 import cats.Monad
 import cats.MonoidK
 import cats.Traverse
-import cats.implicits._
+import cats.syntax.all._
 
 object `package` {
 
@@ -32,7 +32,7 @@ object `package` {
     }
 
   def drosteGenAttr[F[_]: Applicative: MonoidK, A: Arbitrary](
-      implicit ev: Traverse[AttrF[F, A, ?]]
+      implicit ev: Traverse[AttrF[F, A, *]]
   ): Gen[Attr[F, A]] =
     Gen.sized(
       maxSize =>
@@ -82,12 +82,12 @@ object `package` {
       scheme[Nu].anaM(CoalgebraM(genSizedF[F])).apply(maxSize))
 
   implicit def drosteArbitraryCofree[F[_]: Applicative: MonoidK, A: Arbitrary](
-      implicit ev: Traverse[AttrF[F, A, ?]]
+      implicit ev: Traverse[AttrF[F, A, *]]
   ): Arbitrary[cats.free.Cofree[F, A]] =
     Arbitrary(drosteGenAttr[F, A].map(_.toCats))
 
   implicit def drosteArbitraryAttr[F[_]: Applicative: MonoidK, A: Arbitrary](
-      implicit ev: Traverse[AttrF[F, A, ?]]
+      implicit ev: Traverse[AttrF[F, A, *]]
   ): Arbitrary[Attr[F, A]] =
     Arbitrary(drosteGenAttr)
 

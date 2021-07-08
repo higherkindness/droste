@@ -23,8 +23,7 @@ object ProjectPlugin extends AutoPlugin {
       CrossProject(modName, file(s"$prefix$modName"))(
         JSPlatform,
         JVMPlatform /*, NativePlatform // soon */
-      )
-        .crossType(CrossType.Pure)
+      ).crossType(CrossType.Pure)
         .withoutSuffixFor(JVMPlatform)
         .build()
         .jvmSettings(Test / fork := true)
@@ -86,8 +85,10 @@ object ProjectPlugin extends AutoPlugin {
       outputStrategy := Some(StdoutOutput),
       run / connectInput := true,
       Global / cancelable := true,
-      crossScalaVersions := List("2.12.10", "2.13.1"),
-      scalaVersion := "2.12.10"
+      crossScalaVersions := List("2.12.14", "2.13.6"),
+      scalaVersion := "2.13.6",
+      addCompilerPlugin(
+        "org.typelevel" % "kind-projector" % "0.13.0" cross CrossVersion.full)
     ) ++ publishSettings
 
   lazy val publishSettings = Seq(

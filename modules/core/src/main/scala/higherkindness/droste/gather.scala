@@ -8,7 +8,7 @@ import data.Attr
 object Gather {
 
   def cata[F[_], A]: Gather[F, A, A] =
-    (a, fa) => a
+    (a, _) => a
 
   def zygo[F[_]: Functor, A, B](algebra: Algebra[F, B]): Gather[F, (B, A), A] =
     (a, fa) => (algebra(fa.map(_._1)), a)

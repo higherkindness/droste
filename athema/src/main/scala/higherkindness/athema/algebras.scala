@@ -2,7 +2,7 @@ package higherkindness.athema
 
 import algebra.ring.Field
 import algebra.ring.Ring
-import cats.implicits._
+import cats.syntax.all._
 
 import higherkindness.droste._
 import higherkindness.droste.syntax.all._
@@ -13,7 +13,7 @@ object Evaluate {
 
   def algebraM[V](
       variables: Map[String, V]
-  )(implicit V: Field[V]): AlgebraM[Either[String, ?], Expr[V, ?], V] =
+  )(implicit V: Field[V]): AlgebraM[Either[String, *], Expr[V, *], V] =
     AlgebraM {
       case Var(name)  => variables.get(name).toRight(s"unknown variable: $name")
       case Const(v)   => v.asRight
@@ -31,7 +31,7 @@ object Differentiate {
     scheme.gcata(algebra[V](wrt))(Gather.para)
 
   def algebra[V](wrt: String)(
-      implicit V: Ring[V]): RAlgebra[Expr.Fixed[V], Expr[V, ?], Expr.Fixed[V]] =
+      implicit V: Ring[V]): RAlgebra[Expr.Fixed[V], Expr[V, *], Expr.Fixed[V]] =
     RAlgebra {
       case Var(`wrt`)             => Const(V.one).fix
       case _: Var[_, _]           => Const(V.zero).fix
@@ -50,7 +50,7 @@ object Simplify {
     scheme.cata(algebra[V])
 
   def trans[V](
-      implicit V: Field[V]): Trans[Expr[V, ?], Expr[V, ?], Expr.Fixed[V]] =
+      implicit V: Field[V]): Trans[Expr[V, *], Expr[V, *], Expr.Fixed[V]] =
     Trans { fa =>
       val Zero = V.zero
       val One  = V.one
@@ -68,14 +68,14 @@ object Simplify {
         case Add(Const(Zero), v) => v.unfix
         case Add(v, Const(Zero)) => v.unfix
         case Add(x, y) if x == y => Prod(Const(Two).fix, x)
-        case Add(x, Prod(Const(n: V), y)) if x == y =>
+        case Add(x, Prod(Const(n: V @unchecked), y)) if x == y =>
           Prod(Const(V.plus(n, V.one)).fix, x)
 
         case other => other
       }
     }
 
-  def algebra[V](implicit V: Field[V]): Algebra[Expr[V, ?], Expr.Fixed[V]] =
+  def algebra[V](implicit V: Field[V]): Algebra[Expr[V, *], Expr.Fixed[V]] =
     trans.algebra
 
 }

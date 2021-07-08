@@ -15,10 +15,10 @@ object Coattr {
   def pure[F[_], A](a: A): Coattr[F, A]                = apply(Left(a))
   def roll[F[_], A](fa: F[Coattr[F, A]]): Coattr[F, A] = apply(Right(fa))
 
-  def algebra[F[_], A]: Algebra[CoattrF[F, A, ?], Coattr[F, A]] =
+  def algebra[F[_], A]: Algebra[CoattrF[F, A, *], Coattr[F, A]] =
     Algebra(fa => Coattr(CoattrF.un(fa)))
 
-  def coalgebra[F[_], A]: Coalgebra[CoattrF[F, A, ?], Coattr[F, A]] =
+  def coalgebra[F[_], A]: Coalgebra[CoattrF[F, A, *], Coattr[F, A]] =
     Coalgebra(a => CoattrF(Coattr.un(a)))
 
   def fromCats[F[_]: Functor, A](free: cats.free.Free[F, A]): Coattr[F, A] =
