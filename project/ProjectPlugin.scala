@@ -23,8 +23,7 @@ object ProjectPlugin extends AutoPlugin {
       CrossProject(modName, file(s"$prefix$modName"))(
         JSPlatform,
         JVMPlatform /*, NativePlatform // soon */
-      )
-        .crossType(CrossType.Pure)
+      ).crossType(CrossType.Pure)
         .withoutSuffixFor(JVMPlatform)
         .build()
         .jvmSettings(Test / fork := true)
@@ -39,16 +38,6 @@ object ProjectPlugin extends AutoPlugin {
           Test / fork := true,
           moduleName := s"droste-$modName"
         )
-
-    lazy val macroSettings: Seq[Setting[_]] = Seq(
-      libraryDependencies ++= Seq(
-        scalaOrganization.value % "scala-compiler" % scalaVersion.value % Provided,
-        scalaOrganization.value % "scala-reflect"  % scalaVersion.value % Provided,
-        compilerPlugin(
-          "org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.patch
-        )
-      )
-    )
 
     lazy val noPublishSettings: Seq[Def.Setting[_]] = Seq(
       publish := ((): Unit),
@@ -86,8 +75,10 @@ object ProjectPlugin extends AutoPlugin {
       outputStrategy := Some(StdoutOutput),
       run / connectInput := true,
       Global / cancelable := true,
-      crossScalaVersions := List("2.12.10", "2.13.1"),
-      scalaVersion := "2.12.10"
+      crossScalaVersions := List("2.12.14", "2.13.6"),
+      scalaVersion := "2.12.14",
+      addCompilerPlugin(
+        "org.typelevel" % "kind-projector" % "0.13.0" cross CrossVersion.full)
     ) ++ publishSettings
 
   lazy val publishSettings = Seq(

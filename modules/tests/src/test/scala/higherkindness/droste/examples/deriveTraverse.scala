@@ -1,8 +1,6 @@
 package higherkindness.droste
 package examples
 
-import cats.instances.option._
-import cats.instances.list._
 import cats.syntax.traverse._
 
 import org.scalacheck.Properties

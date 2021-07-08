@@ -5,7 +5,7 @@ import org.scalacheck.Prop._
 
 import cats.Applicative
 import cats.Traverse
-import cats.implicits._
+import cats.syntax.all._
 
 import higherkindness.droste.CoalgebraM
 import higherkindness.droste.scheme

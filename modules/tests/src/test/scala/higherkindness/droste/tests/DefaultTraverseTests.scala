@@ -1,7 +1,7 @@
 package higherkindness.droste
 package tests
 
-import cats.implicits._
+import cats.syntax.all._
 import higherkindness.droste.util.DefaultTraverse
 import cats.Applicative
 import cats.Eq

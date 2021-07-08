@@ -159,12 +159,12 @@ object GCoalgebraM {
 
 private[droste] sealed trait GAlgebraInstances {
 
-  implicit def drosteArrowForGAlgebra[F[_]: Comonad]: Arrow[GAlgebra[F, ?, ?]] =
+  implicit def drosteArrowForGAlgebra[F[_]: Comonad]: Arrow[GAlgebra[F, *, *]] =
     new GAlgebraArrow
 }
 
 private[droste] class GAlgebraArrow[F[_]: Comonad]
-    extends Arrow[GAlgebra[F, ?, ?]] {
+    extends Arrow[GAlgebra[F, *, *]] {
   def lift[A, B](f: A => B): GAlgebra[F, A, B] =
     GAlgebra(fa => f(fa.extract))
   def compose[A, B, C](
@@ -181,12 +181,12 @@ private[droste] class GAlgebraArrow[F[_]: Comonad]
 
 private[droste] sealed trait GCoalgebraInstances {
   implicit def drosteArrowForGCoalgebra[F[_]: Monad]: Arrow[
-    GCoalgebra[F, ?, ?]] =
+    GCoalgebra[F, *, *]] =
     new GCoalgebraArrow
 }
 
 private[droste] class GCoalgebraArrow[F[_]: Monad]
-    extends Arrow[GCoalgebra[F, ?, ?]] {
+    extends Arrow[GCoalgebra[F, *, *]] {
   def lift[A, B](f: A => B): GCoalgebra[F, A, B] =
     GCoalgebra(a => f(a).pure[F])
   def compose[A, B, C](

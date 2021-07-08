@@ -1,7 +1,6 @@
 package higherkindness.droste
 package examples
 
-import cats.instances.list._
 import cats.kernel.Eq
 
 import org.scalacheck.Properties
@@ -30,7 +29,7 @@ final class FoldableOpsChecks
   import LExpr._
   import LExpr.fixedpoint._
 
-  def tru[T: Basis[LExprF, ?]]: T =
+  def tru[T: Basis[LExprF, *]]: T =
     lam[T](
       "a",
       lam[T](
@@ -46,8 +45,8 @@ final class FoldableOpsChecks
 
   property("any") =
     tru[LExpr].any {
-      case Var(name) => true
-      case _         => false
+      case Var(_) => true
+      case _      => false
     } ?= true
 
   property("contains") =

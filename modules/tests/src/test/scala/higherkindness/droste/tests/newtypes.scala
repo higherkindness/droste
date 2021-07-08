@@ -2,7 +2,6 @@ package higherkindness.droste
 package tests
 
 import cats.kernel.laws.discipline.MonoidTests
-import cats.instances.boolean._
 import cats.Eq
 
 import higherkindness.droste.util.newtypes._

@@ -10,18 +10,18 @@ import higherkindness.droste.data.list._
 
 final class PlusMinus extends Properties("PlusMinus") {
 
-  val evenAlgebra = Algebra[ListF[Int, ?], Boolean] {
+  val evenAlgebra = Algebra[ListF[Int, *], Boolean] {
     case NilF           => false
     case ConsF(_, bool) => !bool
   }
 
-  val calcRAlgebra = RAlgebra[Boolean, ListF[Int, ?], Int] {
+  val calcRAlgebra = RAlgebra[Boolean, ListF[Int, *], Int] {
     case NilF             => 0
     case ConsF(n, (b, x)) => if (b) n + x else n - x
   }
 
   // plusMinus(List(a,b,c,d,e)) = a - (b + (c - (d + e)))
-  val plusMinus = scheme.zoo.zygo[ListF[Int, ?], List[Int], Boolean, Int](
+  val plusMinus = scheme.zoo.zygo[ListF[Int, *], List[Int], Boolean, Int](
     evenAlgebra,
     calcRAlgebra)
 

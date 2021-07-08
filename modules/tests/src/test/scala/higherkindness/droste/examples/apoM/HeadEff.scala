@@ -5,7 +5,6 @@ import org.scalacheck.Prop._
 
 import cats.Monad
 import cats.syntax.functor._
-import cats.instances.option._
 
 import higherkindness.droste.data.list._
 import higherkindness.droste.RCoalgebraM
@@ -35,7 +34,7 @@ object HeadEff {
   def mapHeadM[M[_], A](f: A => M[A])(
       implicit M: Monad[M]): List[A] => M[List[A]] =
     scheme.zoo.apoM(
-      RCoalgebraM[List[A], M, ListF[A, ?], List[A]] {
+      RCoalgebraM[List[A], M, ListF[A, *], List[A]] {
         case Nil    => M.pure(NilF)
         case h :: t => f(h).map(ConsF(_, Left(t)))
       }

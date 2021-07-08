@@ -10,7 +10,7 @@ import higherkindness.droste.data.Coattr
 final class ListExchange extends Properties("ListExchange") {
 
   // TODO: make this more ergonomic to write
-  val exchangeCoalgebra: CVCoalgebra[ListF[String, ?], List[String]] =
+  val exchangeCoalgebra: CVCoalgebra[ListF[String, *], List[String]] =
     CVCoalgebra {
       case Nil => NilF
       case head :: tail =>
@@ -22,7 +22,7 @@ final class ListExchange extends Properties("ListExchange") {
               Coattr.roll(
                 ConsF(
                   head,
-                  Coattr.pure[ListF[String, ?], List[String]](tailTail))))
+                  Coattr.pure[ListF[String, *], List[String]](tailTail))))
         }
     }
 

@@ -1,6 +1,7 @@
 package higherkindness.droste.macros.impl
 
 import scala.reflect.macros.blackbox
+import scala.annotation.nowarn
 import scala.annotation.tailrec
 
 object Macros {
@@ -12,8 +13,7 @@ object Macros {
     val inputs          = annottees.map(_.tree).toList
     val clait: ClassDef = inputs.collect({ case c: ClassDef => c }).head
     val companion: ModuleDef = inputs
-      .collect({ case c: ModuleDef => c })
-      .headOption
+      .collectFirst { case c: ModuleDef => c }
       .getOrElse(
         ModuleDef(
           NoMods,
@@ -87,7 +87,7 @@ object Macros {
         val name       = TermName(origin.name.toString)
         val params     = getCaseClassParams(origin)
         val arity      = params.length
-        val freshTerms = List.fill(arity)(TermName(c.freshName))
+        val freshTerms = List.fill(arity)(TermName(c.freshName()))
         val binds      = freshTerms.map(x => Bind(x, Ident(termNames.WILDCARD)))
         val args = params.zip(freshTerms).map {
           case (valDef, t) =>
@@ -109,13 +109,14 @@ object Macros {
                 * Traverse[List].compose[Option].compose[Future].compose[Try]
                 */
               def getTraverseInstance(tt: AppliedTypeTree): Tree = {
+                @nowarn("msg=match may not be exhaustive")
                 @tailrec def go(ttt: AppliedTypeTree, acc: Tree): Tree =
                   ttt match {
                     case AppliedTypeTree(
-                        a: Ident,
+                        _: Ident,
                         List(tttt @ AppliedTypeTree(b: Ident, _))) =>
                       go(tttt, q"$acc.compose[$b]")
-                    case AppliedTypeTree(a: Ident, _) =>
+                    case AppliedTypeTree(_: Ident, _) =>
                       acc
                   }
 
@@ -296,7 +297,7 @@ object Macros {
         val name       = TermName(origin.name.toString)
         val params     = getCaseClassParams(origin)
         val arity      = params.length
-        val freshTerms = List.fill(arity)(TermName(c.freshName))
+        val freshTerms = List.fill(arity)(TermName(c.freshName()))
         val binds      = freshTerms.map(x => Bind(x, Ident(termNames.WILDCARD)))
         val args = params.zip(freshTerms).map {
           case (valDef, t) =>
@@ -331,13 +332,14 @@ object Macros {
     }
 
     val toRecursive: DefDef = {
+      @nowarn("msg=match may not be exhaustive")
       val embedAlgebraCases: List[CaseDef] =
         (NonRecursiveAdtCases zip AdtCases) map {
           case (origin, target: ClassDef) =>
             val originName = TermName(origin.name.toString)
             val targetName = TermName(target.name.toString)
             val freshTerms = List.fill(getCaseClassParams(target).length)(
-              TermName(c.freshName))
+              TermName(c.freshName()))
             val binds = freshTerms.map(x => Bind(x, Ident(termNames.WILDCARD)))
             val args  = freshTerms.map(x => Ident(x))
             cq"$originName(..$binds) => $targetName[..$claitTypeParamNamesAsTrees](..$args)"
@@ -359,13 +361,14 @@ object Macros {
     }
 
     val toFixedPoint: DefDef = {
+      @nowarn("msg=match may not be exhaustive")
       val embedAlgebraCases: List[CaseDef] =
         (AdtCases zip NonRecursiveAdtCases) map {
           case (origin: ClassDef, target) =>
             val originName = TermName(origin.name.toString)
             val targetName = TermName(target.name.toString)
             val freshTerms = List.fill(getCaseClassParams(target).length)(
-              TermName(c.freshName))
+              TermName(c.freshName()))
             val binds = freshTerms.map(x => Bind(x, Ident(termNames.WILDCARD)))
             val args  = freshTerms.map(x => Ident(x))
 
