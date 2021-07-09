@@ -39,16 +39,6 @@ object ProjectPlugin extends AutoPlugin {
           moduleName := s"droste-$modName"
         )
 
-    lazy val macroSettings: Seq[Setting[_]] = Seq(
-      libraryDependencies ++= Seq(
-        scalaOrganization.value % "scala-compiler" % scalaVersion.value % Provided,
-        scalaOrganization.value % "scala-reflect"  % scalaVersion.value % Provided,
-        compilerPlugin(
-          "org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.patch
-        )
-      )
-    )
-
     lazy val noPublishSettings: Seq[Def.Setting[_]] = Seq(
       publish := ((): Unit),
       publishLocal := ((): Unit),

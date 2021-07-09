@@ -40,15 +40,6 @@ lazy val V = new {
   val drostePrev = "0.7.0"
 }
 
-def paradiseDep(scalaVersion: String): Seq[ModuleID] =
-  CrossVersion.partialVersion(scalaVersion) match {
-    case Some((2, minor)) if minor < 13 =>
-      Seq(
-        compilerPlugin(
-          "org.scalamacros" %% "paradise" % "2.1.1" cross CrossVersion.patch))
-    case _ => Nil
-  }
-
 lazy val meta = module("meta")
   .settings(
     mimaPreviousArtifacts := Set(
@@ -98,9 +89,10 @@ lazy val coreJS  = core.js
 lazy val macros = module("macros")
   .dependsOn(core)
   .settings(
-    mimaPreviousArtifacts := Set(
-      organization.value %%% moduleName.value % V.drostePrev),
-    libraryDependencies ++= paradiseDep(scalaVersion.value))
+    mimaPreviousArtifacts := Set(organization.value %%% moduleName.value % V.drostePrev),
+    libraryDependencies ++= on(2, 12)(compilerPlugin("org.scalamacros" %% "paradise" % "2.1.1" cross CrossVersion.patch)).value,
+    scalacOptions ++= on(2, 13)("-Ymacro-annotations").value
+  )
 
 lazy val macrosJVM = macros.jvm
 lazy val macrosJS  = macros.js
@@ -142,12 +134,16 @@ lazy val tests = module("tests")
   .dependsOn(core, scalacheck, laws, macros)
   .settings(noPublishSettings)
   .disablePlugins(MimaPlugin)
-  .settings(libraryDependencies ++= Seq(
-    "org.scalacheck" %%% "scalacheck"         % V.scalacheck,
-    "org.typelevel"  %%% "cats-laws"          % V.cats,
-    "eu.timepit"     %%% "refined"            % V.refined,
-    "eu.timepit"     %%% "refined-scalacheck" % V.refined
-  ) ++ paradiseDep(scalaVersion.value))
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scalacheck" %%% "scalacheck"         % V.scalacheck,
+      "org.typelevel"  %%% "cats-laws"          % V.cats,
+      "eu.timepit"     %%% "refined"            % V.refined,
+      "eu.timepit"     %%% "refined-scalacheck" % V.refined
+    ),
+    libraryDependencies ++= on(2, 12)(compilerPlugin("org.scalamacros" %% "paradise" % "2.1.1" cross CrossVersion.patch)).value,
+    scalacOptions ++= on(2, 13)("-Ymacro-annotations").value
+  )
 
 lazy val testsJVM = tests.jvm
 lazy val testsJS  = tests.js
@@ -201,3 +197,11 @@ addCommandAlias(
   ";+clean;+test"
 )
 addCommandAlias("ci-docs", ";github;mdoc")
+
+def on[A](major: Int, minor: Int)(a: A): Def.Initialize[Seq[A]] =
+  Def.setting {
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some(v) if v == (major, minor) => Seq(a)
+      case _                              => Nil
+    }
+  }

@@ -28,10 +28,10 @@ final class SmallPost extends Properties("SmallPost") {
         }
     }
 
-  implicit def streamFEmbed[A] = new Embed[StreamF[A, *], Stream[A]] {
-    override def algebra = Algebra[StreamF[A, *], Stream[A]] {
+  implicit def streamFEmbed[A] = new Embed[StreamF[A, *], LazyList[A]] {
+    override def algebra = Algebra[StreamF[A, *], LazyList[A]] {
       case PrependF(head, tail) => head #:: tail.value
-      case EmptyF               => Stream.empty[A]
+      case EmptyF               => LazyList.empty[A]
     }
   }
 
@@ -48,7 +48,7 @@ final class SmallPost extends Properties("SmallPost") {
 
   val smallStream =
     scheme.zoo
-      .postpro[StreamF[Int, *], Int, Stream[Int]](infiniteCoalg, filterNT(10))
+      .postpro[StreamF[Int, *], Int, LazyList[Int]](infiniteCoalg, filterNT(10))
       .andThen(_.toList)
 
   property("under limit") =
