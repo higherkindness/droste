@@ -60,7 +60,7 @@ private[droste] sealed trait SchemeConvenientPorcelain {
     kernel.hyloM(algebraM.run, project.coalgebra.lift[M].run)
 
   /** Convenience to specify the base constructor "shape" (such as `Fix`
-    * or `Cofree[?[_], Int]`) for recursion.
+    * or `Cofree[*[_], Int]`) for recursion.
     *
     * This helps to guide Scala's type inference so all of the type
     * parameters for the various recursion scheme methods don't have
@@ -72,51 +72,51 @@ private[droste] sealed trait SchemeConvenientPorcelain {
 
   final class SchemePartialBasis[PatR[_[_]], PatF[_[_], _]] private[droste] () {
 
-    type EmbedP[F[_]]    = Embed[PatF[F, ?], PatR[F]]
-    type ProjectP[F[_]]  = Project[PatF[F, ?], PatR[F]]
-    type FunctorP[F[_]]  = Functor[PatF[F, ?]]
-    type TraverseP[F[_]] = Traverse[PatF[F, ?]]
+    type EmbedP[F[_]]    = Embed[PatF[F, *], PatR[F]]
+    type ProjectP[F[_]]  = Project[PatF[F, *], PatR[F]]
+    type FunctorP[F[_]]  = Functor[PatF[F, *]]
+    type TraverseP[F[_]] = Traverse[PatF[F, *]]
 
     def ana[F[_], A](
-        coalgebra: Coalgebra[PatF[F, ?], A]
+        coalgebra: Coalgebra[PatF[F, *], A]
     )(implicit embed: EmbedP[F], ev: FunctorP[F]): A => PatR[F] =
-      scheme.ana[PatF[F, ?], A, PatR[F]](coalgebra)
+      scheme.ana[PatF[F, *], A, PatR[F]](coalgebra)
 
     def anaM[M[_]: Monad, F[_], A](
-        coalgebraM: CoalgebraM[M, PatF[F, ?], A]
+        coalgebraM: CoalgebraM[M, PatF[F, *], A]
     )(implicit embed: EmbedP[F], ev: TraverseP[F]): A => M[PatR[F]] =
-      scheme.anaM[M, PatF[F, ?], A, PatR[F]](coalgebraM)
+      scheme.anaM[M, PatF[F, *], A, PatR[F]](coalgebraM)
 
     def gana[F[_], A, S](
-        scattered: GCoalgebra.Scattered[PatF[F, ?], A, S]
+        scattered: GCoalgebra.Scattered[PatF[F, *], A, S]
     )(implicit embed: EmbedP[F], ev: FunctorP[F]): A => PatR[F] =
-      scheme.gana[PatF[F, ?], A, S, PatR[F]](scattered.coalgebra)(
+      scheme.gana[PatF[F, *], A, S, PatR[F]](scattered.coalgebra)(
         scattered.scatter)
 
     def ganaM[M[_]: Monad, F[_], A, S](
-        scattered: GCoalgebraM.Scattered[M, PatF[F, ?], A, S]
+        scattered: GCoalgebraM.Scattered[M, PatF[F, *], A, S]
     )(implicit embed: EmbedP[F], ev: TraverseP[F]): A => M[PatR[F]] =
-      scheme.ganaM[M, PatF[F, ?], A, S, PatR[F]](scattered)
+      scheme.ganaM[M, PatF[F, *], A, S, PatR[F]](scattered)
 
     def cata[F[_], B](
-        algebra: Algebra[PatF[F, ?], B]
+        algebra: Algebra[PatF[F, *], B]
     )(implicit project: ProjectP[F], ev: FunctorP[F]): PatR[F] => B =
-      scheme.cata[PatF[F, ?], PatR[F], B](algebra)
+      scheme.cata[PatF[F, *], PatR[F], B](algebra)
 
     def cataM[M[_]: Monad, F[_], B](
-        algebraM: AlgebraM[M, PatF[F, ?], B]
+        algebraM: AlgebraM[M, PatF[F, *], B]
     )(implicit project: ProjectP[F], ev: TraverseP[F]): PatR[F] => M[B] =
-      scheme.cataM[M, PatF[F, ?], PatR[F], B](algebraM)
+      scheme.cataM[M, PatF[F, *], PatR[F], B](algebraM)
 
     def gcata[F[_], S, B](
-        gathered: GAlgebra.Gathered[PatF[F, ?], S, B]
+        gathered: GAlgebra.Gathered[PatF[F, *], S, B]
     )(implicit project: ProjectP[F], ev: FunctorP[F]): PatR[F] => B =
-      scheme.gcata[PatF[F, ?], PatR[F], S, B](gathered.algebra)(gathered.gather)
+      scheme.gcata[PatF[F, *], PatR[F], S, B](gathered.algebra)(gathered.gather)
 
     def gcataM[M[_]: Monad, F[_], S, B](
-        gathered: GAlgebraM.Gathered[M, PatF[F, ?], S, B]
+        gathered: GAlgebraM.Gathered[M, PatF[F, *], S, B]
     )(implicit project: ProjectP[F], ev: TraverseP[F]): PatR[F] => M[B] =
-      scheme.gcataM[M, PatF[F, ?], PatR[F], S, B](gathered)
+      scheme.gcataM[M, PatF[F, *], PatR[F], S, B](gathered)
 
   }
 

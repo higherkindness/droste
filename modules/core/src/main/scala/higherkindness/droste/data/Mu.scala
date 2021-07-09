@@ -16,8 +16,8 @@ import cats.syntax.functor._
 sealed abstract class Mu[F[_]] extends Serializable {
   def apply[A](fold: Algebra[F, A]): A
 
-  def toFunctionK: Algebra[F, ?] ~> Id =
-    λ[Algebra[F, ?] ~> Id](Mu.this.apply(_))
+  def toFunctionK: Algebra[F, *] ~> Id =
+    λ[Algebra[F, *] ~> Id](Mu.this.apply(_))
 }
 
 object Mu {

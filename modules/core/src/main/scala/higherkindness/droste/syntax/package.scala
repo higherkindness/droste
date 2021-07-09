@@ -97,8 +97,10 @@ sealed trait FixSyntax {
 
 object FixSyntax {
   final class Ops[F[_], A](private val unfix: F[A]) extends AnyVal {
-    def fix[G[A] >: F[A]](implicit ev: A =:= Fix[G]): Fix[G] =
+    def fix[G[a] >: F[a]](implicit ev: A =:= Fix[G]): Fix[G] = {
+      val _ = ev // suppress 'unused' warnings; can't use `nowarn` because the warning doesn't appear on all cross versions
       Fix(unfix.asInstanceOf[G[Fix[G]]])
+    }
   }
 }
 
@@ -171,7 +173,7 @@ object ProjectSyntax {
       Project.any(self)(p)
 
     def collect[U: Monoid, B](pf: PartialFunction[T, B])(
-        implicit U: Basis[ListF[B, ?], U]): U =
+        implicit U: Basis[ListF[B, *], U]): U =
       Project.collect[F, T, U, B](self)(pf)
 
     def contains(c: T)(implicit T: Eq[T]): Boolean =

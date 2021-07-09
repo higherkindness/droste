@@ -10,7 +10,6 @@ import cats.Applicative
 import cats.Traverse
 import cats.data.NonEmptyList
 import cats.syntax.all._
-import cats.instances.option._
 
 import higherkindness.droste.data.Fix
 import higherkindness.droste.data.list._
@@ -20,7 +19,7 @@ final class TransDemo extends Properties("TransDemo") {
   import TransDemo._
 
   property("empty list to NelF fails") =
-    toNelF(Fix[ListF[Int, ?]](NilF)) ?= None
+    toNelF(Fix[ListF[Int, *]](NilF)) ?= None
 
   property("round trip NelF") = {
     forAll { (nel: NonEmptyList[Int]) =>
@@ -39,8 +38,8 @@ object TransDemo {
   final case class NeLastF[A, B](value: A)         extends NeListF[A, B]
   final case class NeConsF[A, B](head: A, tail: B) extends NeListF[A, B]
 
-  implicit def drosteTraverseForNeListF[A]: Traverse[NeListF[A, ?]] =
-    new DefaultTraverse[NeListF[A, ?]] {
+  implicit def drosteTraverseForNeListF[A]: Traverse[NeListF[A, *]] =
+    new DefaultTraverse[NeListF[A, *]] {
       def traverse[F[_]: Applicative, B, C](fb: NeListF[A, B])(
           f: B => F[C]): F[NeListF[A, C]] =
         fb match {
@@ -52,9 +51,9 @@ object TransDemo {
   // converting a list to a non-empty list can fail, so we use TransM
   def transListToNeList[A]: TransM[
     Option,
-    ListF[A, ?],
-    NeListF[A, ?],
-    Fix[ListF[A, ?]]] = TransM {
+    ListF[A, *],
+    NeListF[A, *],
+    Fix[ListF[A, *]]] = TransM {
     case ConsF(head, tail) =>
       Fix.un(tail) match {
         case NilF => NeLastF(head).some
@@ -63,19 +62,19 @@ object TransDemo {
     case NilF => None
   }
 
-  def toNelF[A]: Fix[ListF[A, ?]] => Option[Fix[NeListF[A, ?]]] =
+  def toNelF[A]: Fix[ListF[A, *]] => Option[Fix[NeListF[A, *]]] =
     scheme.anaM(transListToNeList[A].coalgebra)
 
   // converting a non-empty list to a list can't fail, so we use Trans
   def transNeListToList[A]: Trans[
-    NeListF[A, ?],
-    ListF[A, ?],
-    Fix[ListF[A, ?]]] = Trans {
+    NeListF[A, *],
+    ListF[A, *],
+    Fix[ListF[A, *]]] = Trans {
     case NeConsF(head, tail) => ConsF(head, tail)
-    case NeLastF(last)       => ConsF(last, Fix[ListF[A, ?]](NilF))
+    case NeLastF(last)       => ConsF(last, Fix[ListF[A, *]](NilF))
   }
 
-  def fromNelF[A]: Fix[NeListF[A, ?]] => Fix[ListF[A, ?]] =
+  def fromNelF[A]: Fix[NeListF[A, *]] => Fix[ListF[A, *]] =
     scheme.cata(transNeListToList[A].algebra)
 
   // misc

@@ -7,13 +7,15 @@ import org.scalacheck.Cogen
 import org.scalacheck.Gen
 import org.scalacheck.Prop._
 import org.scalacheck.Properties
-
 import cats.Eq
-import cats.implicits._
+import cats.syntax.all._
 import cats.laws.discipline.ArrowTests
 import cats.laws.discipline.eq._
 import cats.laws.discipline.DeprecatedEqInstances._
 
+import scala.annotation.nowarn
+
+@nowarn("msg=is deprecated") // Related to DeprecatedEqInstances
 final class AlgebraTests extends Properties("algebras") {
 
   implicit def galgebraEq[F[_], S, A](
@@ -39,23 +41,23 @@ final class AlgebraTests extends Properties("algebras") {
     Arbitrary(Gen.function1(arbitrary[F[S]]).map(GCoalgebra(_)))
 
   include(
-    ArrowTests[GAlgebra[(Int, ?), ?, ?]]
+    ArrowTests[GAlgebra[(Int, *), *, *]]
       .arrow[Int, Int, Int, Int, Int, Int]
       .all,
     "GAlgebra.")
 
   include(
-    ArrowTests[GCoalgebra[(Int, ?), ?, ?]]
+    ArrowTests[GCoalgebra[(Int, *), *, *]]
       .arrow[Int, Int, Int, Int, Int, Int]
       .all,
     "GCoalgebra.")
 
   property("GAlgebra round trip Cokleisli") = forAll(
-    (algebra: GAlgebra[(Int, ?), Int, Int]) =>
+    (algebra: GAlgebra[(Int, *), Int, Int]) =>
       algebra === GAlgebra(algebra.toCokleisli.run))
 
   property("GCoalgebra round trip Kleisli") = forAll(
-    (coalgebra: GCoalgebra[(Int, ?), Int, Int]) =>
+    (coalgebra: GCoalgebra[(Int, *), Int, Int]) =>
       coalgebra === GCoalgebra(coalgebra.toKleisli.run))
 
 }

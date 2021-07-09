@@ -32,22 +32,14 @@ lazy val coverage = (project in file(".coverage"))
   .aggregate(testsJVM)
 
 lazy val V = new {
-  val cats       = "2.2.0-RC1"
-  val refined    = "0.9.15"
-  val algebra    = "2.0.1"
-  val atto       = "0.8.0"
-  val scalacheck = "1.14.3"
-  val drostePrev = "0.7.0"
+  val cats             = "2.6.1"
+  val collectionCompat = "2.5.0"
+  val refined          = "0.9.15"
+  val algebra          = "2.0.1"
+  val atto             = "0.8.0"
+  val scalacheck       = "1.14.3"
+  val drostePrev       = "0.7.0"
 }
-
-def paradiseDep(scalaVersion: String): Seq[ModuleID] =
-  CrossVersion.partialVersion(scalaVersion) match {
-    case Some((2, minor)) if minor < 13 =>
-      Seq(
-        compilerPlugin(
-          "org.scalamacros" %% "paradise" % "2.1.1" cross CrossVersion.patch))
-    case _ => Nil
-  }
 
 lazy val meta = module("meta")
   .settings(
@@ -100,7 +92,10 @@ lazy val macros = module("macros")
   .settings(
     mimaPreviousArtifacts := Set(
       organization.value %%% moduleName.value % V.drostePrev),
-    libraryDependencies ++= paradiseDep(scalaVersion.value))
+    libraryDependencies ++= on(2, 12)(compilerPlugin(
+      "org.scalamacros" %% "paradise" % "2.1.1" cross CrossVersion.patch)).value,
+    scalacOptions ++= on(2, 13)("-Ymacro-annotations").value
+  )
 
 lazy val macrosJVM = macros.jvm
 lazy val macrosJS  = macros.js
@@ -111,7 +106,7 @@ lazy val reftree = jvmModule("reftree")
   .settings(
     mimaPreviousArtifacts := Set(
       organization.value                           %% moduleName.value % V.drostePrev),
-    libraryDependencies ++= Seq("io.github.stanch" %% "reftree"        % "1.2.1")
+    libraryDependencies ++= Seq("io.github.stanch" %% "reftree"        % "1.4.0")
   )
 
 lazy val scalacheck = module("scalacheck")
@@ -142,12 +137,18 @@ lazy val tests = module("tests")
   .dependsOn(core, scalacheck, laws, macros)
   .settings(noPublishSettings)
   .disablePlugins(MimaPlugin)
-  .settings(libraryDependencies ++= Seq(
-    "org.scalacheck" %%% "scalacheck"         % V.scalacheck,
-    "org.typelevel"  %%% "cats-laws"          % V.cats,
-    "eu.timepit"     %%% "refined"            % V.refined,
-    "eu.timepit"     %%% "refined-scalacheck" % V.refined
-  ) ++ paradiseDep(scalaVersion.value))
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scalacheck"         %%% "scalacheck"              % V.scalacheck,
+      "org.typelevel"          %%% "cats-laws"               % V.cats,
+      "eu.timepit"             %%% "refined"                 % V.refined,
+      "eu.timepit"             %%% "refined-scalacheck"      % V.refined,
+      "org.scala-lang.modules" %%% "scala-collection-compat" % V.collectionCompat % Test
+    ),
+    libraryDependencies ++= on(2, 12)(compilerPlugin(
+      "org.scalamacros" %% "paradise" % "2.1.1" cross CrossVersion.patch)).value,
+    scalacOptions ++= on(2, 13)("-Ymacro-annotations").value
+  )
 
 lazy val testsJVM = tests.jvm
 lazy val testsJS  = tests.js
@@ -176,7 +177,7 @@ lazy val readme = (project in file("modules/readme"))
   .settings(noPublishSettings)
   .disablePlugins(MimaPlugin)
   .settings(mdocIn := file("modules/readme/docs"))
-  .settings(mdocOut := (baseDirectory in LocalRootProject).value)
+  .settings(mdocOut := (LocalRootProject / baseDirectory).value)
 
 ///////////////
 //// DOCS ////
@@ -201,3 +202,13 @@ addCommandAlias(
   ";+clean;+test"
 )
 addCommandAlias("ci-docs", ";github;mdoc")
+
+def on[A](major: Int, minor: Int)(a: A): Def.Initialize[Seq[A]] =
+  Def.setting {
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some(v) if v == (major, minor) => Seq(a)
+      case _                              => Nil
+    }
+  }
+
+ThisBuild / resolvers += Resolver.sonatypeRepo("public")

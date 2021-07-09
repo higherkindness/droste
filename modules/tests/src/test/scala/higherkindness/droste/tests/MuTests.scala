@@ -9,8 +9,6 @@ import scalacheck._
 import org.scalacheck.Properties
 import org.scalacheck.Prop._
 
-import cats.instances.option._
-
 final class MuTests extends Properties("Mu") {
 
   include(BasisLaws.props[Option, Mu[Option]]("Option", "Mu[Option]"))

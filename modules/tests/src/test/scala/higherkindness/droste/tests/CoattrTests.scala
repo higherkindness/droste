@@ -7,8 +7,9 @@ import scalacheck._
 import org.scalacheck.Properties
 import org.scalacheck.Prop._
 
-import cats.implicits._
+import scala.annotation.nowarn
 
+@nowarn("msg=match may not be exhaustive")
 final class CoattrTests extends Properties("Coattr") {
 
   property("unapply") = {
