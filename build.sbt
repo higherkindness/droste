@@ -37,7 +37,7 @@ lazy val V = new {
   val refined          = "0.9.15"
   val algebra          = "2.2.3"
   val atto             = "0.9.5"
-  val scalacheck       = "1.14.3"
+  val scalacheck       = "1.15.4"
   val drostePrev       = "0.7.0"
 }
 
