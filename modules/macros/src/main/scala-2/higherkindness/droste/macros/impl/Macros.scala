@@ -45,9 +45,7 @@ object Macros {
         // is a case class
         classOrTrait.mods.hasFlag(CASE)
 
-    /**
-      * returns wether c extends d
-      */
+    /* returns wether c extends d */
     def xtends(c: ClassDef, d: ClassDef): Boolean =
       c.impl.parents
         .collect({ case a: AppliedTypeTree => a })
@@ -98,7 +96,7 @@ object Macros {
             } else if (valDef.tpt.toString.contains(RecType)) {
               val T = valDef.tpt.asInstanceOf[AppliedTypeTree]
 
-              /**
+              /*
                 * Used to get the correct Traverse instance.  In case of
                 * finding nested AppliedTypeTrees, tries to compose the
                 * Traverse instances to get a suitable traverse.
@@ -211,9 +209,7 @@ object Macros {
         classOrTrait.mods.hasFlag(ABSTRACT) &&
           classOrTrait.mods.hasFlag(SEALED)
 
-    /**
-      * returns wether c extends d
-      */
+    /* returns wether c extends d */
     def xtends(c: Tree, d: ClassDef): Boolean =
       (c collect {
         case c: ClassDef =>
