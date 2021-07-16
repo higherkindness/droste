@@ -176,6 +176,9 @@ object ProjectSyntax {
         implicit U: Basis[ListF[B, *], U]): U =
       Project.collect[F, T, U, B](self)(pf)
 
+    def find[B](pf: PartialFunction[T, B]): Option[B] =
+      Project.find(self)(pf)
+
     def contains(c: T)(implicit T: Eq[T]): Boolean =
       Project.contains(self, c)
 

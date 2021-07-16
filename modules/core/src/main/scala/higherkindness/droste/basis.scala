@@ -41,6 +41,9 @@ trait Project[F[_], R] { self =>
       F: Foldable[F]): U =
     Project.collect[F, R, U, B](r)(pf)
 
+  def find[B](r: R)(pf: PartialFunction[R, B])(implicit F: Foldable[F]): Option[B] =
+    Project.find[F, R, B](r)(pf)
+
   def contains(r: R, c: R)(implicit R: Eq[R], F: Foldable[F]): Boolean =
     Project.contains[F, R](r, c)
 
@@ -71,6 +74,9 @@ object Project extends FloatingBasisInstances[Project] {
     foldMap[F, R, U](r)(
       pf.lift(_)
         .foldRight[U](U.algebra(NilF))((a, b) => U.algebra(ConsF(a, b))))
+
+  def find[F[_], R, B](r: R)(pf: PartialFunction[R, B])(implicit P: Project[F, R], F: Foldable[F]): Option[B] =
+    foldMap[F, R, Option[B] @@ Tags.First](r)(pf.lift(_).first).unwrap
 
   def contains[F[_], R](
       r: R,

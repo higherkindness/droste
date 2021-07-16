@@ -10,6 +10,7 @@ object newtypes {
   object Tags {
     sealed trait Conjunction
     sealed trait Disjunction
+    sealed trait First
   }
 
   implicit class BooleanOps(b: Boolean) {
@@ -33,5 +34,15 @@ object newtypes {
           a: Boolean @@ Tags.Disjunction,
           b: Boolean @@ Tags.Disjunction): Boolean @@ Tags.Disjunction =
         @@(a.unwrap || b.unwrap)
+    }
+
+  implicit class OptionOps[B](o: Option[B]) {
+    def first: Option[B] @@ Tags.First = @@(o)
+  }
+
+  implicit def optionMonoid[B]: Monoid[Option[B] @@ Tags.First] =
+    new Monoid[Option[B] @@ Tags.First] {
+      def empty: Option[B] @@ Tags.First = @@(Option.empty[B])
+      def combine(x: Option[B] @@ Tags.First, y: Option[B] @@ Tags.First): Option[B] @@ Tags.First = @@(x.unwrap.orElse(y.unwrap))
     }
 }
