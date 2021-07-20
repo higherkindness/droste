@@ -2,6 +2,8 @@ import ProjectPlugin.ScalaV
 import ProjectPlugin.on
 import ProjectPlugin.onVersion
 
+ThisBuild / githubOrganization := "higherkindness"
+
 lazy val coverage = (project in file(".coverage"))
   .settings(
     noPublishSettings,
@@ -229,5 +231,5 @@ addCommandAlias(
   "ci-test",
   "+clean;+test"
 )
-addCommandAlias("ci-docs", "github; documentation/mdoc")
+addCommandAlias("ci-docs", "github; mdoc")
 addCommandAlias("ci-publish", "github; ci-release")
