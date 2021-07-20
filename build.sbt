@@ -2,31 +2,6 @@ import ProjectPlugin.ScalaV
 import ProjectPlugin.on
 import ProjectPlugin.onVersion
 
-lazy val root = (project in file("."))
-  .settings(noPublishSettings)
-  .aggregate(coreJVM, coreJS)
-  .aggregate(metaJVM, metaJS)
-  .aggregate(macrosJVM, macrosJS)
-  .aggregate(reftree)
-  .aggregate(scalacheckJVM, scalacheckJS)
-  .aggregate(lawsJVM, lawsJS)
-  .aggregate(testsJVM, testsJS)
-  .aggregate(athemaJVM, athemaJS)
-  .aggregate(readme)
-  .settings(
-    crossScalaVersions := List()
-  ) // work around https://github.com/sbt/sbt/issues/4181
-
-lazy val publish = (project in file(".publish"))
-  .settings(noPublishSettings)
-  .disablePlugins(MimaPlugin)
-  .aggregate(coreJVM, coreJS)
-  .aggregate(metaJVM, metaJS)
-  .aggregate(macrosJVM, macrosJS)
-  .aggregate(scalacheckJVM, scalacheckJS)
-  .aggregate(lawsJVM, lawsJS)
-  .aggregate(testsJVM, testsJS)
-
 lazy val coverage = (project in file(".coverage"))
   .settings(
     noPublishSettings,
@@ -232,15 +207,19 @@ lazy val readme = (project in file("modules/readme"))
 //// DOCS ////
 ///////////////
 
-lazy val docs = (project in file("docs"))
+lazy val microsite = (project.in(file("modules/microsite")))
   .dependsOn(coreJVM)
   .dependsOn(athemaJVM)
   .settings(moduleName := "droste-docs")
   .settings(micrositeSettings: _*)
   .settings(noPublishSettings: _*)
   .enablePlugins(MicrositesPlugin)
-  .disablePlugins(ProjectPlugin)
   .disablePlugins(MimaPlugin)
+
+lazy val documentation = project
+  .settings(mdocOut := file("."))
+  .settings(publish / skip := true)
+  .enablePlugins(MdocPlugin)
 
 //////////////////
 //// ALIASES /////
@@ -248,9 +227,7 @@ lazy val docs = (project in file("docs"))
 
 addCommandAlias(
   "ci-test",
-  ";+clean;+test"
+  "+clean;+test"
 )
-addCommandAlias("ci-docs", ";github;mdoc")
+addCommandAlias("ci-docs", "github; documentation/mdoc")
 addCommandAlias("ci-publish", "github; ci-release")
-
-ThisBuild / resolvers += Resolver.sonatypeRepo("public")

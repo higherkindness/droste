@@ -25,7 +25,6 @@ anamorphism and then fold to our result with a histomorphism.
 ```scala
 import higherkindness.droste._
 import higherkindness.droste.data._
-import cats.syntax.all._
 
 val natCoalgebra: Coalgebra[Option, BigDecimal] =
   Coalgebra(n => if (n > 0) Some(n - 1) else None)
@@ -42,20 +41,16 @@ val fib: BigDecimal => BigDecimal = scheme.ghylo(
 ```
 
 ```scala
-scala> fib(0)
-res0: BigDecimal = 0
-
-scala> fib(1)
-res1: BigDecimal = 1
-
-scala> fib(2)
-res2: BigDecimal = 1
-
-scala> fib(10)
-res3: BigDecimal = 55
-
-scala> fib(100)
-res4: BigDecimal = 354224848179261915075
+fib(0)
+// res0: BigDecimal = 0
+fib(1)
+// res1: BigDecimal = 1
+fib(2)
+// res2: BigDecimal = 1
+fib(10)
+// res3: BigDecimal = 55
+fib(100)
+// res4: BigDecimal = 354224848179261915075
 ```
 
 An anamorphism followed by a histomorphism is also known as a
@@ -69,20 +64,16 @@ val fibAlt: BigDecimal => BigDecimal =
 ```
 
 ```scala
-scala> fibAlt(0)
-res5: BigDecimal = 0
-
-scala> fibAlt(1)
-res6: BigDecimal = 1
-
-scala> fibAlt(2)
-res7: BigDecimal = 1
-
-scala> fibAlt(10)
-res8: BigDecimal = 55
-
-scala> fibAlt(100)
-res9: BigDecimal = 354224848179261915075
+fibAlt(0)
+// res5: BigDecimal = 0
+fibAlt(1)
+// res6: BigDecimal = 1
+fibAlt(2)
+// res7: BigDecimal = 1
+fibAlt(10)
+// res8: BigDecimal = 55
+fibAlt(100)
+// res9: BigDecimal = 354224848179261915075
 ```
 
 What if we want to do two things at once? Let's calculate a
@@ -106,20 +97,16 @@ val sumSquares: BigDecimal => BigDecimal = scheme.ghylo(
 ```
 
 ```scala
-scala> sumSquares(0)
-res11: BigDecimal = 0
-
-scala> sumSquares(1)
-res12: BigDecimal = 1
-
-scala> sumSquares(2)
-res13: BigDecimal = 5
-
-scala> sumSquares(10)
-res14: BigDecimal = 385
-
-scala> sumSquares(100)
-res15: BigDecimal = 338350
+sumSquares(0)
+// res10: BigDecimal = 0
+sumSquares(1)
+// res11: BigDecimal = 1
+sumSquares(2)
+// res12: BigDecimal = 5
+sumSquares(10)
+// res13: BigDecimal = 385
+sumSquares(100)
+// res14: BigDecimal = 338350
 ```
 
 Now we can zip the two algebras into one so that we calculate
@@ -134,20 +121,16 @@ val fused: BigDecimal => (BigDecimal, BigDecimal) =
 ```
 
 ```scala
-scala> fused(0)
-res16: (BigDecimal, BigDecimal) = (0,0)
-
-scala> fused(1)
-res17: (BigDecimal, BigDecimal) = (1,1)
-
-scala> fused(2)
-res18: (BigDecimal, BigDecimal) = (1,5)
-
-scala> fused(10)
-res19: (BigDecimal, BigDecimal) = (55,385)
-
-scala> fused(100)
-res20: (BigDecimal, BigDecimal) = (354224848179261915075,338350)
+fused(0)
+// res15: (BigDecimal, BigDecimal) = (0, 0)
+fused(1)
+// res16: (BigDecimal, BigDecimal) = (1, 1)
+fused(2)
+// res17: (BigDecimal, BigDecimal) = (1, 5)
+fused(10)
+// res18: (BigDecimal, BigDecimal) = (55, 385)
+fused(100)
+// res19: (BigDecimal, BigDecimal) = (354224848179261915075, 338350)
 ```
 
 Droste includes [athema](athema), a math expression parser/processor,
