@@ -25,7 +25,6 @@ anamorphism and then fold to our result with a histomorphism.
 ```scala mdoc:silent
 import higherkindness.droste._
 import higherkindness.droste.data._
-import cats.syntax.all._
 
 val natCoalgebra: Coalgebra[Option, BigDecimal] =
   Coalgebra(n => if (n > 0) Some(n - 1) else None)
