@@ -163,6 +163,13 @@ available at http://www.apache.org/licenses/LICENSE-2.0.
 
 Logos provided by the very excellent [@impurepics](https://twitter.com/impurepics).
 
+------
+
+Code in Droste has been influenced and inspired by other libraries in
+the Scala and Haskell communities (Matryoshka and Pointless Haskell,
+at the very least). Attribution to the respective projects will be
+improved if/when/as the Droste library matures.
+
 # Disclamer
 
 Please be advised that I have no idea what I am doing.
