@@ -1,6 +1,7 @@
 import com.typesafe.sbt.site.jekyll.JekyllPlugin.autoImport._
 import com.typesafe.sbt.site.SitePlugin.autoImport._
 import microsites.MicrositeKeys._
+import mdoc.MdocPlugin.autoImport._
 import sbt.Keys._
 import sbt._
 import sbtcrossproject.CrossProject
@@ -59,11 +60,13 @@ object ProjectPlugin extends AutoPlugin {
       micrositeGithubOwner := "higherkindness",
       micrositeGithubRepo := "droste",
       micrositeGitterChannelUrl := "droste-recursion/Lobby",
-      micrositeExternalLayoutsDirectory := (Compile / resourceDirectory).value / "microsite" / "layouts",
-      micrositeExternalIncludesDirectory := (Compile / resourceDirectory).value / "microsite" / "includes",
+      micrositeExternalLayoutsDirectory := (Compile / resourceDirectory).value / "layouts",
+      micrositeExternalIncludesDirectory := (Compile / resourceDirectory).value / "includes",
       makeSite / includeFilter := "*.html" | "*.css" | "*.png" | "*.jpg" | "*.gif" | "*.js" | "*.swf" | "*.yml" | "*.md" | "*.svg" | "*.json" | "CNAME",
       Jekyll / includeFilter := (makeSite / includeFilter).value,
-      micrositePushSiteWith := GitHub4s
+      micrositePushSiteWith := GitHub4s,
+      mdocIn := (Compile / sourceDirectory).value / "docs",
+      micrositeGithubToken := Option(System.getenv().get("GITHUB_TOKEN"))
     )
 
   }

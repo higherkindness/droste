@@ -2,16 +2,6 @@ import ProjectPlugin.ScalaV
 import ProjectPlugin.on
 import ProjectPlugin.onVersion
 
-lazy val publish = (project in file(".publish"))
-  .settings(noPublishSettings)
-  .disablePlugins(MimaPlugin)
-  .aggregate(coreJVM, coreJS)
-  .aggregate(metaJVM, metaJS)
-  .aggregate(macrosJVM, macrosJS)
-  .aggregate(scalacheckJVM, scalacheckJS)
-  .aggregate(lawsJVM, lawsJS)
-  .aggregate(testsJVM, testsJS)
-
 lazy val coverage = (project in file(".coverage"))
   .settings(
     noPublishSettings,
@@ -224,7 +214,6 @@ lazy val microsite = (project.in(file("modules/microsite")))
   .settings(micrositeSettings: _*)
   .settings(noPublishSettings: _*)
   .enablePlugins(MicrositesPlugin)
-  .disablePlugins(ProjectPlugin)
   .disablePlugins(MimaPlugin)
 
 lazy val documentation = project
