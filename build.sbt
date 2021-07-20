@@ -251,5 +251,6 @@ addCommandAlias(
   ";+clean;+test"
 )
 addCommandAlias("ci-docs", ";github;mdoc")
+addCommandAlias("ci-publish", "github; ci-release")
 
 ThisBuild / resolvers += Resolver.sonatypeRepo("public")
