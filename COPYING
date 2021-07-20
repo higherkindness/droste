@@ -1,9 +1,0 @@
-Copyright 2018 Andy Scott
-
-Licensed under the Apache License, see https://github.com/higherkindness/droste/blob/main/LICENSE.md.
-------
-
-Code in Droste has been influenced and inspired by other libraries in
-the Scala and Haskell communities (Matryoshka and Pointless Haskell,
-at the very least). Attribution to the respective projects will be
-improved if/when/as the Droste library matures.
