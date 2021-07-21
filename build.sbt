@@ -103,7 +103,7 @@ lazy val macros = module("macros")
     libraryDependencies ++=
       (CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((3, _)) =>
-          Seq("org.typelevel" %%% "shapeless3-deriving" % "3.0.1")
+          Seq("org.typelevel" %%% "shapeless3-deriving" % "3.0.2")
         case _ => Nil
       }),
     scalacOptions ++= on(2, 13)("-Ymacro-annotations").value
