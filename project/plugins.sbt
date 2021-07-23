@@ -5,7 +5,7 @@ addSbtPlugin("org.scala-native"          % "sbt-scala-native"              % "0.
 addSbtPlugin("org.scoverage"             % "sbt-scoverage"                 % "1.8.2")
 addSbtPlugin("com.geirsson"              % "sbt-ci-release"                % "1.5.7")
 addSbtPlugin("com.47deg"                 % "sbt-microsites"                % "1.3.4")
-addSbtPlugin("org.scalameta"             % "sbt-mdoc"                      % "2.2.21")
+addSbtPlugin("org.scalameta"             % "sbt-mdoc"                      % "2.2.22")
 addSbtPlugin("com.alejandrohdezma"       % "sbt-github"                    % "0.9.3")
 addSbtPlugin("com.alejandrohdezma"       % "sbt-github-mdoc"               % "0.9.3")
 addSbtPlugin("com.typesafe"              % "sbt-mima-plugin"               % "0.9.2")
