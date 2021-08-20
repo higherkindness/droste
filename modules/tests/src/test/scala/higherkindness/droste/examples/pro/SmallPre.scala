@@ -2,9 +2,7 @@ package higherkindness.droste.examples.pro
 
 import org.scalacheck.Properties
 import org.scalacheck.Prop._
-
 import cats.~>
-
 import higherkindness.droste.Algebra
 import higherkindness.droste.scheme
 import higherkindness.droste.data.list._

@@ -3,35 +3,24 @@ package higherkindness.droste
 import cats.Functor
 import cats.Monad
 import cats.Traverse
-
 import cats.syntax.flatMap._
 import cats.syntax.functor._
 import cats.syntax.traverse._
-
 import implicits.composedFunctor._
 import implicits.composedTraverse._
 import syntax.compose._
 
-/** Fundamental recursion schemes implemented in terms of
-  * functions and nothing else.
-  *
+/** Fundamental recursion schemes implemented in terms of functions and nothing
+  * else.
   */
 object kernel {
 
   /** Build a hylomorphism by recursively unfolding with `coalgebra` and
     * refolding with `algebra`.
     *
-    * <pre>
-    *                  hylo
-    *          A ---------------> B
-    *          |                  ^
-    *  co-     |                  |
-    * algebra  |                  | algebra
-    *          |                  |
-    *          v                  |
-    *         F[A] ------------> F[B]
-    *                map hylo
-    * </pre>
+    * <pre> hylo A ---------------> B
+    * | ^ co- | | algebra | | algebra
+    * | | v | F[A] ------------> F[B] map hylo </pre>
     *
     * @group refolds
     */
@@ -45,8 +34,8 @@ object kernel {
 
   /** Convenience to build a hylomorphism for the composed functor `F[G[_]]`.
     *
-    * This is strictly for convenience and just delegates
-    * to `hylo` with the types set properly.
+    * This is strictly for convenience and just delegates to `hylo` with the
+    * types set properly.
     *
     * @group refolds
     */
@@ -57,23 +46,13 @@ object kernel {
 
   /** Build a monadic hylomorphism
     *
-    * <pre>
-    *                 hyloM
-    *          A ---------------> M[B]
-    *          |                  ^
-    *  co-     |                  |
-    * algebraM |                  | flatMap f
-    *          |                  |
-    *          v                  |
-    *       M[F[A]] ---------> M[F[M[B]]]
-    *               map hyloM
+    * <pre> hyloM A ---------------> M[B]
+    * | ^ co- | | algebraM | | flatMap f
+    * | | v | M[F[A]] ---------> M[F[M[B]]] map hyloM
     *
     * with f:
     *
-    * F[M[B]] -----> M[F[B]] ----------> M[B]
-    *       sequence          flatMap
-    *                         algebraM
-    * </pre>
+    * F[M[B]] -----> M[F[B]] ----------> M[B] sequence flatMap algebraM </pre>
     *
     * @group refolds
     */
@@ -83,7 +62,8 @@ object kernel {
   ): A => M[B] =
     hyloC[M, F, A, M[B]](_.flatMap(_.sequence.flatMap(algebra)), coalgebra)
 
-  /** Convenience to build a monadic hylomorphism for the composed functor `F[G[_]]`.
+  /** Convenience to build a monadic hylomorphism for the composed functor
+    * `F[G[_]]`.
     *
     * @group refolds
     */

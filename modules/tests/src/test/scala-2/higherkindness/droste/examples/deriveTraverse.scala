@@ -2,10 +2,8 @@ package higherkindness.droste
 package examples
 
 import cats.syntax.traverse._
-
 import org.scalacheck.Properties
 import org.scalacheck.Prop._
-
 import higherkindness.droste.data._
 import higherkindness.droste.macros.deriveTraverse
 
@@ -27,33 +25,38 @@ final class DeriveTraverseChecks extends Properties("deriveTraverse") {
     AlgebraM {
       case Const(value)                           => Some(value)
       case Add(ExprDerivingTraverse.Box(_, x), y) => Some(x + y)
-      case AddList(list)                          => list.map(_.a).sequence.map(_.reduce(_ + _))
+      case AddList(list) => list.map(_.a).sequence.map(_.reduce(_ + _))
     }
 
   val evaluate: Fix[ExprDerivingTraverse] => Option[BigDecimal] =
     scheme.cataM(summingAlgebraM)
 
-  property("1") =
-    evaluate(Fix(Const(1))) ?= Some(1)
+  property("1") = evaluate(Fix(Const(1))) ?= Some(1)
 
   property("1 + 1") =
     evaluate(Fix(Add(Box("qwer", Fix(Const(1))), Fix(Const(1))))) ?= Some(2)
 
-  property("1 + 2 + 5") =
-    evaluate(
-      Fix(
-        Add(
-          Box("qwer", Fix(Add(Box("qwer", Fix(Const(1))), Fix(Const(2))))),
-          Fix(Const(5))))) ?= Some(8)
+  property("1 + 2 + 5") = evaluate(
+    Fix(
+      Add(
+        Box("qwer", Fix(Add(Box("qwer", Fix(Const(1))), Fix(Const(2))))),
+        Fix(Const(5))
+      )
+    )
+  ) ?= Some(8)
 
-  property("1 + 2 + 3 + 4 + 5") =
-    evaluate(
-      Fix(AddList(List(
-        Box("asdf", Option(Fix(Const(1)))),
-        Box("asdf", Option(Fix(Const(2)))),
-        Box("asdf", Option(Fix(Const(3)))),
-        Box("asdf", Option(Fix(Const(4)))),
-        Box("asdf", Option(Fix(Const(5))))
-      )))) ?= Some(15)
+  property("1 + 2 + 3 + 4 + 5") = evaluate(
+    Fix(
+      AddList(
+        List(
+          Box("asdf", Option(Fix(Const(1)))),
+          Box("asdf", Option(Fix(Const(2)))),
+          Box("asdf", Option(Fix(Const(3)))),
+          Box("asdf", Option(Fix(Const(4)))),
+          Box("asdf", Option(Fix(Const(5))))
+        )
+      )
+    )
+  ) ?= Some(15)
 
 }

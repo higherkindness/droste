@@ -3,7 +3,6 @@ package higherkindness.athema
 import algebra.ring.Field
 import algebra.ring.Ring
 import cats.syntax.all._
-
 import higherkindness.droste._
 import higherkindness.droste.syntax.all._
 
@@ -30,8 +29,9 @@ object Differentiate {
   def differentiate[V: Ring](wrt: String): Expr.Fixed[V] => Expr.Fixed[V] =
     scheme.gcata(algebra[V](wrt))(Gather.para)
 
-  def algebra[V](wrt: String)(
-      implicit V: Ring[V]): RAlgebra[Expr.Fixed[V], Expr[V, *], Expr.Fixed[V]] =
+  def algebra[V](
+      wrt: String
+  )(implicit V: Ring[V]): RAlgebra[Expr.Fixed[V], Expr[V, *], Expr.Fixed[V]] =
     RAlgebra {
       case Var(`wrt`)             => Const(V.one).fix
       case _: Var[_, _]           => Const(V.zero).fix
@@ -49,8 +49,9 @@ object Simplify {
   def simplify[V: Field]: Expr.Fixed[V] => Expr.Fixed[V] =
     scheme.cata(algebra[V])
 
-  def trans[V](
-      implicit V: Field[V]): Trans[Expr[V, *], Expr[V, *], Expr.Fixed[V]] =
+  def trans[V](implicit
+      V: Field[V]
+  ): Trans[Expr[V, *], Expr[V, *], Expr.Fixed[V]] =
     Trans { fa =>
       val Zero = V.zero
       val One  = V.one

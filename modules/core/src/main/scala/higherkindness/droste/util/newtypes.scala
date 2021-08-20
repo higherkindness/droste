@@ -22,7 +22,8 @@ object newtypes {
       def empty: Boolean @@ Tags.Conjunction = @@(true)
       def combine(
           a: Boolean @@ Tags.Conjunction,
-          b: Boolean @@ Tags.Conjunction): Boolean @@ Tags.Conjunction =
+          b: Boolean @@ Tags.Conjunction
+      ): Boolean @@ Tags.Conjunction =
         @@(a.unwrap && b.unwrap)
     }
 
@@ -31,7 +32,8 @@ object newtypes {
       def empty: Boolean @@ Tags.Disjunction = @@(false)
       def combine(
           a: Boolean @@ Tags.Disjunction,
-          b: Boolean @@ Tags.Disjunction): Boolean @@ Tags.Disjunction =
+          b: Boolean @@ Tags.Disjunction
+      ): Boolean @@ Tags.Disjunction =
         @@(a.unwrap || b.unwrap)
     }
 }

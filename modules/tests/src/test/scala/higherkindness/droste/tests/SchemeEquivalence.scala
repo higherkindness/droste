@@ -2,12 +2,10 @@ package higherkindness.droste
 package tests
 
 import cats.Functor
-
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
 import org.scalacheck.Properties
 import org.scalacheck.Prop._
-
 import examples.histo.MakeChange
 
 final class SchemeEquivalence extends Properties("SchemeEquivalence") {

@@ -2,16 +2,13 @@ package higherkindness.droste.examples
 
 import org.scalacheck.Properties
 import org.scalacheck.Prop._
-
 import cats.Applicative
 import cats.Traverse
 import cats.syntax.all._
-
 import higherkindness.droste.CoalgebraM
 import higherkindness.droste.scheme
 import higherkindness.droste.data.Nu
 import higherkindness.droste.util.DefaultTraverse
-
 import scala.annotation.tailrec
 
 final class NuLookup extends Properties("NuLookup") {
@@ -42,9 +39,8 @@ final class NuLookup extends Properties("NuLookup") {
   )
 
   def catchAll[A](f: => A): Either[Throwable, A] =
-    try {
-      Right(f)
-    } catch {
+    try Right(f)
+    catch {
       case t: Throwable => Left(t)
     }
 
@@ -54,7 +50,8 @@ final class NuLookup extends Properties("NuLookup") {
     // meaning that everything is unfolded to Nu when f is invoked
     val f: String => Option[Nu[Result]] =
       scheme.anaM[Option, Result, String, Nu[Result]](
-        CoalgebraM(lookup.get(_: String)))
+        CoalgebraM(lookup.get(_: String))
+      )
 
     @tailrec def unroll(nu: Nu[Result]): String = {
       Nu.un(nu) match {
@@ -82,8 +79,9 @@ object NuLookup {
   object Result {
     implicit val resultTraverse: Traverse[Result] =
       new DefaultTraverse[Result] {
-        def traverse[G[_]: Applicative, A, B](fa: Result[A])(
-            f: A => G[B]): G[Result[B]] =
+        def traverse[G[_]: Applicative, A, B](
+            fa: Result[A]
+        )(f: A => G[B]): G[Result[B]] =
           fa match {
             case Ref(next)              => f(next).map(Ref(_))
             case v: Value[B @unchecked] => (v: Result[B]).pure[G]

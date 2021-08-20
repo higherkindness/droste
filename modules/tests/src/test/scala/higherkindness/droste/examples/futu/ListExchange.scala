@@ -3,7 +3,6 @@ package examples.futu
 
 import org.scalacheck.Properties
 import org.scalacheck.Prop._
-
 import higherkindness.droste.data.list._
 import higherkindness.droste.data.Coattr
 
@@ -22,7 +21,10 @@ final class ListExchange extends Properties("ListExchange") {
               Coattr.roll(
                 ConsF(
                   head,
-                  Coattr.pure[ListF[String, *], List[String]](tailTail))))
+                  Coattr.pure[ListF[String, *], List[String]](tailTail)
+                )
+              )
+            )
         }
     }
 
@@ -36,6 +38,7 @@ final class ListExchange extends Properties("ListExchange") {
   }
 
   property("pair wise swap") = forAll((in: List[String]) =>
-    f(in) ?= in.sliding(2, 2).map(_.reverse).toList.flatten)
+    f(in) ?= in.sliding(2, 2).map(_.reverse).toList.flatten
+  )
 
 }

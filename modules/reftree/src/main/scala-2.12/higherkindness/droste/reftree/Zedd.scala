@@ -2,14 +2,12 @@ package higherkindness.droste
 package reftree
 
 import _root_.reftree.core.RefTree
-
 import cats.data.State
 
-/** Tracker for tree position when reassigning reftree id
-  * values.
+/** Tracker for tree position when reassigning reftree id values.
   *
-  * A counter is kept for assigning ids to nodes on the
-  * same level of the structure.
+  * A counter is kept for assigning ids to nodes on the same level of the
+  * structure.
   */
 private[reftree] final case class Zedd(
     level: Int,
@@ -42,5 +40,6 @@ private[reftree] object Zedd {
           case ref: RefTree.Ref => ref.copy(id = s"${ref.name}-${s.level}-$i")
           case other            => other
         })
-    })
+      }
+    )
 }

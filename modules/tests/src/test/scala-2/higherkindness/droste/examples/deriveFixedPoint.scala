@@ -3,7 +3,6 @@ package examples
 
 import org.scalacheck.Properties
 import org.scalacheck.Prop._
-
 import higherkindness.droste.macros.deriveFixedPoint
 
 @deriveFixedPoint sealed trait RecursiveExpr
@@ -27,15 +26,13 @@ final class RecursiveExprChecks extends Properties("deriveFixedPoint") {
 
   val evaluate: RecursiveExpr => BigDecimal = scheme.cata(evaluateAlgebra)
 
-  property("1") =
-    evaluate(Const(1)) ?= 1
+  property("1") = evaluate(Const(1)) ?= 1
 
-  property("1 + 1") =
-    evaluate(Add(Const(1), Const(1))) ?= 2
+  property("1 + 1") = evaluate(Add(Const(1), Const(1))) ?= 2
 
-  property("1 + 2 + 5") =
-    evaluate(Add(Add(Const(1), Const(2)), Const(5))) ?= 8
+  property("1 + 2 + 5") = evaluate(Add(Add(Const(1), Const(2)), Const(5))) ?= 8
 
-  property("1 + 2 + 3 + 4 + 5") =
-    evaluate(AddList(List(Const(1), Const(2), Const(3), Const(4), Const(5)))) ?= 15
+  property("1 + 2 + 3 + 4 + 5") = evaluate(
+    AddList(List(Const(1), Const(2), Const(3), Const(4), Const(5)))
+  ) ?= 15
 }

@@ -5,7 +5,6 @@ package `!droste!DROSTE!droste!`
 
 import rng.Seed
 import Gen._
-
 import scala.annotation.tailrec
 
 object Compat {
@@ -16,7 +15,8 @@ object Compat {
   def gen_tailRecM[A, B](a0: A)(fn: A => Gen[Either[A, B]]): Gen[B] = {
     @tailrec
     def tailRecMR(a: A, seed: Seed, labs: Set[String])(
-        fn: (A, Seed) => R[Either[A, B]]): R[B] = {
+        fn: (A, Seed) => R[Either[A, B]]
+    ): R[B] = {
       val re       = fn(a, seed)
       val nextLabs = labs | re.labels
       re.retrieve match {

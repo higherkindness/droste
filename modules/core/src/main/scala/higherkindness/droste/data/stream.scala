@@ -6,10 +6,8 @@ import cats.Monad
 import cats.Monoid
 import cats.syntax.applicative._
 import cats.syntax.functor._
-
 import java.util.{Iterator => JavaIterator}
 import scala.annotation.tailrec
-
 import list._
 
 object `package` {
@@ -28,10 +26,13 @@ object Stream extends StreamInstances {
   def empty[A]: Stream[A] = Nu(NilF: ListF[A, Nu[ListF[A, *]]])
 
   def map[A, B](fa: Stream[A])(f: A => B): Stream[B] =
-    Nu(Coalgebra(fa.unfold.run andThen (_ match {
-      case ConsF(head, tail) => ConsF(f(head), tail)
-      case NilF              => NilF
-    })), fa.a)
+    Nu(
+      Coalgebra(fa.unfold.run andThen (_ match {
+        case ConsF(head, tail) => ConsF(f(head), tail)
+        case NilF              => NilF
+      })),
+      fa.a
+    )
 
   def flatMap[A, B](fa: Stream[A])(f: A => Stream[B]): Stream[B] = {
     type S = Either[fa.A, (Stream[B], fa.A)]
@@ -68,28 +69,32 @@ object Stream extends StreamInstances {
 
   def take[A](fa: Stream[A])(n: Int): Stream[A] =
     Nu(
-      Coalgebra[ListF[A, *], (Int, fa.A)](
-        ia =>
-          if (ia._1 <= 0) NilF
-          else
-            fa.unfold(ia._2) match {
-              case ConsF(head, tail) => ConsF(head, (ia._1 - 1, tail))
-              case NilF              => NilF
-          }),
+      Coalgebra[ListF[A, *], (Int, fa.A)](ia =>
+        if (ia._1 <= 0) NilF
+        else
+          fa.unfold(ia._2) match {
+            case ConsF(head, tail) => ConsF(head, (ia._1 - 1, tail))
+            case NilF              => NilF
+          }
+      ),
       (n, fa.a)
     )
 
   def fromJavaIterator[A](it0: => JavaIterator[A]): Stream[A] =
     Nu(
       Coalgebra((it: JavaIterator[A]) =>
-        if (it.hasNext) ConsF(it.next(), it) else NilF),
-      it0)
+        if (it.hasNext) ConsF(it.next(), it) else NilF
+      ),
+      it0
+    )
 
   def fromIterator[A](it0: => Iterator[A]): Stream[A] =
     Nu(
-      Coalgebra(
-        (it: Iterator[A]) => if (it.hasNext) ConsF(it.next(), it) else NilF),
-      it0)
+      Coalgebra((it: Iterator[A]) =>
+        if (it.hasNext) ConsF(it.next(), it) else NilF
+      ),
+      it0
+    )
 
   def fromList[A](l0: List[A]): Stream[A] =
     Nu(
@@ -97,8 +102,10 @@ object Stream extends StreamInstances {
         l match {
           case head :: tail => ConsF(head, tail)
           case Nil          => NilF
-      }),
-      l0)
+        }
+      ),
+      l0
+    )
 
   def foldLeft[A, B](fa: Stream[A])(z: B)(f: (B, A) => B): B = {
     @tailrec def kernel(in: Stream[A], out: B): B = Nu.un(in) match {

@@ -3,7 +3,6 @@ package higherkindness.athema
 import cats.Functor
 import higherkindness.droste._
 import higherkindness.droste.data.Fix
-
 import scala.annotation.nowarn
 
 object `package` {

@@ -2,7 +2,6 @@ package higherkindness.droste
 
 import cats.~>
 import cats.Eq
-
 import higherkindness.droste.data.Attr
 import higherkindness.droste.data.Coattr
 import higherkindness.droste.syntax.compose._

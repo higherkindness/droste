@@ -2,7 +2,6 @@ package higherkindness.droste.macros
 
 import scala.annotation.StaticAnnotation
 import scala.annotation.compileTimeOnly
-
 import impl.Macros
 
 @compileTimeOnly("enable macro paradise to expand macro annotations")

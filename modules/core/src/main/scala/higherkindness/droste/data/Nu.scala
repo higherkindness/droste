@@ -4,12 +4,11 @@ package data
 import cats.Functor
 import cats.syntax.functor._
 
-/** Nu is the greatest fixed point of a functor `F`. It is a
-  * computation that can generate a coinductive infinite
-  * structure on demand.
+/** Nu is the greatest fixed point of a functor `F`. It is a computation that
+  * can generate a coinductive infinite structure on demand.
   *
-  * In Haskell this can more aptly be expressed as:
-  * `data Nu g = forall s . Nu (s -> g s) s`
+  * In Haskell this can more aptly be expressed as: `data Nu g = forall s . Nu
+  * (s -> g s) s`
   */
 sealed abstract class Nu[F[_]] extends Serializable {
   type A
