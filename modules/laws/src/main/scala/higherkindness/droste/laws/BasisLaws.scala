@@ -2,10 +2,8 @@ package higherkindness.droste
 package laws
 
 import prelude._
-
 import cats.Eq
 import cats.syntax.eq._
-
 import org.scalacheck.Arbitrary
 import org.scalacheck.Properties
 import org.scalacheck.Prop
@@ -19,16 +17,14 @@ trait BasisLaws[F[_], R] {
 
 object BasisLaws {
 
-  def props[F[_], R](nameF: String, nameR: String)(
-      implicit
+  def props[F[_], R](nameF: String, nameR: String)(implicit
       ev: Basis[F, R],
       arbR: Arbitrary[R],
       deq: Delay[Eq, F]
   ): Props[F, R] =
     new Props[F, R](s"Basis[$nameF, $nameR]")
 
-  class Props[F[_], R](name: String)(
-      implicit
+  class Props[F[_], R](name: String)(implicit
       ev: Basis[F, R],
       arbR: Arbitrary[R],
       deq: Delay[Eq, F]
@@ -37,8 +33,8 @@ object BasisLaws {
       val basis = ev
     }
 
-    property("algebra compose coalgebra identity") = forAll(
-      (r: R) => laws.algebraComposeCoalgebraIdentity(r))
+    property("algebra compose coalgebra identity") =
+      forAll((r: R) => laws.algebraComposeCoalgebraIdentity(r))
   }
 
 }

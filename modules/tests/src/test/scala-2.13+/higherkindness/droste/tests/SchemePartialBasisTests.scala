@@ -3,12 +3,10 @@ package tests
 
 import org.scalacheck.Properties
 import org.scalacheck.Prop._
-
 import eu.timepit.refined.api.Refined
 import eu.timepit.refined.auto._
 import eu.timepit.refined.numeric._
 import eu.timepit.refined.scalacheck.numeric._
-
 import cats.Eval
 import cats.syntax.eq._
 import higherkindness.droste.data.prelude._
@@ -19,7 +17,6 @@ import higherkindness.droste.data.Fix
 import higherkindness.droste.data.Mu
 import higherkindness.droste.data.Nu
 import higherkindness.droste.data.list._
-
 import higherkindness.droste.syntax.attr._
 import higherkindness.droste.prelude._
 

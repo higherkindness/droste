@@ -2,7 +2,6 @@ package higherkindness.droste
 
 import cats.Functor
 import cats.syntax.functor._
-
 import higherkindness.droste.data.Attr
 
 object Gather {

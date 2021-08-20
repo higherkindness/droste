@@ -2,10 +2,8 @@ package higherkindness.droste
 package examples
 
 import cats.kernel.Eq
-
 import org.scalacheck.Properties
 import org.scalacheck.Prop._
-
 import higherkindness.droste.macros.deriveFixedPoint
 import higherkindness.droste.syntax.all._
 
@@ -36,21 +34,24 @@ final class FoldableOpsChecks
         "b",
         lam[T](
           "c",
-          lam[T]("d", lam[T]("e", lam[T]("f", `var`[T]("c").embed).embed).embed).embed).embed).embed).embed
+          lam[T](
+            "d",
+            lam[T]("e", lam[T]("f", `var`[T]("c").embed).embed).embed
+          ).embed
+        ).embed
+      ).embed
+    ).embed
 
-  property("collect") =
-    tru[LExpr].collect[List[String], String] {
-      case Lam(name, _) => name
-    } ?= List("a", "b", "c", "d", "e", "f")
+  property("collect") = tru[LExpr].collect[List[String], String] {
+    case Lam(name, _) => name
+  } ?= List("a", "b", "c", "d", "e", "f")
 
-  property("any") =
-    tru[LExpr].any {
-      case Var(_) => true
-      case _      => false
-    } ?= true
+  property("any") = tru[LExpr].any {
+    case Var(_) => true
+    case _      => false
+  } ?= true
 
-  property("contains") =
-    tru[LExpr].contains(Var("c")) ?= true
+  property("contains") = tru[LExpr].contains(Var("c")) ?= true
 
   property("contains") =
     tru[LExpr].contains(App(Lam("name", Var("x")), Var(""))) ?= false

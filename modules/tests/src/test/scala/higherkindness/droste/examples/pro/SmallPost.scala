@@ -2,11 +2,9 @@ package higherkindness.droste.examples.pro
 
 import org.scalacheck.Properties
 import org.scalacheck.Prop._
-
 import cats.~>
 import cats.Functor
 import cats.Eval
-
 import higherkindness.droste.Algebra
 import higherkindness.droste.Coalgebra
 import higherkindness.droste.Embed
@@ -18,7 +16,7 @@ final class SmallPost extends Properties("SmallPost") {
   // pattern functor for a lazy list
   sealed trait StreamF[+A, +B]
   case class PrependF[A, B](head: A, tail: Eval[B]) extends StreamF[A, B]
-  case object EmptyF                                extends StreamF[Nothing, Nothing]
+  case object EmptyF extends StreamF[Nothing, Nothing]
 
   implicit def streamFunctor[A]: Functor[StreamF[A, *]] =
     new Functor[StreamF[A, *]] {
@@ -29,12 +27,13 @@ final class SmallPost extends Properties("SmallPost") {
         }
     }
 
-  implicit def streamFEmbed[A]: Embed[StreamF[A, *], LazyList[A]] = new Embed[StreamF[A, *], LazyList[A]] {
-    override def algebra = Algebra[StreamF[A, *], LazyList[A]] {
-      case PrependF(head, tail) => head #:: tail.value
-      case EmptyF               => LazyList.empty[A]
+  implicit def streamFEmbed[A]: Embed[StreamF[A, *], LazyList[A]] =
+    new Embed[StreamF[A, *], LazyList[A]] {
+      override def algebra = Algebra[StreamF[A, *], LazyList[A]] {
+        case PrependF(head, tail) => head #:: tail.value
+        case EmptyF               => LazyList.empty[A]
+      }
     }
-  }
 
   def filterNT(lim: Int): StreamF[Int, *] ~> StreamF[Int, *] =
     new (StreamF[Int, *] ~> StreamF[Int, *]) {

@@ -6,12 +6,11 @@ import cats.Functor
 import cats.Id
 import cats.syntax.functor._
 
-/** Mu is the least fixed point of a functor `F`. It is a
-  * computation that can consume a inductive noninfinite
-  * structure in one go.
+/** Mu is the least fixed point of a functor `F`. It is a computation that can
+  * consume a inductive noninfinite structure in one go.
   *
-  * In Haskell this can more aptly be expressed as:
-  * `data Mu f = Mu (forall x . (f x -> x) -> x)`
+  * In Haskell this can more aptly be expressed as: `data Mu f = Mu (forall x .
+  * (f x -> x) -> x)`
   */
 sealed abstract class Mu[F[_]] extends Serializable {
   def apply[A](fold: Algebra[F, A]): A

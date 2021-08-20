@@ -7,10 +7,8 @@ import higherkindness.droste.data.AttrF
 import higherkindness.droste.data.prelude._
 import laws.BasisLaws
 import scalacheck._
-
 import org.scalacheck.Properties
 import org.scalacheck.Prop._
-
 import cats.laws.discipline.TraverseTests
 
 final class AttrTests extends Properties("Attr/AttrF") {

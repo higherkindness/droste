@@ -7,7 +7,6 @@ import cats.Eq
 import cats.Monoid
 import cats.Traverse
 import cats.syntax.all._
-
 import higherkindness.droste.util.DefaultTraverse
 
 sealed trait ListF[+A, +B]

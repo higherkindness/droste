@@ -12,30 +12,31 @@ import cats.syntax.all._
 import cats.laws.discipline.ArrowTests
 import cats.laws.discipline.eq._
 import cats.laws.discipline.DeprecatedEqInstances._
-
 import scala.annotation.nowarn
 
 @nowarn("msg=is deprecated") // Related to DeprecatedEqInstances
 final class AlgebraTests extends Properties("algebras") {
 
-  implicit def galgebraEq[F[_], S, A](
-      implicit FS: Arbitrary[F[S]],
-      A: Eq[A]): Eq[GAlgebra[F, S, A]] =
+  implicit def galgebraEq[F[_], S, A](implicit
+      FS: Arbitrary[F[S]],
+      A: Eq[A]
+  ): Eq[GAlgebra[F, S, A]] =
     Eq.by[GAlgebra[F, S, A], F[S] => A](_.run)
 
-  implicit def gcoalgebraEq[F[_], A, S](
-      implicit A: Arbitrary[A],
-      FS: Eq[F[S]]): Eq[GCoalgebra[F, A, S]] =
+  implicit def gcoalgebraEq[F[_], A, S](implicit
+      A: Arbitrary[A],
+      FS: Eq[F[S]]
+  ): Eq[GCoalgebra[F, A, S]] =
     Eq.by[GCoalgebra[F, A, S], A => F[S]](_.run)
 
-  implicit def arbitraryGAlgebra[F[_], S, A](
-      implicit arbA: Arbitrary[A],
+  implicit def arbitraryGAlgebra[F[_], S, A](implicit
+      arbA: Arbitrary[A],
       cogenFS: Cogen[F[S]]
   ): Arbitrary[GAlgebra[F, S, A]] =
     Arbitrary(Gen.function1(arbitrary[A]).map(GAlgebra(_)))
 
-  implicit def arbitraryGCoalgebra[F[_], A, S](
-      implicit arbFS: Arbitrary[F[S]],
+  implicit def arbitraryGCoalgebra[F[_], A, S](implicit
+      arbFS: Arbitrary[F[S]],
       cogenA: Cogen[A]
   ): Arbitrary[GCoalgebra[F, A, S]] =
     Arbitrary(Gen.function1(arbitrary[F[S]]).map(GCoalgebra(_)))
@@ -44,20 +45,24 @@ final class AlgebraTests extends Properties("algebras") {
     ArrowTests[GAlgebra[(Int, *), *, *]]
       .arrow[Int, Int, Int, Int, Int, Int]
       .all,
-    "GAlgebra.")
+    "GAlgebra."
+  )
 
   include(
     ArrowTests[GCoalgebra[(Int, *), *, *]]
       .arrow[Int, Int, Int, Int, Int, Int]
       .all,
-    "GCoalgebra.")
+    "GCoalgebra."
+  )
 
-  property("GAlgebra round trip Cokleisli") = forAll(
-    (algebra: GAlgebra[(Int, *), Int, Int]) =>
-      algebra === GAlgebra(algebra.toCokleisli.run))
+  property("GAlgebra round trip Cokleisli") =
+    forAll((algebra: GAlgebra[(Int, *), Int, Int]) =>
+      algebra === GAlgebra(algebra.toCokleisli.run)
+    )
 
-  property("GCoalgebra round trip Kleisli") = forAll(
-    (coalgebra: GCoalgebra[(Int, *), Int, Int]) =>
-      coalgebra === GCoalgebra(coalgebra.toKleisli.run))
+  property("GCoalgebra round trip Kleisli") =
+    forAll((coalgebra: GCoalgebra[(Int, *), Int, Int]) =>
+      coalgebra === GCoalgebra(coalgebra.toKleisli.run)
+    )
 
 }

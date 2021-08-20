@@ -5,10 +5,8 @@ import prelude._
 import higherkindness.droste.data.Nu
 import laws.BasisLaws
 import scalacheck._
-
 import org.scalacheck.Properties
 import org.scalacheck.Prop._
-
 import cats.syntax.eq._
 
 final class NuTests extends Properties("Nu") {

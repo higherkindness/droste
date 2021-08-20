@@ -2,7 +2,6 @@ package higherkindness.droste.examples.zygo
 
 import org.scalacheck.Properties
 import org.scalacheck.Prop._
-
 import higherkindness.droste.Algebra
 import higherkindness.droste.RAlgebra
 import higherkindness.droste.scheme
@@ -23,10 +22,10 @@ final class PlusMinus extends Properties("PlusMinus") {
   // plusMinus(List(a,b,c,d,e)) = a - (b + (c - (d + e)))
   val plusMinus = scheme.zoo.zygo[ListF[Int, *], List[Int], Boolean, Int](
     evenAlgebra,
-    calcRAlgebra)
+    calcRAlgebra
+  )
 
-  property("plus-minus of empty list") =
-    plusMinus(List()) ?= 0
+  property("plus-minus of empty list") = plusMinus(List()) ?= 0
 
   property("plus-minus of increasing list") =
     plusMinus(List(1, 2, 3, 4, 5)) ?= 5

@@ -3,11 +3,9 @@ package examples.histo
 
 import org.scalacheck.Properties
 import org.scalacheck.Prop._
-
 import cats.Applicative
 import cats.Traverse
 import cats.syntax.all._
-
 import higherkindness.droste.data.Attr
 import higherkindness.droste.data.Fix
 import higherkindness.droste.util.DefaultTraverse
@@ -15,8 +13,8 @@ import higherkindness.droste.data.prelude._
 
 /** Making change with histomorphisms.
   *
-  * Ported from the blog post "Recursion Schemes, Part IV: Time is of
-  * the Essence" by Patrick Thomson.
+  * Ported from the blog post "Recursion Schemes, Part IV: Time is of the
+  * Essence" by Patrick Thomson.
   *
   * https://blog.sumtypeofway.com/recursion-schemes-part-iv-time-is-of-the-essence/
   */

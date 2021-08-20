@@ -5,7 +5,6 @@ import prelude._
 import higherkindness.droste.data.Fix
 import laws.BasisLaws
 import scalacheck._
-
 import org.scalacheck.Properties
 import org.scalacheck.Prop._
 

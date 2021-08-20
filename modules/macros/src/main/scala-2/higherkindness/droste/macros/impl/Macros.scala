@@ -5,13 +5,14 @@ import scala.annotation.nowarn
 import scala.annotation.tailrec
 
 object Macros {
-  def deriveTraverse(c: blackbox.Context)(
-      annottees: c.Expr[Any]*): c.Expr[Any] = {
+  def deriveTraverse(
+      c: blackbox.Context
+  )(annottees: c.Expr[Any]*): c.Expr[Any] = {
     import c.universe._
     import Flag._
 
     val inputs          = annottees.map(_.tree).toList
-    val clait: ClassDef = inputs.collect({ case c: ClassDef => c }).head
+    val clait: ClassDef = inputs.collect { case c: ClassDef => c }.head
     val companion: ModuleDef = inputs
       .collectFirst { case c: ModuleDef => c }
       .getOrElse(
@@ -28,7 +29,9 @@ object Macros {
                 List(),
                 List(List()),
                 TypeTree(),
-                Block(List(pendingSuperCall), Literal(Constant(())))))
+                Block(List(pendingSuperCall), Literal(Constant(())))
+              )
+            )
           )
         )
       )
@@ -38,7 +41,8 @@ object Macros {
       classOrTrait.mods.hasFlag(TRAIT) ||
         // is an abstract class
         (classOrTrait.mods.hasFlag(ABSTRACT) && classOrTrait.mods.hasFlag(
-          SEALED))
+          SEALED
+        ))
 
     def canDerive(classOrTrait: ClassDef): Boolean =
       isAdt(classOrTrait) ||
@@ -48,9 +52,9 @@ object Macros {
     /* returns wether c extends d */
     def xtends(c: ClassDef, d: ClassDef): Boolean =
       c.impl.parents
-        .collect({ case a: AppliedTypeTree => a })
+        .collect { case a: AppliedTypeTree => a }
         .map(_.tpt)
-        .collect({ case i: Ident => i })
+        .collect { case i: Ident => i }
         .exists { a =>
           a.name == d.name
         }
@@ -69,12 +73,12 @@ object Macros {
 
     def getCaseClassParams(caseClass: ClassDef): List[ValDef] =
       caseClass.impl.body
-        .collect({
+        .collect {
           case v: ValDef
-              if v.mods.hasFlag(PARAMACCESSOR) && v.mods.hasFlag(
-                CASEACCESSOR) =>
+              if v.mods
+                .hasFlag(PARAMACCESSOR) && v.mods.hasFlag(CASEACCESSOR) =>
             v
-        })
+        }
 
     def traverseInstance(λ: TypeName): ValDef = {
       val G  = c.freshName(TypeName("G"))
@@ -87,44 +91,44 @@ object Macros {
         val arity      = params.length
         val freshTerms = List.fill(arity)(TermName(c.freshName()))
         val binds      = freshTerms.map(x => Bind(x, Ident(termNames.WILDCARD)))
-        val args = params.zip(freshTerms).map {
-          case (valDef, t) =>
-            val RecType = origin.tparams.head.name.toString
+        val args = params.zip(freshTerms).map { case (valDef, t) =>
+          val RecType = origin.tparams.head.name.toString
 
-            if (valDef.tpt.toString == RecType) {
-              q"fn($t)"
-            } else if (valDef.tpt.toString.contains(RecType)) {
-              val T = valDef.tpt.asInstanceOf[AppliedTypeTree]
+          if (valDef.tpt.toString == RecType) {
+            q"fn($t)"
+          } else if (valDef.tpt.toString.contains(RecType)) {
+            val T = valDef.tpt.asInstanceOf[AppliedTypeTree]
 
-              /*
-                * Used to get the correct Traverse instance.  In case of
-                * finding nested AppliedTypeTrees, tries to compose the
-                * Traverse instances to get a suitable traverse.
-                *
-                * For example, finding List[Option[Future[Try[A]]]] will
-                * generate something like:
-                *
-                * Traverse[List].compose[Option].compose[Future].compose[Try]
-                */
-              def getTraverseInstance(tt: AppliedTypeTree): Tree = {
-                @nowarn("msg=match may not be exhaustive")
-                @tailrec def go(ttt: AppliedTypeTree, acc: Tree): Tree =
-                  ttt match {
-                    case AppliedTypeTree(
+            /*
+             * Used to get the correct Traverse instance.  In case of
+             * finding nested AppliedTypeTrees, tries to compose the
+             * Traverse instances to get a suitable traverse.
+             *
+             * For example, finding List[Option[Future[Try[A]]]] will
+             * generate something like:
+             *
+             * Traverse[List].compose[Option].compose[Future].compose[Try]
+             */
+            def getTraverseInstance(tt: AppliedTypeTree): Tree = {
+              @nowarn("msg=match may not be exhaustive")
+              @tailrec def go(ttt: AppliedTypeTree, acc: Tree): Tree =
+                ttt match {
+                  case AppliedTypeTree(
                         _: Ident,
-                        List(tttt @ AppliedTypeTree(b: Ident, _))) =>
-                      go(tttt, q"$acc.compose[$b]")
-                    case AppliedTypeTree(_: Ident, _) =>
-                      acc
-                  }
+                        List(tttt @ AppliedTypeTree(b: Ident, _))
+                      ) =>
+                    go(tttt, q"$acc.compose[$b]")
+                  case AppliedTypeTree(_: Ident, _) =>
+                    acc
+                }
 
-                go(tt, q"_root_.cats.Traverse[${tt.tpt}]")
-              }
-
-              q"${getTraverseInstance(T)}.traverse($t)(fn)"
-            } else {
-              q"_root_.cats.Applicative[$G].pure($t)"
+              go(tt, q"_root_.cats.Traverse[${tt.tpt}]")
             }
+
+            q"${getTraverseInstance(T)}.traverse($t)(fn)"
+          } else {
+            q"_root_.cats.Applicative[$G].pure($t)"
+          }
         }
         val body = if (arity > 1) {
           val mapN: TermName = TermName(s"map${arity.toString}")
@@ -177,18 +181,20 @@ object Macros {
     c.Expr[Any](Block(outputs, Literal(Constant(()))))
   }
 
-  def deriveFixedPoint(c: blackbox.Context)(
-      annottees: c.Expr[Any]*): c.Expr[Any] = {
+  def deriveFixedPoint(
+      c: blackbox.Context
+  )(annottees: c.Expr[Any]*): c.Expr[Any] = {
     import c.universe._
     import Flag._
     val inputs = annottees.map(_.tree).toList
 
     require(
       inputs.length == 2,
-      "@deriveFixedPoint should annotate a sealed [trait|abstract class] with companion")
+      "@deriveFixedPoint should annotate a sealed [trait|abstract class] with companion"
+    )
 
-    val clait: ClassDef      = inputs.collect({ case c: ClassDef  => c }).head
-    val companion: ModuleDef = inputs.collect({ case c: ModuleDef => c }).head
+    val clait: ClassDef      = inputs.collect { case c: ClassDef => c }.head
+    val companion: ModuleDef = inputs.collect { case c: ModuleDef => c }.head
 
     val A: TypeName                = c.freshName(TypeName("A"))
     val claitTypeParams            = clait.tparams
@@ -202,23 +208,24 @@ object Macros {
     val NonRecursiveAdtFullName: AppliedTypeTree =
       AppliedTypeTree(
         Ident(NonRecursiveAdtName),
-        claitTypeParamNamesWithAAsTrees)
+        claitTypeParamNamesWithAAsTrees
+      )
 
     def isSealed(classOrTrait: ClassDef): Boolean =
       classOrTrait.mods.hasFlag(TRAIT) ||
         classOrTrait.mods.hasFlag(ABSTRACT) &&
-          classOrTrait.mods.hasFlag(SEALED)
+        classOrTrait.mods.hasFlag(SEALED)
 
     /* returns wether c extends d */
     def xtends(c: Tree, d: ClassDef): Boolean =
       (c collect {
         case c: ClassDef =>
           c.impl.parents
-            .collect({ case i: Ident => i })
+            .collect { case i: Ident => i }
             .exists(_.name == d.name)
         case c: ModuleDef =>
           c.impl.parents
-            .collect({ case i: Ident => i })
+            .collect { case i: Ident => i }
             .exists(_.name == d.name)
       }).contains(true)
 
@@ -243,7 +250,8 @@ object Macros {
         valDef.mods,
         valDef.name,
         substType(recursive)(valDef.tpt),
-        valDef.rhs)
+        valDef.rhs
+      )
     }
 
     def convertCaseObject(module: ModuleDef): ClassDef = {
@@ -254,12 +262,12 @@ object Macros {
 
     def getCaseClassParams(caseClass: ClassDef): List[ValDef] =
       caseClass.impl.body
-        .collect({
+        .collect {
           case v: ValDef
-              if v.mods.hasFlag(PARAMACCESSOR) && v.mods.hasFlag(
-                CASEACCESSOR) =>
+              if v.mods
+                .hasFlag(PARAMACCESSOR) && v.mods.hasFlag(CASEACCESSOR) =>
             v
-        })
+        }
         .map(convertCaseClassParam)
 
     def convertCaseClass(caseClass: ClassDef): ClassDef = {
@@ -295,16 +303,15 @@ object Macros {
         val arity      = params.length
         val freshTerms = List.fill(arity)(TermName(c.freshName()))
         val binds      = freshTerms.map(x => Bind(x, Ident(termNames.WILDCARD)))
-        val args = params.zip(freshTerms).map {
-          case (valDef, t) =>
-            if (valDef.tpt.toString == A.toString) {
-              q"fn($t)"
-            } else if (valDef.tpt.toString.contains(A.toString)) {
-              val T = valDef.tpt.asInstanceOf[AppliedTypeTree].tpt
-              q"_root_.cats.Traverse[$T].traverse($t)(fn)"
-            } else {
-              q"_root_.cats.Applicative[$G].pure($t)"
-            }
+        val args = params.zip(freshTerms).map { case (valDef, t) =>
+          if (valDef.tpt.toString == A.toString) {
+            q"fn($t)"
+          } else if (valDef.tpt.toString.contains(A.toString)) {
+            val T = valDef.tpt.asInstanceOf[AppliedTypeTree].tpt
+            q"_root_.cats.Traverse[$T].traverse($t)(fn)"
+          } else {
+            q"_root_.cats.Applicative[$G].pure($t)"
+          }
         }
         val body = if (arity > 1) {
           val mapN: TermName = TermName(s"map${arity.toString}")
@@ -335,7 +342,8 @@ object Macros {
             val originName = TermName(origin.name.toString)
             val targetName = TermName(target.name.toString)
             val freshTerms = List.fill(getCaseClassParams(target).length)(
-              TermName(c.freshName()))
+              TermName(c.freshName())
+            )
             val binds = freshTerms.map(x => Bind(x, Ident(termNames.WILDCARD)))
             val args  = freshTerms.map(x => Ident(x))
             cq"$originName(..$binds) => $targetName[..$claitTypeParamNamesAsTrees](..$args)"
@@ -364,7 +372,8 @@ object Macros {
             val originName = TermName(origin.name.toString)
             val targetName = TermName(target.name.toString)
             val freshTerms = List.fill(getCaseClassParams(target).length)(
-              TermName(c.freshName()))
+              TermName(c.freshName())
+            )
             val binds = freshTerms.map(x => Bind(x, Ident(termNames.WILDCARD)))
             val args  = freshTerms.map(x => Ident(x))
 
@@ -422,7 +431,8 @@ object Macros {
 
         case _ =>
           sys.error(
-            "@deriveFixedPoint should only annotate sealed traits or sealed abstract classes")
+            "@deriveFixedPoint should only annotate sealed traits or sealed abstract classes"
+          )
       }
 
     c.Expr[Any](Block(outputs, Literal(Constant(()))))

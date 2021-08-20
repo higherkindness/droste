@@ -5,12 +5,10 @@ import org.scalacheck.Arbitrary
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Properties
 import org.scalacheck.Prop._
-
 import cats.Applicative
 import cats.Traverse
 import cats.data.NonEmptyList
 import cats.syntax.all._
-
 import higherkindness.droste.data.Fix
 import higherkindness.droste.data.list._
 import higherkindness.droste.util.DefaultTraverse
@@ -40,8 +38,9 @@ object TransDemo {
 
   implicit def drosteTraverseForNeListF[A]: Traverse[NeListF[A, *]] =
     new DefaultTraverse[NeListF[A, *]] {
-      def traverse[F[_]: Applicative, B, C](fb: NeListF[A, B])(
-          f: B => F[C]): F[NeListF[A, C]] =
+      def traverse[F[_]: Applicative, B, C](
+          fb: NeListF[A, B]
+      )(f: B => F[C]): F[NeListF[A, C]] =
         fb match {
           case NeConsF(head, tail) => f(tail).map(NeConsF(head, _))
           case NeLastF(value)      => (NeLastF(value): NeListF[A, C]).pure[F]
@@ -49,11 +48,9 @@ object TransDemo {
     }
 
   // converting a list to a non-empty list can fail, so we use TransM
-  def transListToNeList[A]: TransM[
-    Option,
-    ListF[A, *],
-    NeListF[A, *],
-    Fix[ListF[A, *]]] = TransM {
+  def transListToNeList[A]: TransM[Option, ListF[A, *], NeListF[A, *], Fix[
+    ListF[A, *]
+  ]] = TransM {
     case ConsF(head, tail) =>
       Fix.un(tail) match {
         case NilF => NeLastF(head).some
@@ -66,10 +63,9 @@ object TransDemo {
     scheme.anaM(transListToNeList[A].coalgebra)
 
   // converting a non-empty list to a list can't fail, so we use Trans
-  def transNeListToList[A]: Trans[
-    NeListF[A, *],
-    ListF[A, *],
-    Fix[ListF[A, *]]] = Trans {
+  def transNeListToList[A]: Trans[NeListF[A, *], ListF[A, *], Fix[
+    ListF[A, *]
+  ]] = Trans {
     case NeConsF(head, tail) => ConsF(head, tail)
     case NeLastF(last)       => ConsF(last, Fix[ListF[A, *]](NilF))
   }

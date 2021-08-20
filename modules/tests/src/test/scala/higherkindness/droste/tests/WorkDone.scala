@@ -3,7 +3,6 @@ package tests
 
 import org.scalacheck.Properties
 import org.scalacheck.Prop._
-
 import higherkindness.droste.data.list._
 import higherkindness.droste.data.:<
 

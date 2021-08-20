@@ -6,7 +6,6 @@ import cats.Foldable
 import cats.Monad
 import cats.kernel.Monoid
 import cats.kernel.Eq
-
 import higherkindness.droste.data.AttrF
 import higherkindness.droste.data.Fix
 import higherkindness.droste.data.list._
@@ -32,8 +31,7 @@ sealed trait ComposeSyntax {
 
   /** Compose two functors `F` and `G`.
     *
-    * This allows you to inline what would otherwise require
-    * a type alias.
+    * This allows you to inline what would otherwise require a type alias.
     *
     * Consider the method
     * {{{
@@ -45,21 +43,20 @@ sealed trait ComposeSyntax {
     * method[Option]
     * }}}
     *
-    * Calling method with a nested type is more complicated.
-    * The traditional way to do this is to use an alias:
+    * Calling method with a nested type is more complicated. The traditional way
+    * to do this is to use an alias:
     * {{{
     * type ListOption[A] = List[Option[A]]
     * method[ListOption]
     * }}}
     *
-    * This type provides a convenient (maybe?) way to inline
-    * the above type:
+    * This type provides a convenient (maybe?) way to inline the above type:
     * {{{
     * method[(List ∘ Option)#λ]
     * }}}
     *
-    * Note: If you have the kind projector plugin enabled, this alias
-    * is equivalent to:
+    * Note: If you have the kind projector plugin enabled, this alias is
+    * equivalent to:
     * {{{
     * method[λ[α => List[Option[α]]]]
     * }}}

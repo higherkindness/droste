@@ -2,10 +2,8 @@ package higherkindness.athema
 
 import atto._
 import atto.syntax.all._
-
 import cats.data.StateT
 import cats.syntax.all._
-
 import higherkindness.droste.data._
 
 object ExprParser {

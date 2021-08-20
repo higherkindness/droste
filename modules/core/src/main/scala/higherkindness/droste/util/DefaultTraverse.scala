@@ -16,7 +16,9 @@ trait DefaultTraverse[F[_]] extends Traverse[F] {
       .foldLeft(b)(f)
 
   def foldRight[A, B](fa: F[A], lb: Eval[B])(
-      f: (A, Eval[B]) => Eval[B]): Eval[B] =
+      f: (A, Eval[B]) => Eval[B]
+  ): Eval[B] =
     foldMap[A, Eval[B] => Eval[B]](fa)(a => lbb => Eval.defer(f(a, lbb)))(
-      Category[Function1].algebra)(lb)
+      Category[Function1].algebra
+    )(lb)
 }

@@ -8,7 +8,7 @@ lazy val coverage = (project in file(".coverage"))
   .settings(
     noPublishSettings,
     crossScalaVersions := Seq(ScalaV.v212, ScalaV.v213),
-    scalaVersion := ScalaV.v213
+    scalaVersion       := ScalaV.v213
   )
   .settings(coverageEnabled := true)
   .aggregate(coreJVM)
@@ -157,10 +157,10 @@ lazy val tests = module("tests")
   .disablePlugins(MimaPlugin)
   .settings(
     libraryDependencies ++= Seq(
-      "org.scalacheck"         %%% "scalacheck"              % V.scalacheck,
-      "org.typelevel"          %%% "cats-laws"               % V.cats,
-      "eu.timepit"             %%% "refined"                 % V.refined,
-      "eu.timepit"             %%% "refined-scalacheck"      % V.refined,
+      "org.scalacheck" %%% "scalacheck"         % V.scalacheck,
+      "org.typelevel"  %%% "cats-laws"          % V.cats,
+      "eu.timepit"     %%% "refined"            % V.refined,
+      "eu.timepit"     %%% "refined-scalacheck" % V.refined,
       "org.scala-lang.modules" %%% "scala-collection-compat" % V.collectionCompat % Test
     ),
     libraryDependencies ++= on(2, 12)(
@@ -209,7 +209,8 @@ lazy val readme = (project in file("modules/readme"))
 //// DOCS ////
 ///////////////
 
-lazy val microsite = (project.in(file("modules/microsite")))
+lazy val microsite = (project
+  .in(file("modules/microsite")))
   .dependsOn(coreJVM)
   .dependsOn(athemaJVM)
   .settings(moduleName := "droste-docs")

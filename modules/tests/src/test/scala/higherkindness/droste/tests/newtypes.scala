@@ -3,9 +3,7 @@ package tests
 
 import cats.kernel.laws.discipline.MonoidTests
 import cats.Eq
-
 import higherkindness.droste.util.newtypes._
-
 import org.scalacheck._
 
 final class NewtypesTests extends Properties("newtypes") {

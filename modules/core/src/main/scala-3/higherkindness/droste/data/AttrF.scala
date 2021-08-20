@@ -5,11 +5,8 @@ import cats.Applicative
 import cats.Eq
 import cats.Functor
 import cats.Traverse
-
 import cats.syntax.all._
-
 import higherkindness.droste.util.DefaultTraverse
-
 import higherkindness.droste.data.prelude._
 
 object AttrF {

@@ -3,10 +3,8 @@ package tests
 
 import higherkindness.droste.data.CoattrF
 import scalacheck._
-
 import org.scalacheck.Properties
 import org.scalacheck.Prop._
-
 import scala.annotation.nowarn
 
 @nowarn("msg=match may not be exhaustive")

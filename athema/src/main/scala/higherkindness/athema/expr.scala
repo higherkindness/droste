@@ -3,7 +3,6 @@ package higherkindness.athema
 import cats.Applicative
 import cats.Traverse
 import cats.syntax.all._
-
 import higherkindness.droste.data._
 import higherkindness.droste.util.DefaultTraverse
 

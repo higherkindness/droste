@@ -4,9 +4,7 @@ package data
 import cats.Comonad
 import cats.Eval
 import cats.Functor
-
 import cats.syntax.functor._
-
 import prelude._
 
 object Attr {

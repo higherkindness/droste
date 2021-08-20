@@ -4,9 +4,7 @@ package data
 import cats.Comonad
 import cats.Eval
 import cats.Functor
-
 import cats.syntax.functor._
-
 import meta.Meta
 import prelude._
 
@@ -31,7 +29,8 @@ object Attr {
 
   /** An inlined anamorphism to `Attr` with a fused map */
   def ana[F[_]: Functor, A, C](
-      a: A)(coalgebra: A => F[A], f: A => C): Attr[F, C] =
+      a: A
+  )(coalgebra: A => F[A], f: A => C): Attr[F, C] =
     Attr(f(a), coalgebra(a).map(ana(_)(coalgebra, f)))
 }
 

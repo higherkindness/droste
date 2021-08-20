@@ -3,14 +3,12 @@ package tests
 
 import cats.kernel.laws.discipline.EqTests
 import cats.kernel.laws.discipline.MonoidTests
-
 import org.scalacheck.Arbitrary
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen
 import org.scalacheck.Cogen
 import org.scalacheck.Properties
 import org.scalacheck.Prop._
-
 import higherkindness.droste.prelude._
 import higherkindness.droste.data.stream._
 import higherkindness.droste.data.list.ListF
@@ -26,11 +24,11 @@ final class StreamTests extends Properties("StreamTests") {
     arbitrary[String]
   )((n, v) => Stream.forever(v).take(n).toList ?= List.fill(n)(v))
 
-  property("Stream.map") = forAll(
-    (f: Int => String) =>
-      Stream.naturalNumbers.map(f).take(100).toList ?= List
-        .iterate(1, 100)(_ + 1)
-        .map(f))
+  property("Stream.map") = forAll((f: Int => String) =>
+    Stream.naturalNumbers.map(f).take(100).toList ?= List
+      .iterate(1, 100)(_ + 1)
+      .map(f)
+  )
 
   property("Stream.flatMap") = {
     val res = Stream.naturalNumbers
@@ -43,8 +41,8 @@ final class StreamTests extends Properties("StreamTests") {
       .take(5000)
   }
 
-  property("Stream.fromIterator") = forAll(
-    (l: List[String]) => Stream.fromIterator(l.iterator).toList ?= l)
+  property("Stream.fromIterator") =
+    forAll((l: List[String]) => Stream.fromIterator(l.iterator).toList ?= l)
 
   implicit val cogenIntStream: Cogen[Stream[Int]] =
     Cogen.cogenList[Int].contramap(_.toList)
@@ -53,7 +51,8 @@ final class StreamTests extends Properties("StreamTests") {
     Arbitrary(
       Gen
         .resize(25, Gen.listOf(Gen.chooseNum[Int](1, Int.MaxValue)))
-        .map(Stream.fromList))
+        .map(Stream.fromList)
+    )
 
   include(EqTests[Stream[Int]].eqv.all)
   include(MonoidTests[Stream[Int]].monoid.all)

@@ -3,10 +3,8 @@ package examples
 
 import org.scalacheck.Properties
 import org.scalacheck.Prop._
-
 import cats._
 import cats.syntax.all._
-
 import higherkindness.droste.util.DefaultTraverse
 
 // demos recursion schemes between a regular AST and a fixed

@@ -42,45 +42,45 @@ object ProjectPlugin extends AutoPlugin {
       Project(modName, file(s"$prefix$modName"))
         .settings(
           Test / fork := true,
-          moduleName := s"droste-$modName"
+          moduleName  := s"droste-$modName"
         )
 
     lazy val noPublishSettings: Seq[Def.Setting[_]] = Seq(
-      publish := ((): Unit),
-      publishLocal := ((): Unit),
+      publish         := ((): Unit),
+      publishLocal    := ((): Unit),
       publishArtifact := false
     )
 
     lazy val micrositeSettings = Seq(
-      micrositeName := "Droste",
-      micrositeDescription := "A recursion library for Scala",
+      micrositeName             := "Droste",
+      micrositeDescription      := "A recursion library for Scala",
       micrositeDocumentationUrl := "/docs/",
-      micrositeAuthor := "Andy Scott",
-      micrositeGithubOwner := "higherkindness",
-      micrositeGithubRepo := "droste",
+      micrositeAuthor           := "Andy Scott",
+      micrositeGithubOwner      := "higherkindness",
+      micrositeGithubRepo       := "droste",
       micrositeGitterChannelUrl := "droste-recursion/Lobby",
       micrositeExternalLayoutsDirectory := (Compile / resourceDirectory).value / "layouts",
       micrositeExternalIncludesDirectory := (Compile / resourceDirectory).value / "includes",
       makeSite / includeFilter := "*.html" | "*.css" | "*.png" | "*.jpg" | "*.gif" | "*.js" | "*.swf" | "*.yml" | "*.md" | "*.svg" | "*.json" | "CNAME",
       Jekyll / includeFilter := (makeSite / includeFilter).value,
-      micrositePushSiteWith := GitHub4s,
-      mdocIn := (Compile / sourceDirectory).value / "docs",
-      micrositeGithubToken := Option(System.getenv().get("GITHUB_TOKEN"))
+      micrositePushSiteWith  := GitHub4s,
+      mdocIn                 := (Compile / sourceDirectory).value / "docs",
+      micrositeGithubToken   := Option(System.getenv().get("GITHUB_TOKEN"))
     )
 
   }
 
   override def projectSettings: Seq[Def.Setting[_]] =
     Seq(
-      organization := "io.higherkindness",
-      name := "droste",
-      startYear := Option(2018),
+      organization             := "io.higherkindness",
+      name                     := "droste",
+      startYear                := Option(2018),
       Test / parallelExecution := false,
-      outputStrategy := Some(StdoutOutput),
-      run / connectInput := true,
-      Global / cancelable := true,
-      crossScalaVersions := List(ScalaV.v212, ScalaV.v213, ScalaV.v3),
-      scalaVersion := ScalaV.v213,
+      outputStrategy           := Some(StdoutOutput),
+      run / connectInput       := true,
+      Global / cancelable      := true,
+      crossScalaVersions       := List(ScalaV.v212, ScalaV.v213, ScalaV.v3),
+      scalaVersion             := ScalaV.v213,
       libraryDependencies ++= on(2)(
         compilerPlugin(
           "org.typelevel" % "kind-projector" % "0.13.0" cross CrossVersion.full

@@ -6,19 +6,16 @@ import cats.Traverse
 import cats.Monad
 import cats.free.Yoneda
 import cats.syntax.functor._
-
 import higherkindness.droste.data.Attr
 import higherkindness.droste.data.Coattr
-
 import higherkindness.droste.data.prelude._
 
 private[droste] trait Zoo {
 
-  /** A variation of an anamorphism that lets you terminate any point of
-    * the recursion using a value of the original input type.
+  /** A variation of an anamorphism that lets you terminate any point of the
+    * recursion using a value of the original input type.
     *
-    * One use case is to return cached/precomputed results during an
-    * unfold.
+    * One use case is to return cached/precomputed results during an unfold.
     *
     * @group unfolds
     */
@@ -50,8 +47,8 @@ private[droste] trait Zoo {
     *
     * A paramorphism "eats its argument and keeps it too."
     *
-    * This means each step has access to both the computed result
-    * value as well as the original value.
+    * This means each step has access to both the computed result value as well
+    * as the original value.
     *
     * @group folds
     */
@@ -122,7 +119,8 @@ private[droste] trait Zoo {
       coalgebra.run
     ) andThen (_.head)
 
-  /** A variation of a catamorphism that applies a natural transformation before its algebra.
+  /** A variation of a catamorphism that applies a natural transformation before
+    * its algebra.
     *
     * This allows one to preprocess the input structure.
     *
@@ -137,7 +135,8 @@ private[droste] trait Zoo {
       project.coalgebra.run.andThen(Yoneda.apply[F, R])
     )
 
-  /** A variation of an anamorphism that applies a natural transformation after its coalgebra.
+  /** A variation of an anamorphism that applies a natural transformation after
+    * its coalgebra.
     *
     * This allows one to postprocess the output structure.
     *
