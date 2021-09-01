@@ -23,8 +23,7 @@ object Coattr {
   def fromCats[F[_]: Functor, A](free: cats.free.Free[F, A]): Coattr[F, A] =
     free.fold(
       pure,
-      ffree =>
-        roll(ffree.map(fromCats(_)))
+      ffree => roll(ffree.map(fromCats(_)))
     )
 
   object Pure {
@@ -51,8 +50,7 @@ trait CoattrImplicits {
     def toCats(implicit ev: Functor[F]): cats.free.Free[F, A] =
       fold(
         cats.free.Free.pure,
-        fcoattr =>
-          cats.free.Free.roll(fcoattr.map(_.toCats))
+        fcoattr => cats.free.Free.roll(fcoattr.map(_.toCats))
       )
   }
 }
