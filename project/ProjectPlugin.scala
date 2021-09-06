@@ -1,4 +1,5 @@
 import com.typesafe.sbt.site.jekyll.JekyllPlugin.autoImport._
+
 import com.typesafe.sbt.site.SitePlugin.autoImport._
 import microsites.MicrositeKeys._
 import mdoc.MdocPlugin.autoImport._
