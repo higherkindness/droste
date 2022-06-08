@@ -18,7 +18,7 @@ object ProjectPlugin extends AutoPlugin {
   object ScalaV {
     val v212 = "2.12.14"
     val v213 = "2.13.6"
-    val v3   = "3.1.0"
+    val v3   = "3.1.2"
   }
 
   object autoImport {
