@@ -26,7 +26,7 @@ lazy val V = new {
   val algebra          = "2.7.0"
   val atto             = "0.9.5"
   val scalacheck       = "1.16.0"
-  val drostePrev       = "0.7.0"
+  val drostePrev       = "0.9.0-M3"
 }
 
 lazy val meta = module("meta")
