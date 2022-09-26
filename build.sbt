@@ -25,7 +25,7 @@ lazy val V = new {
   val refined          = "0.10.1"
   val algebra          = "2.8.0"
   val atto             = "0.9.5"
-  val scalacheck       = "1.16.0"
+  val scalacheck       = "1.17.0"
   val drostePrev       = "0.9.0-M3"
 }
 
@@ -104,7 +104,7 @@ lazy val macros = module("macros")
     libraryDependencies ++=
       (CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((3, _)) =>
-          Seq("org.typelevel" %%% "shapeless3-deriving" % "3.1.0")
+          Seq("org.typelevel" %%% "shapeless3-deriving" % "3.2.0")
         case _ => Nil
       }),
     scalacOptions ++= on(2, 13)("-Ymacro-annotations").value
