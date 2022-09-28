@@ -4,6 +4,6 @@
 
 droste
 
-Copyright (c) 2018-2021 Higher Kindness. All rights reserved.
+Copyright (c) 2018-2022 Higher Kindness. All rights reserved.
 
 Licensed under Apache 2.0. See [LICENSE](LICENSE.md) for terms.
