@@ -15,6 +15,12 @@ import higherkindness.droste.data.list.ListF
 
 final class StreamTests extends Properties("StreamTests") {
 
+  def includeWithSeed(seed: String)(properties: Properties) = {
+    for {
+      (name, prop) <- properties.properties
+    } propertyWithSeed(s"$name with seed: $seed ", Some(seed)) = prop
+  }
+
   import Stream.implicits._
   import Stream._
   import ListF._
@@ -55,6 +61,6 @@ final class StreamTests extends Properties("StreamTests") {
     )
 
   include(EqTests[Stream[Int]].eqv.all)
-  include(MonoidTests[Stream[Int]].monoid.all)
+  includeWithSeed("oYvLMvDZJnH3YQXSy_uunJR8JZWGdOqG8B7ZE0GidGE=")(MonoidTests[Stream[Int]].monoid.all)
 
 }
