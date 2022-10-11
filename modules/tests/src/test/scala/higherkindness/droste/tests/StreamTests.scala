@@ -96,7 +96,7 @@ final class StreamTests extends Properties("StreamTests") {
   include(EqTests[Stream[Int]].eqv.all)
 
   val streamGen = implicitly[Arbitrary[Stream[Int]]].arbitrary
-  implicit val limitedVectorGen = Arbitrary(Gen.listOfN(10, streamGen).map(_.toVector))
+  implicit val limitedVectorGen: Arbitrary[Vector[Stream[Int]]] = Arbitrary(Gen.listOfN(10, streamGen).map(_.toVector))
 
   implicit def isEqfromEq[A: Eq]: IsEq[A] => Prop = iseq => iseq.lhs === iseq.rhs
 
