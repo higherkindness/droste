@@ -48,12 +48,6 @@ final class StreamTests extends Properties("StreamTests") {
     }
   }
 
-  def includeWithSeed(seed: String)(properties: Properties) = {
-    for {
-      (name, prop) <- properties.properties
-    } propertyWithSeed(s"$name with seed: $seed ", Some(seed)) = prop
-  }
-
   import Stream.implicits._
   import Stream._
   import ListF._
