@@ -12,8 +12,41 @@ import org.scalacheck.Prop._
 import higherkindness.droste.prelude._
 import higherkindness.droste.data.stream._
 import higherkindness.droste.data.list.ListF
+import cats.syntax.all._
+import cats.kernel.laws.SemigroupLaws
+import org.typelevel.discipline._
+import org.scalacheck.Prop
+import scala.collection.immutable.SortedMap
+import org.typelevel.discipline.AllProperties
+import cats.kernel.laws.MonoidLaws
+import cats.kernel.instances.option._
+import cats.kernel.Eq
+import cats.kernel.laws.IsEq
 
 final class StreamTests extends Properties("StreamTests") {
+
+  implicit class OverridableRuleSet(rs: Laws#RuleSet) extends Laws {
+    private def filteredParentProps(rs: Laws#RuleSet, f: (String, Prop) => Boolean): SortedMap[String, Prop] = SortedMap(filterProps(f, rs.props): _*) ++ rs.parents.flatMap(ruleset => filteredParentProps(ruleset, f))
+
+    private def filterProps(f: (String, Prop) => Boolean, props: Seq[(String, Prop)]): Seq[(String, Prop)] = props.filter(f.tupled)
+
+    private def filteredBasesRuleSets(rs: Laws#RuleSet, f: (String, Prop) => Boolean): Seq[(String, Laws#RuleSet)] = rs.bases.map{ case (baseName, ruleset) =>
+      name -> new RuleSet {
+        val parents: Seq[RuleSet] = Nil
+        val name = baseName
+        val bases = filteredBasesRuleSets(ruleset, f)
+        val props = filterProps(f, ruleset.props)
+      }
+    }
+
+    def overrideProps(props: (String, Prop)*): Properties = {
+      val propMap = props.toMap
+      val overrideFilter: (String, Prop) => Boolean = (name, _) => !propMap.contains(name)
+      val filteredParents = filteredParentProps(rs, overrideFilter)
+      val filteredBases = filteredBasesRuleSets(rs, overrideFilter)
+      new AllProperties(rs.name, filteredBases, filteredParents ++ SortedMap(props.map{ case (name, prop) => s"$name (Overrided)" -> prop}: _*))
+    }
+  }
 
   def includeWithSeed(seed: String)(properties: Properties) = {
     for {
@@ -61,6 +94,20 @@ final class StreamTests extends Properties("StreamTests") {
     )
 
   include(EqTests[Stream[Int]].eqv.all)
-  includeWithSeed("oYvLMvDZJnH3YQXSy_uunJR8JZWGdOqG8B7ZE0GidGE=")(MonoidTests[Stream[Int]].monoid.all)
+
+  val streamGen = implicitly[Arbitrary[Stream[Int]]].arbitrary
+  implicit val limitedVectorGen = Arbitrary(Gen.listOfN(10, streamGen).map(_.toVector))
+
+  implicit def isEqfromEq[A: Eq]: IsEq[A] => Prop = iseq => iseq.lhs === iseq.rhs
+
+  val semigroupLaws = SemigroupLaws[Stream[Int]]
+  val monoidLaws = MonoidLaws[Stream[Int]]
+
+  include(MonoidTests[Stream[Int]].monoid.overrideProps(
+    "combine all" -> forAll(monoidLaws.combineAll _),
+    "combineAllOption" -> forAll(semigroupLaws.combineAllOption _),
+    "reverseCombineAllOption" -> forAll(semigroupLaws.reverseCombineAllOption _),
+    "intercalateCombineAllOption" -> forAll(semigroupLaws.intercalateCombineAllOption _)
+  ))
 
 }
