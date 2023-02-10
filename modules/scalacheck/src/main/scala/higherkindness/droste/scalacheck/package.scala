@@ -5,7 +5,7 @@ import higherkindness.droste.data._
 import higherkindness.droste.data.prelude._
 import org.scalacheck._
 import org.scalacheck.Arbitrary.arbitrary
-import org.scalacheck.`!droste!DROSTE!droste!`.Compat
+import org.scalacheck.donotimport.Compat
 import cats.Applicative
 import cats.Monad
 import cats.MonoidK
