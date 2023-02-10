@@ -72,8 +72,8 @@ private[data] sealed class CoattrFFunctor[F[_]: Functor, A]
     extends Functor[CoattrF[F, A, *]] {
   def map[B, C](fb: CoattrF[F, A, B])(f: B => C): CoattrF[F, A, C] =
     CoattrF.un(fb) match {
-      case Right(fbb)             => CoattrF.roll(fbb.map(f))
-      case other: Either[A, F[C]] => CoattrF(other)
+      case Right(fbb) => CoattrF.roll(fbb.map(f))
+      case Left(fba)  => CoattrF.apply[F, A, C](Left(fba))
     }
 }
 
@@ -84,7 +84,7 @@ private[data] final class CoattrFTraverse[F[_]: Traverse, A]
       fb: CoattrF[F, A, B]
   )(f: B => G[C]): G[CoattrF[F, A, C]] =
     CoattrF.un(fb) match {
-      case Right(fbb)             => fbb.traverse(f).map(CoattrF.roll)
-      case other: Either[A, F[C]] => CoattrF(other).pure[G]
+      case Right(fbb) => fbb.traverse(f).map(CoattrF.roll)
+      case Left(fba)  => CoattrF.apply[F, A, C](Left(fba)).pure[G]
     }
 }
