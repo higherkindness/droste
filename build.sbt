@@ -120,7 +120,7 @@ lazy val reftree = jvmModule("reftree")
       organization.value %% moduleName.value % V.drostePrev
     ),
     libraryDependencies ++= on(2, 12)(
-      "io.github.stanch" %% "reftree" % "1.4.0"
+      "io.github.stanch" %% "reftree" % "1.5.0"
     ).value
   )
 
