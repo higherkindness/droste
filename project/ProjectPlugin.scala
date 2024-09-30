@@ -84,7 +84,7 @@ object ProjectPlugin extends AutoPlugin {
       scalaVersion             := ScalaV.v213,
       libraryDependencies ++= on(2)(
         compilerPlugin(
-          "org.typelevel" % "kind-projector" % "0.13.2" cross CrossVersion.full
+          "org.typelevel" % "kind-projector" % "0.13.3" cross CrossVersion.full
         )
       ).value,
       // Add some more source directories
