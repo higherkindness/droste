@@ -29,7 +29,7 @@ object ProjectPlugin extends AutoPlugin {
     ): CrossProject =
       CrossProject(modName, file(s"$prefix$modName"))(
         JSPlatform,
-        JVMPlatform /*, NativePlatform // soon */
+        JVMPlatform , NativePlatform 
       ).crossType(CrossType.Pure)
         .withoutSuffixFor(JVMPlatform)
         .build()
