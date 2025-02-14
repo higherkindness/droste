@@ -4,8 +4,6 @@ package stream
 
 import cats.Monad
 import cats.Monoid
-import cats.syntax.applicative._
-import cats.syntax.functor._
 import java.util.{Iterator => JavaIterator}
 import scala.annotation.tailrec
 import list._

@@ -7,4 +7,4 @@
 -XX:+TieredCompilation
 -XX:-UseGCOverheadLimit
 -XX:+CMSClassUnloadingEnabled
--XX:+UseConcMarkSweepGC
+-XX:+UseG1GC

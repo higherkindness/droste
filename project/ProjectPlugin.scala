@@ -17,8 +17,8 @@ object ProjectPlugin extends AutoPlugin {
 
   object ScalaV {
     val v212 = "2.12.17"
-    val v213 = "2.13.10"
-    val v3   = "3.2.1"
+    val v213 = "2.13.16"
+    val v3   = "3.3.5"
   }
 
   object autoImport {
@@ -84,7 +84,7 @@ object ProjectPlugin extends AutoPlugin {
       scalaVersion             := ScalaV.v213,
       libraryDependencies ++= on(2)(
         compilerPlugin(
-          "org.typelevel" % "kind-projector" % "0.13.2" cross CrossVersion.full
+          "org.typelevel" % "kind-projector" % "0.13.3" cross CrossVersion.full
         )
       ).value,
       // Add some more source directories
