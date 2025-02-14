@@ -20,8 +20,8 @@ object Compat {
       val re       = fn(a, seed)
       val nextLabs = labs | re.labels
       re.retrieve match {
-        case None           => r(None, re.seed).copy(l = nextLabs)
-        case Some(Right(b)) => r(Some(b), re.seed).copy(l = nextLabs)
+        case None           => r(None, re.seed).withLabels(nextLabs)
+        case Some(Right(b)) => r(Some(b), re.seed).withLabels(nextLabs)
         case Some(Left(a))  => tailRecMR(a, re.seed, nextLabs)(fn)
       }
     }
