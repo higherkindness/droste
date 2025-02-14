@@ -10,7 +10,6 @@ import org.scalacheck.Properties
 import cats.Eq
 import cats.syntax.all._
 import cats.laws.discipline.ArrowTests
-import cats.laws.discipline.eq._
 import cats.laws.discipline.DeprecatedEqInstances._
 import scala.annotation.nowarn
 

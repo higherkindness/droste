@@ -7,7 +7,6 @@ import cats.syntax.applicative._
 import cats.syntax.functor._
 import cats.syntax.flatMap._
 import cats.syntax.traverse._
-import implicits.composedFunctor._
 
 /** @groupname refolds
   *   Refolds
