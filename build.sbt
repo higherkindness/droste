@@ -42,8 +42,9 @@ lazy val meta = module("meta")
     ).value.flatten
   )
 
-lazy val metaJVM = meta.jvm
-lazy val metaJS  = meta.js
+lazy val metaJVM    = meta.jvm
+lazy val metaJS     = meta.js
+lazy val metaNative = meta.native
 
 lazy val core = module("core")
   .dependsOn(meta)
@@ -85,8 +86,9 @@ lazy val core = module("core")
     )
   )
 
-lazy val coreJVM = core.jvm
-lazy val coreJS  = core.js
+lazy val coreJVM    = core.jvm
+lazy val coreJS     = core.js
+lazy val coreNative = core.native
 
 lazy val macros = module("macros")
   .dependsOn(core)
@@ -110,8 +112,9 @@ lazy val macros = module("macros")
     scalacOptions ++= on(2, 13)("-Ymacro-annotations").value
   )
 
-lazy val macrosJVM = macros.jvm
-lazy val macrosJS  = macros.js
+lazy val macrosJVM    = macros.jvm
+lazy val macrosJS     = macros.js
+lazy val macrosNative = macros.native
 
 lazy val reftree = jvmModule("reftree")
   .dependsOn(coreJVM)
@@ -135,8 +138,9 @@ lazy val scalacheck = module("scalacheck")
     )
   )
 
-lazy val scalacheckJVM = scalacheck.jvm
-lazy val scalacheckJS  = scalacheck.js
+lazy val scalacheckJVM    = scalacheck.jvm
+lazy val scalacheckJS     = scalacheck.js
+lazy val scalacheckNative = scalacheck.native
 
 lazy val laws = module("laws")
   .dependsOn(core)
@@ -149,13 +153,26 @@ lazy val laws = module("laws")
     )
   )
 
-lazy val lawsJVM = laws.jvm
-lazy val lawsJS  = laws.js
+lazy val lawsJVM    = laws.jvm
+lazy val lawsJS     = laws.js
+lazy val lawsNative = laws.native
 
 lazy val tests = module("tests")
   .dependsOn(core, scalacheck, laws, macros)
   .settings(noPublishSettings)
   .disablePlugins(MimaPlugin)
+  // NuLookup deliberately triggers infinite recursion to test StackOverflowError.
+  // On Scala Native a stack overflow is a fatal OS signal, not a catchable Throwable,
+  // so the test would crash the whole process.
+  //
+  // Also limit ScalaCheck maxSize: scheme.cata/ana recurse O(N) times, and the
+  // default maxSize=100 can cause ScalaCheck's MonoidTests/EqTests to generate
+  // combined structures deep enough to overflow the native stack.
+  .nativeSettings(
+    Test / unmanagedSources / excludeFilter :=
+      (Test / unmanagedSources / excludeFilter).value || "NuLookup.scala",
+    Test / testOptions += Tests.Argument(TestFrameworks.ScalaCheck, "-x", "20")
+  )
   .settings(
     libraryDependencies ++= Seq(
       "org.scalacheck" %%% "scalacheck"         % V.scalacheck,
@@ -174,8 +191,9 @@ lazy val tests = module("tests")
     scalacOptions --= on(3)("-Xfatal-warnings").value
   )
 
-lazy val testsJVM = tests.jvm
-lazy val testsJS  = tests.js
+lazy val testsJVM    = tests.jvm
+lazy val testsJS     = tests.js
+lazy val testsNative = tests.native
 
 lazy val athema = module("athema", prefix = "")
   .dependsOn(core)
@@ -194,8 +212,9 @@ lazy val athema = module("athema", prefix = "")
     scalacOptions --= on(3)("-Xfatal-warnings").value
   )
 
-lazy val athemaJVM = athema.jvm
-lazy val athemaJS  = athema.js
+lazy val athemaJVM    = athema.jvm
+lazy val athemaJS     = athema.js
+lazy val athemaNative = athema.native
 
 lazy val readme = (project in file("modules/readme"))
   .enablePlugins(MdocPlugin)

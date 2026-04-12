@@ -92,10 +92,8 @@ object prelude {
   implicit def drosteDelayedEq[Z, F[_]](implicit
       p: Project[F, Z],
       delay: Delay[Eq, F]
-  ): Eq[Z] = {
-    lazy val knot: Eq[Z] =
-      Eq.instance((x, y) => delay(knot).eqv(p.coalgebra(x), p.coalgebra(y)))
-    knot
+  ): Eq[Z] = new Eq[Z] {
+    def eqv(x: Z, y: Z): Boolean = delay(this).eqv(p.coalgebra(x), p.coalgebra(y))
   }
 
   // todo: where should this live?
